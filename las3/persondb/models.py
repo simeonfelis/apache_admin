@@ -10,6 +10,16 @@ SHARE_TYPE_CHOICES = (
         ('dav', 'Wedav folder share'),
 )
 
+MEMBER_TYPE_CHOICES = (
+        ('master', '(Resarch) Master Student'),
+        ('bachelor', 'Bachelor Student'),
+        ('phd', 'PhD Student'),
+        ('shk', 'Studentische Hilfskraft'),
+        ('prof', 'Professor'),
+        ('extern', 'Extern'),
+        ('none', 'Nichts von alldem')
+)
+
 class Share(models.Model):
     def __unicode__(self):
         return self.share_type + " share " + self.name
@@ -19,7 +29,6 @@ class Share(models.Model):
             raise ValidationError("Shares must not contain white spaces or slashes")
             
     name = models.CharField(max_length=40)
-#    typ = models.CharField(max_length=10)
     share_type = models.CharField(max_length=3, choices=SHARE_TYPE_CHOICES)
 
 class Project(models.Model):
@@ -44,7 +53,8 @@ class Person(models.Model):
         return self.expires < datetime.date.today()
     is_expired.short_description = 'User account expired?'
 
-    extern = models.BooleanField('External (not in LaS3 or at HSR)')
+    extern = models.BooleanField('External (not in LaS3 or at HSR)', default=False, editable=False)
+    member_type = models.CharField(max_length=10, choices=MEMBER_TYPE_CHOICES, default='none')
 
     firstName = models.CharField('fore name', max_length=128)
     lastName = models.CharField('name', max_length=128)
