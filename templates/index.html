@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>LaS³ Django Admin Interface</title>
+    </head>
+    <body>
+        <h1 align="center">Hi. Check out various config generators by clicking and reading.</h1>
+        <p>Want to enter or change the data? Check out the <a href="admin">Admin Interface</a>.</p>
+        <p>There is also a more straight forward method to add users to a project by clicking on projects in the <a href="overview">overview</a>.</p>
+
+        <h2>Where to go from here</h2>
+        <p>Have a look at the generated <a href="groups.dav">apache group file</a> for our users</p>
+
+        <p>Go to the <a href="overview">overview</a> to get a overview of our database content upside down and vice versa</p>
+
+        {% if configs %}
+        <h3>Config information</h3>
+
+        <p>Have a look at the generated config files for out shares</p>
+
+        <ul>
+        {% for c in configs %}
+            <li><a href="config/{{ c }}">Config for {{ c }}</a></li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p>No configs available</p>
+        {% endif %}
+
+
+    </body>
+</html>

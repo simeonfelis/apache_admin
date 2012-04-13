@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <title>LaS³ Django Admin Interface - Projectmod</title>
+    </head>
+    <body>
+
+        {% if project %}
+        <h1>Let's edit project {{ project.name }}</h1>
+
+        <h2>Select users which belong to this project</h2>
+
+        <p>Working now!</p>
+
+        <form action="/projectmod/{{ project.pk }}" method="post">
+{% csrf_token %}
+{% for user in users %}
+{% if not user.user.is_expired %}
+<input  type="checkbox" 
+        name="set_user" 
+        id="set_user_{{ forloop.counter }}" 
+        {% if user.is_member %}checked="checked"{% endif %} 
+        value="{{ user.user.pk }}" />
+<label for="set_user_{{ forloop.counter }}">
+    {{ user.user }} 
+    {% if user.user.extern %}(extern){% else %}(intern){% endif %}
+</label><br />
+{% endif %}{# user.user.is_expired #}
+{% endfor %}
+<input type="submit" value="Set users" />
+</form>
+
+        {% else %}
+        <p>No user to modify</p>
+        {% endif %}
+
+    </body>
+</html>
