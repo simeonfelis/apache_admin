@@ -23,8 +23,6 @@
 
         <h2>Select users which belong to this project</h2>
 
-        <p>Working now!</p>
-
         <form action="{% url home %}projectmod/{{ project.pk }}" method="post">
         {% csrf_token %}
         <table>
@@ -42,17 +40,13 @@
                             value="{{ user.user.pk }}" />
                     <label for="set_user_{{ forloop.counter }}"></label>
                 </td>
-                <td>
-                {{ user.user }} 
-                </td>
-                <td>
-                {{ user.user.get_member_type_display }}
-                </td>
+                <td> {{ user.user }} </td>
+                <td> {{ user.user.get_member_type_display }} </td>
             </tr>
             {% endif %}{# user.user.is_expired #}
             {% endfor %}
-            <input type="submit" value="Set users" />
         </table>
+        <input type="submit" value="Set users" />
         </form>
 
         {% else %}
