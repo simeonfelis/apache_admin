@@ -27,7 +27,7 @@
         {% csrf_token %}
         <table>
             <tr>
-                <th></th><th>Name</th><th>Member type</th>
+                <th></th><th>Name</th><th>Fore Name</th><th>Member type</th>
             </tr>
             {% for user in users %}
             {% if not user.user.is_expired %}
@@ -40,7 +40,8 @@
                             value="{{ user.user.pk }}" />
                     <label for="set_user_{{ forloop.counter }}"></label>
                 </td>
-                <td> {{ user.user }} </td>
+                <td> {{ user.user.lastName }} </td>
+                <td> {{ user.user.firstName }} </td>
                 <td> {{ user.user.get_member_type_display }} </td>
             </tr>
             {% endif %}{# user.user.is_expired #}
