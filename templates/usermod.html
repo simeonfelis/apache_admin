@@ -26,22 +26,34 @@
         <p>Working now!</p>
 
         <form action="{% url home %}projectmod/{{ project.pk }}" method="post">
-{% csrf_token %}
-{% for user in users %}
-{% if not user.user.is_expired %}
-<input  type="checkbox" 
-        name="set_user" 
-        id="set_user_{{ forloop.counter }}" 
-        {% if user.is_member %}checked="checked"{% endif %} 
-        value="{{ user.user.pk }}" />
-<label for="set_user_{{ forloop.counter }}">
-    {{ user.user }} 
-    {% if user.user.extern %}(extern){% else %}(intern){% endif %}
-</label><br />
-{% endif %}{# user.user.is_expired #}
-{% endfor %}
-<input type="submit" value="Set users" />
-</form>
+        {% csrf_token %}
+        <table>
+            <tr>
+                <th></th><th>Name</th><th>Member type</th>
+            </tr>
+            {% for user in users %}
+            {% if not user.user.is_expired %}
+            <tr>
+                <td>
+                    <input  type="checkbox" 
+                            name="set_user" 
+                            id="set_user_{{ forloop.counter }}" 
+                            {% if user.is_member %}checked="checked"{% endif %} 
+                            value="{{ user.user.pk }}" />
+                    <label for="set_user_{{ forloop.counter }}"></label>
+                </td>
+                <td>
+                {{ user.user }} 
+                </td>
+                <td>
+                {{ user.user.get_member_type_display }}
+                </td>
+            </tr>
+            {% endif %}{# user.user.is_expired #}
+            {% endfor %}
+            <input type="submit" value="Set users" />
+        </table>
+        </form>
 
         {% else %}
         <p>No user to modify</p>
