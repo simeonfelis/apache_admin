@@ -20,10 +20,10 @@ def overview(request, what):
     persons = Person.objects.all()
 
     if what == "projects":
-        projects = Project.objects.all()
+        projects = Project.objects.all().order_by('name')
         proj_render = []
         for project in projects:
-            project_persons = persons.filter(projects = project)
+            project_persons = persons.filter(projects = project).order_by('lastName')
             #print "Project to render:", project, "with pk:", project.pk
             proj_render.append({'project' : project, 'persons' : project_persons})
         return render_to_response('overview_projects.html',
@@ -31,14 +31,14 @@ def overview(request, what):
                                       'projects': proj_render,
                                   })
     elif what == "shares":
-        shares = Share.objects.all()
-        projects = Project.objects.all()
+        shares = Share.objects.all().order_by('name')
+        projects = Project.objects.all().order_by('name')
         share_render = []
         for share in shares:
             share_project = projects.filter(shares = share) # there can be
                                                               # only one project in
                                                               # an array
-            share_users = persons.filter(projects = share_project)
+            share_users = persons.filter(projects = share_project).order_by('lastName')
             share_render.append({
                                  'share': share,
                                  'project': share_project,
@@ -60,7 +60,7 @@ def emails(request, what, param, which):
     # param which is the pk of what
     # param param can be: active, expired, all
 
-    persons = Person.objects.all()
+    persons = Person.objects.all().order_by('lastName')
 
     if what == "project":
         try:
@@ -102,8 +102,8 @@ def emails(request, what, param, which):
 
 def projectmod(request, project_id, message=None):
     project = Project.objects.get(pk=project_id)
-    persons = Person.objects.all()
-    persons_project = Person.objects.all().filter(projects = project)
+    persons = Person.objects.all().order_by('lastName')
+    persons_project = Person.objects.all().filter(projects = project).order_by('lastName')
 
     if request.method == "POST":
         # These are user IDs which shall belong to that project
