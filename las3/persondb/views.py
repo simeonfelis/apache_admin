@@ -56,11 +56,15 @@ def overview(request, what):
                                   })
 
 def emails(request, what, param, which):
-    # param what can be: project, member_type, all
+    # param what can be: project, a member_type, all
     # param which is the pk of what
     # param param can be: active, expired, all
 
     persons = Person.objects.all().order_by('lastName')
+
+    if not param in ["active", "expired", "all"]:
+        return HttpResponse("The parameter '" + param + "' is not valid. Valid parameters are: 'all', 'expired', 'active'. E.g: \nemails/project/expired/1",
+                            mimetype = "text/plain")
 
     if what == "project":
         try:
@@ -69,16 +73,12 @@ def emails(request, what, param, which):
             return HttpResponse("Id " + which + " is not a valid project ID",
                                 "text/plain")
 
-        print project, type(project)
         if param == "active":
             users = persons.filter(projects = project, expires__gt = datetime.date.today())
         elif param == "expired":
             users = persons.filter(projects = project, expires__lte = datetime.date.today())
         elif param == "all":
             users = persons.filter(projects = project)
-        else:
-            return HttpResponse("The parameter" + parma + " is not valid. There is: all, expired, active. E.g: emails/project/1/expired",
-                                mimetype = "text/plain")
 
     elif what == "all":
         if param == "active":
@@ -87,9 +87,26 @@ def emails(request, what, param, which):
             users = persons.filter(expires__lte = datetime.date.today())
         elif param == "all":
             users = persons
-        else:
-            return HttpResponse("The parameter '" + param + "' is not valid. Valid parameters are: 'all', 'expired', 'active'. E.g: \nemails/project/expired/1",
-                                mimetype = "text/plain")
+
+    elif "member_type_" in what:
+
+        if what == "member_type_prof":       member_type = 'prof'
+        elif what == "member_type_phd":      member_type = 'phd'
+        elif what == "member_type_bachelor": member_type = 'bachelor'
+        elif what == "member_type_master":   member_type = 'master'
+        elif what == "member_type_shk":      member_type = 'shk'
+        elif what == "member_type_none":     member_type = 'none'
+        elif what == "member_type_extern":   member_type = 'extern'
+        else: 
+            return HttpResponse("Member type " + what + " is not a valid member type",
+                                "text/plain")
+
+        if param == "active":
+            users = persons.filter(member_type = member_type, expires__gt = datetime.date.today())
+        elif param == "expired":
+            users = persons.filter(member_type = member_type, expires__lte = datetime.date.today())
+        elif param == "all":
+            users = persons.filter(member_type = member_type)
     else:
         return HttpResponse("Retrieving emails from '" + what + "' not yet implemented/not supported." , mimetype="text/plain")
 
