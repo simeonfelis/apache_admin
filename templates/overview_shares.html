@@ -1,0 +1,24 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1>Share Information</h1>
+        {% if shares %}
+        <ul>
+            {% for share in shares %}
+            <li>
+            <b>{{ share.share.name }}</b> is from type <b>{{ share.share.share_type }}</b> and belongs to Project <b>{{ share.project.0.name }}</b> and has the following users:
+                <ul>
+                    {{ share.users|unordered_list }}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>I cannot show you any share information at the moment</p>
+        <p>Maybe something went wrong</p>
+        {% endif %} {# shares #}
+    </body>
+</html>
+
+

@@ -4,14 +4,28 @@
     </head>
     <body>
 
+        {% if message %}
+        <p>Your last action told me:</p>
+        <pre>message</pre>
+        <p>I hope that is what you expected.</p>
+        {% endif %}
+
         {% if project %}
+
+        <h1>Get email lists for project {{ project.name }}</h1>
+
+        <p>Email list for <a href="{% url home %}emails/project/all/{{ project.pk }}">all</a> users</p>
+        <p>Email list for <a href="{% url home %}emails/project/active/{{ project.pk }}">active</a> users</p>
+        <p>Email list for <a href="{% url home %}emails/project/expired/{{ project.pk }}">expired</a> users</p>
+
+
         <h1>Let's edit project {{ project.name }}</h1>
 
         <h2>Select users which belong to this project</h2>
 
         <p>Working now!</p>
 
-        <form action="/projectmod/{{ project.pk }}" method="post">
+        <form action="{% url home %}projectmod/{{ project.pk }}" method="post">
 {% csrf_token %}
 {% for user in users %}
 {% if not user.user.is_expired %}

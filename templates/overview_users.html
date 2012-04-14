@@ -1,0 +1,57 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1>User information</h1>
+        {% if persons %}
+        <h2>Active Users</h2>
+        <ul>
+        {% for p in persons %}
+        {% if not p.is_expired %}
+            <li>
+                <b>{{ p.firstName }} {{ p.lastName }}</b> is involved in following projects:
+                <ul>
+                {{ p.projects.all|unordered_list }}
+                </ul>
+                <br />
+                <b>{{ p.firstName }} {{ p.lastName }}</b> has access to the following shares:
+                <ul>
+                {% for project in p.projects.all %}
+                {{ project.shares.all|unordered_list }}
+                {% endfor %}
+                </ul>
+            </li>
+        {% endif %} {# not p.is_expired #}
+        {% endfor %}
+        </ul>
+
+        <h2>Expired Users</h2>
+        <ul>
+        {% for p in persons %}
+        {% if p.is_expired %}
+            <li>
+                <b>{{ p.firstName }} {{ p.lastName }} </b> was involved in following projects:
+                <ul>
+                {{ p.projects.all|unordered_list }}
+                </ul>
+                <br />
+                <b>{{ p.firstName }} {{ p.lastName }}</b> had access to the following shares:
+                <ul>
+                {% for project in p.projects.all %}
+                {{ project.shares.all|unordered_list }}
+                {% endfor %}
+                </ul>
+            </li>
+        {% endif %} {# p.is_expired #}
+        {% endfor %}
+        </ul>
+
+        {% else %}
+        <p>I cannot show you any users at the moment</p>
+        <p>Maybe something went wrong</p>
+        {% endif %}
+        
+    </body>
+</html>
+
+

@@ -4,22 +4,49 @@
     </head>
     <body>
         <h1 align="center">Hi. Check out various config generators by clicking and reading.</h1>
-        <p>Want to enter or change the data? Check out the <a href="admin">Admin Interface</a>.</p>
-        <p>There is also a more straight forward method to add users to a project by clicking on projects in the <a href="overview">overview</a>.</p>
+
+        <h2>Edit data</h2>
+        <p>Want to enter or change the data? Check out the <a href="{% url home %}admin">Admin Interface</a>.</p>
+        <p>There is also a more straight forward method to add users to a project by clicking on projects in the <a href="{% url home %}overview/projects">project overview</a>.</p>
 
         <h2>Where to go from here</h2>
-        <p>Have a look at the generated <a href="groups.dav">apache group file</a> for our users</p>
 
-        <p>Go to the <a href="overview">overview</a> to get a overview of our database content upside down and vice versa</p>
+        <h3>Database overview</h3>
+
+
+        <p>You can get an <a href="{% url home %}overview/projects">overview of projects</a>.</p>
+        <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a>.</p>
+        <p>You can get an <a href="{% url home %}overview/users">overview of users</a>.</p>
+
+        <h3>Email lists</h3>
+
+        <p>Email lists for projects can retrieved in the <a href="{% url home %}overview/projects">project overview</a>.</p>
+        <p>
+            Other email lists are:
+            <ul>
+                <li><a href="{% url home %}emails/all/active/0">All active users</a></li>
+                <li><a href="{% url home %}emails/all/expired/0">All expired users</a></li>
+                <li><a href="{% url home %}emails/all/all/0">All users</a></li>
+                <li>Filtered by Extern users</li>
+                <li>Filtered by PhD students</li>
+                <li>Filtered by Bachelor students</li>
+                <li>Filtered by Master students</li>
+                <li>Filtered by Professors</li>
+                <li>Filtered by None of the above</li>
+            </ul>
+        </p>
+
 
         {% if configs %}
         <h3>Config information</h3>
+
+        <p>Have a look at the generated <a href="{% url home %}groups.dav">apache group file</a> for our users</p>
 
         <p>Have a look at the generated config files for out shares</p>
 
         <ul>
         {% for c in configs %}
-            <li><a href="config/{{ c }}">Config for {{ c }}</a></li>
+            <li><a href="{% url home %}config/{{ c }}">Config for {{ c }}</a></li>
         {% endfor %}
         </ul>
         {% else %}
