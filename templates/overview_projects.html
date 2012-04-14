@@ -5,33 +5,27 @@
     <body>
 
         {% if projects %}
-        <ul>
+        <table align="center" border="fine" width="75%">
+            <tr>
+                <th>Project</th><th width="">Description</th><th>Shares</th><th>Users</th>
+            </tr>
             {% for project in projects %}
-            <li>
-                {% if project.project.shares.all|length_is:"0" %}
-                <b>
-                    <a href='{% url home %}projectmod/{{ project.project.pk }}'>{{ project.project.name }}</a>
-                </b> has no shares<br />
-                {% else %}
-                <b>
-                    <a href='{% url home %}projectmod/{{ project.project.pk }}'>{{ project.project.name }}</a>
-                </b> has following shares:
-                <ul>
-                    {{ project.project.shares.all|unordered_list }}
-                </ul>
-                {% endif %}
-
-                {% if project.persons|length_is:"0" %}
-                No user is part of this project
-                {% else %}
-                Following users are part of this project:
-                <ul>
-                    {{ project.persons|unordered_list }}
-                </ul>
-                {% endif %}
-            </li>
+            <tr>
+                <td><a href="{% url home %}projectmod/{{ project.project.pk }}">{{ project.project.name }}</a></td>
+                <td>{{ project.project.description }}</td>
+                <td> {% for share in project.project.shares.all %}
+                    {{ share }}<br />
+                    {% endfor %}
+                </td>
+                <td> {% if project.persons|length_is:"0" %}
+                    No user is part of this project
+                    {% else %} {% for user in project.persons %}
+                    <a href="{% url home %}usermod/{{ user.pk }}">{{ user }}</a> <br />
+                    {% endfor %} {% endif %}
+                </td>
+            </tr>
             {% endfor %}
-        </ul>
+        </table>
         {% else %}
         <p>I cannot show you any project information at the moment</p>
         <p>Maybe something went wrong</p>

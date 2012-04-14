@@ -1,53 +1,58 @@
 <html>
     <head>
-        <title>LaS³ Django Admin Interface - Projectmod</title>
+        <title>LaS³ usermod</title>
     </head>
     <body>
 
-        {% if message %}
-        <p>Your last action told me:</p>
-        <pre>message</pre>
-        <p>I hope that is what you expected.</p>
-        {% endif %}
+        {% if user %}
+        <h1>Basic information of {{ user.firstName }} {{ user.lastName }}</h1>
+        <table>
+            <tr>
+                <td>Email address</td>
+                <td>{{ user.mailAddress }}</td>
+            </tr>
+            <tr>
+                <td>Member since</td>
+                <td>{{ user.begins }}</td>
+            </tr>
+            <tr>
+                <td>Account expires</td>
+                <td>{{ user.expires }}</td>
+            </tr>
+            <tr>
+                <td>Member type</td>
+                <td>{{ user.get_member_type_display }}</td>
+            </tr>
+            <tr>
+                <td>Login Name</td>
+                <td>{{ user.shortName }}</td>
+            </tr>
+        </table>
 
-        {% if project %}
+        <h1>Let's add/remove projects to/from user {{ user.firstName }}</h1>
 
-        <h1>Get email lists for project {{ project.name }}</h1>
-
-        <p>Email list for <a href="{% url home %}emails/project/all/{{ project.pk }}">all</a> users</p>
-        <p>Email list for <a href="{% url home %}emails/project/active/{{ project.pk }}">active</a> users</p>
-        <p>Email list for <a href="{% url home %}emails/project/expired/{{ project.pk }}">expired</a> users</p>
-
-
-        <h1>Let's edit project {{ project.name }}</h1>
-
-        <h2>Select users which belong to this project</h2>
-
-        <form action="{% url home %}projectmod/{{ project.pk }}" method="post">
+        <form action="{% url home %}usermod/{{ user.pk }}" method="post">
         {% csrf_token %}
         <table>
             <tr>
-                <th></th><th>Name</th><th>Fore Name</th><th>Member type</th>
+                <th></th><th>Project</th><th>Description</th>
             </tr>
-            {% for user in users %}
-            {% if not user.user.is_expired %}
+            {% for project in projects %}
             <tr>
                 <td>
                     <input  type="checkbox" 
-                            name="set_user" 
-                            id="set_user_{{ forloop.counter }}" 
-                            {% if user.is_member %}checked="checked"{% endif %} 
-                            value="{{ user.user.pk }}" />
-                    <label for="set_user_{{ forloop.counter }}"></label>
+                            name="set_project" 
+                            id="set_project_{{ forloop.counter }}" 
+                            {% if project.participant %}checked="checked"{% endif %} 
+                            value="{{ project.project.pk }}" />
+                    <label for="set_project_{{ forloop.counter }}"></label>
                 </td>
-                <td> {{ user.user.lastName }} </td>
-                <td> {{ user.user.firstName }} </td>
-                <td> {{ user.user.get_member_type_display }} </td>
+                <td> {{ project.project.name }} </td>
+                <td> {{ project.project.description }} </td>
             </tr>
-            {% endif %}{# user.user.is_expired #}
             {% endfor %}
         </table>
-        <input type="submit" value="Set users" />
+        <input type="submit" value="Set projects" />
         </form>
 
         {% else %}

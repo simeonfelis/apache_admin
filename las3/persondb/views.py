@@ -54,6 +54,8 @@ def overview(request, what):
                                   {
                                       'persons': persons,
                                   })
+    else:
+        return RenderToResponse("The requested overview " + what + " is not available / implemented")
 
 def emails(request, what, param, which):
     # param what can be: project, a member_type, all
@@ -119,6 +121,65 @@ def emails(request, what, param, which):
                         mimetype = "text/plain")
 
 
+def usermod(request, user_id):
+    if not request.user.is_authenticated():
+        return HttpResponse("Before you can view email address of our users, login first (go to admin interface)")
+
+    try:
+        person = Person.objects.get(pk = user_id)
+    except:
+        return HttpResponse("ID " + user_id + " is not a valid user id")
+
+    projects_person = person.projects.all()
+
+    if request.method == "POST":
+        # These are user IDs which shall belong to that project
+        project_ids = request.POST.getlist('set_project')
+        project_ids = [ int(k) for k in project_ids ]
+
+        for project in projects_person:
+            if not project.pk in project_ids:
+                print "Project", project, "with pk", project.pk, "is not in", project_ids, ". Remove it!"
+                person.projects.remove(project)
+
+        for project_id in project_ids:
+            try:
+                project = Project.objects.get(pk = project_id)
+            except Exception, e:
+                print "in usermod(): Could not retrieve project id", project_id, "which was in submitted project ids:", project_ids
+                return HttpResponse("Something went wrong. Call the admin.")
+
+            if not project in projects_person:
+                print "Project", project, "with pk", project.pk, "is in", project_ids, ". Add it!"
+                try:
+                    person.projects.add(project)
+                    person.save()
+                except Exception, e:
+                    print "Error in projectmod: Could not add person to project:", e
+                    return HttpResponsRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
+
+        return HttpResponseRedirect(reverse('persondb.views.usermod', args=(user_id,)))
+
+    # Handle GET requeset here
+    projects = Project.objects.all().order_by('name')
+    p = []
+    for project in projects:
+        if project in projects_person:
+            participant = True
+        else:
+            participant = False
+
+        p.append({
+                  'project': project,
+                  'participant': participant,
+                 })
+
+    return render_to_response('usermod.html',
+                              {'user' : person,
+                               'projects' : p,
+                              }, 
+                              context_instance=RequestContext(request),)
+
 
 def projectmod(request, project_id, message=None):
 
@@ -168,7 +229,7 @@ def projectmod(request, project_id, message=None):
                           'is_member': False,
                          },)
 
-    return render_to_response('usermod.html',
+    return render_to_response('projectmod.html',
                               {
                                'project': project,
                                'users': users,
