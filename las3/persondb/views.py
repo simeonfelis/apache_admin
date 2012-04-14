@@ -17,7 +17,7 @@ def home(request):
                               )
 
 def overview(request, what):
-    persons = Person.objects.all()
+    persons = Person.objects.all().order_by('lastName')
 
     if what == "projects":
         projects = Project.objects.all().order_by('name')
