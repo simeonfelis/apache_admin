@@ -59,6 +59,9 @@ def emails(request, what, param, which):
     # param what can be: project, a member_type, all
     # param which is the pk of what
     # param param can be: active, expired, all
+    if not request.user.is_authenticated():
+        return HttpResponse("Before you can view email address of our users, login first (go to admin interface)")
+
 
     persons = Person.objects.all().order_by('lastName')
 
@@ -118,11 +121,15 @@ def emails(request, what, param, which):
 
 
 def projectmod(request, project_id, message=None):
+
     project = Project.objects.get(pk=project_id)
     persons = Person.objects.all().order_by('lastName')
     persons_project = Person.objects.all().filter(projects = project).order_by('lastName')
 
     if request.method == "POST":
+        if not request.user.is_authenticated():
+            return HttpResponse("Before you can edit the database, login first (go to admin interface)")
+
         # These are user IDs which shall belong to that project
         user_ids = request.POST.getlist('set_user')
         user_ids = [ int(k) for k in user_ids ]
