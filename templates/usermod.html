@@ -47,7 +47,7 @@
                             value="{{ project.project.pk }}" />
                     <label for="set_project_{{ forloop.counter }}"></label>
                 </td>
-                <td> {{ project.project.name }} </td>
+                <td><a href="{% url home %}projectmod/{{ project.project.pk }}">{{ project.project.name }}</a> </td>
                 <td> {{ project.project.description }} </td>
             </tr>
             {% endfor %}

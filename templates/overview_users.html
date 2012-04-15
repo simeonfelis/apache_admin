@@ -8,14 +8,15 @@
 
         <h2>Active Users</h2>
 
-        <table align="center" border="fine" width="75%" >
+        <table align="center" border="1" width="75%" >
             <tr>
-                <th>Last name</th><th>First Name</th><th>Projects</th><th>Shares</th>
+                <th>Last name</th><th>First Name</th><th>Member type</th><th>Projects</th><th>Shares</th>
             </tr>
             {% for p in persons %} {% if not p.is_expired %}
             <tr>
                 <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.lastName }}</a></td>
                 <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.firstName }}</a></td>
+                <td>{{ p.get_member_type_display }}</td>
                 <td>{% for project in p.projects.all %}
                     <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
                     {% endfor %}
@@ -30,14 +31,15 @@
 
 
         <h2>Expired Users</h2>
-        <table align="center" border="fine" width="75%" >
+        <table align="center" border="1" width="75%" >
             <tr>
-                <th>Last name</th><th>First Name</th><th>Projects</th><th>Shares</th>
+                <th>Last name</th><th>First Name</th><th>Member type</th><th>Projects</th><th>Shares</th>
             </tr>
             {% for p in persons %} {% if p.is_expired %}
             <tr>
                 <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.lastName }}</a></td>
                 <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.firstName }}</a></td>
+                <td>{{ p.get_member_type_display }}</td>
                 <td>{% for project in p.projects.all %}
                     <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
                     {% endfor %}

@@ -40,8 +40,8 @@
                             value="{{ user.user.pk }}" />
                     <label for="set_user_{{ forloop.counter }}"></label>
                 </td>
-                <td> {{ user.user.lastName }} </td>
-                <td> {{ user.user.firstName }} </td>
+                <td><a href="{% url home %}usermod/{{ user.user.pk }}">{{ user.user.lastName }}</a> </td>
+                <td><a href="{% url home %}usermod/{{ user.user.pk }}">{{ user.user.firstName }}</a> </td>
                 <td> {{ user.user.get_member_type_display }} </td>
             </tr>
             {% endif %}{# user.user.is_expired #}
