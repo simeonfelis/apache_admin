@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import Context, loader, RequestContext
 
-from persondb.models import Person, Project, Share
+from persondb.models import Person, Project, Share, MEMBER_TYPE_CHOICES
 #from persondb.models import ProjectShares
 
 share_types = ['dav', 'bzr', 'git', 'svn']
@@ -134,6 +134,7 @@ def usermod(request, user_id):
 
     if request.method == "POST":
         # These are user IDs which shall belong to that project
+        print request.POST
         project_ids = request.POST.getlist('set_project')
         project_ids = [ int(k) for k in project_ids ]
 
@@ -155,8 +156,32 @@ def usermod(request, user_id):
                     person.projects.add(project)
                     person.save()
                 except Exception, e:
-                    print "Error in projectmod: Could not add person to project:", e
-                    return HttpResponsRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
+                    print "Error in usermod: Could not add person to project:", e
+                    return HttpResponsRedirect(reverse('persondb.views.usermod', args=(user_id,)))
+
+        new_expires      = request.POST.get('set_expires')
+        new_begins       = request.POST.get('set_begins')
+        new_short_name   = request.POST.get('set_short_name')
+        new_first_name   = request.POST.get('set_first_name')
+        new_last_name    = request.POST.get('set_last_name')
+        new_mail_address = request.POST.get('set_mail_address')
+        new_member_type  = request.POST.get('set_member_type')
+        # the POST sent me the display value of the Choice tuple, I want the key value
+        for m in MEMBER_TYPE_CHOICES:
+            if new_member_type == m[1]:
+                new_member_type = m[0]
+        try:
+            person.shortName   = new_short_name
+            person.firstName   = new_first_name
+            person.lastName    = new_last_name
+            person.mailAddress = new_mail_address
+            person.member_type = new_member_type
+            person.begins      = new_begins  # We rely on format "YYYY-MM-DD"
+            person.expires     = new_expires # We rely on format "YYYY-MM-DD"
+            person.save()
+        except Exception, e:
+            print "Error in usermod: could not set mostly text data:", e
+            return HttpResponseRedirect(reverse('persondb.views.usermod', args=(user_id,)))
 
         return HttpResponseRedirect(reverse('persondb.views.usermod', args=(user_id,)))
 
@@ -177,6 +202,7 @@ def usermod(request, user_id):
     return render_to_response('usermod.html',
                               {'user' : person,
                                'projects' : p,
+                               'member_types': MEMBER_TYPE_CHOICES,
                               }, 
                               context_instance=RequestContext(request),)
 
