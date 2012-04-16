@@ -4,11 +4,6 @@
     </head>
     <body>
 
-        {% if message %}
-        <p>Your last action told me:</p>
-        <pre>message</pre>
-        <p>I hope that is what you expected.</p>
-        {% endif %}
 
         {% if project %}
 
@@ -18,13 +13,42 @@
         <p>Email list for <a href="{% url home %}emails/project/active/{{ project.pk }}">active</a> users</p>
         <p>Email list for <a href="{% url home %}emails/project/expired/{{ project.pk }}">expired</a> users</p>
 
+        <h1>Shares of this project</h1>
+
+        <ul>
+        </ul>
+
 
         <h1>Let's edit project {{ project.name }}</h1>
 
-        <h2>Select users which belong to this project</h2>
-
         <form action="{% url home %}projectmod/{{ project.pk }}" method="post">
         {% csrf_token %}
+
+        <h2>Basic information about project {{ project.name }}</h2>
+
+        <table>
+            <tr>
+                <td>Project Name</td>
+                <td><input type="text" name="set_project_name" id="set_project_name" value="{{ project.name }}" size="30" maxlength="20"/></td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td><input type="text" name="set_project_description" id="set_project_description" value="{{ project.description }}" size="30" maxlength="200"/></td>
+            </tr>
+            <tr>
+                <td>Start</td>
+                <td><input type="text" name="set_project_start" id="set_project_start" value='{{ project.start|date:"Y-m-d" }}' size="30" maxlength="20"/></td>
+            </tr>
+            <tr>
+                <td>End</td>
+                <td><input type="text" name="set_project_end" id="set_project_end" value='{{ project.end|date:"Y-m-d" }}' size="30" maxlength="20"/></td>
+            </tr>
+        </table>
+
+
+
+        <h2>Select users which belong to this project</h2>
+
         <table>
             <tr>
                 <th></th><th>Name</th><th>Fore Name</th><th>Member type</th>
@@ -47,12 +71,14 @@
             {% endif %}{# user.user.is_expired #}
             {% endfor %}
         </table>
-        <input type="submit" value="Set users" />
-        </form>
 
         {% else %}
         <p>No user to modify</p>
         {% endif %}
+
+        <input type="submit" value="Set Project Data" />
+        </form>
+
 
     </body>
 </html>

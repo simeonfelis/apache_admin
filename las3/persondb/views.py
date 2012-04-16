@@ -239,6 +239,7 @@ def projectmod(request, project_id, message=None):
         # These are user IDs which shall belong to that project
         user_ids = request.POST.getlist('set_user')
         user_ids = [ int(k) for k in user_ids ]
+        
 
         for person in persons_project:
             if not person.pk in user_ids:
@@ -255,6 +256,17 @@ def projectmod(request, project_id, message=None):
                 except Exception, e:
                     print "Error in projectmod: Could not add person to project:", e
                     return HttpResponsRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
+
+        try:
+            project.name        = request.POST.get('set_project_name')
+            project.description = request.POST.get('set_project_description')
+            project.start       = request.POST.get('set_project_start')
+            project.end         = request.POST.get('set_project_end')
+            project.save()
+        except Exception, e:
+            print "Error in projectmod:", e
+            return HttpResponseRedirect(reverse('persondb.views.projectmod', 
+                                                args=(project_id),))
 
         return HttpResponseRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
 
