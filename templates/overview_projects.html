@@ -14,7 +14,7 @@
                 <td><a href="{% url home %}projectmod/{{ project.project.pk }}">{{ project.project.name }}</a></td>
                 <td>{{ project.project.description }}</td>
                 <td> {% for share in project.project.shares.all %}
-                    {{ share }}<br />
+                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br />
                     {% endfor %}
                 </td>
                 <td> {% if project.persons|length_is:"0" %}

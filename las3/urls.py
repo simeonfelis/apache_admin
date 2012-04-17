@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'las3.views.home', name='home'),
     url(r'^$', 'persondb.views.home', name='home'),
     url(r'^projectmod/(?P<project_id>\d+)', 'persondb.views.projectmod'), # POST and GET
+    url(r'^sharemod/(?P<share_id>\d+)', 'persondb.views.sharemod'), # POST and GET
     url(r'^usermod/(?P<user_id>\d+)', 'persondb.views.usermod'), # POST and GET
     url(r'^overview/(?P<what>\w+)$', 'persondb.views.overview'),
     url(r'^emails/(?P<what>.*)/(?P<param>\w+)/(?P<which>\d+)', 'persondb.views.emails'),

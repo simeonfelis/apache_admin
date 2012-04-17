@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>LaS³ sharemod</title>
+    </head>
+    <body>
+
+
+        {% if share %}
+        <h1>Get email lists for {{ share.get_share_type_display }} share {{ share.name }}</h1>
+
+        <p>The email list is exactly the same as of the related project <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a>.</p>
+
+
+        <h1>Let's edit {{ share.get_share_type_display }} share {{ share.name }}</h1>
+
+
+
+        <h2>Basic information about project {{ project.name }}</h2>
+
+        <form action="{% url home %}sharemod/{{ share.pk }}" method="post">
+        {% csrf_token %}
+
+        <table>
+            <tr>
+                <td>Share Name</td>
+                <td><input type="text" name="set_share_name" id="set_share_name" value="{{ share.name }}" size="30" maxlength="20"/></td>
+            </tr>
+            <tr>
+                <td>Share type</td>
+                <td><select name="set_share_type" id="set_share_type">{% for typ in share_types %}
+                        <option {% if typ.0 == share.share_type  %}selected{% endif %}>{{ typ.1 }}
+                    {% endfor %}
+                </select></td>
+            </tr>
+        </table>
+
+        <input type="submit" value="Set Share Data" />
+        </form>
+
+
+
+        <h2>Select users which should have access to this share</h2>
+
+        <p>If you want to add or remove access of people to this share, you have to remove them from the corresponding project.</p>
+        <p>In this case, edit project <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a>.</p>
+        <p>If you want to have a more restrictive access to this share, where less people can read and write, consider creating a new project for that (Maybe with a suffix ...-Private).</p>
+        <p><b>However, what kind of team do you have, where you can't trust your team members to have full access to all the stuff you create?</b></p>
+
+        {% else %}
+        <p>No shares to modify</p>
+        {% endif %}
+
+
+    </body>
+</html>

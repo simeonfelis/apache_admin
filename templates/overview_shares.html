@@ -4,16 +4,19 @@
     <body>
         <h1>Share Information</h1>
         {% if shares %}
-        <ul>
+        <table align="center" border="1" width="75%">
+            <tr>
+                <th>Name</th><th>Type</th><th>Related Project</th><th>Persons</th>
+            </tr>
             {% for share in shares %}
-            <li>
-            <b>{{ share.share.name }}</b> is from type <b>{{ share.share.share_type }}</b> and belongs to Project <b>{{ share.project.0.name }}</b> and has the following users:
-                <ul>
-                    {{ share.users|unordered_list }}
-                </ul>
-            </li>
+            <tr>
+                <td><a href="{% url home %}sharemod/{{ share.share.pk }}">{{ share.share.name }}</a></td>
+                <td>{{ share.share.share_type }}</td>
+                <td><a href="{% url home %}projectmod/{{ share.project.pk }}">{{ share.project.name }}</a></td>
+                <td>{% for u in share.users %}<a href="{% url home %}usermod/{{ u.pk }}">{{ u }}</a><br />{% endfor %}</td>
+            </tr>
             {% endfor %}
-        </ul>
+        </table>
         {% else %}
         <p>I cannot show you any share information at the moment</p>
         <p>Maybe something went wrong</p>

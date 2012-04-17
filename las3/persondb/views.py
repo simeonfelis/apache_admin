@@ -73,12 +73,12 @@ def overview(request, what):
                                   })
     elif what == "shares":
         shares = Share.objects.all().order_by('name')
-        projects = Project.objects.all().order_by('name')
+        projects = Project.objects.all()
         share_render = []
         for share in shares:
-            share_project = projects.filter(shares = share) # there can be
-                                                              # only one project in
-                                                              # an array
+            share_project = projects.filter(shares = share)[0] # there can be
+                                                               # only one project in
+                                                               # an array
             share_users = persons.filter(projects = share_project).order_by('lastName')
             share_render.append({
                                  'share': share,
@@ -230,6 +230,41 @@ def emails(request, what, param, which):
     emails = ", \n".join(email_list)
     return HttpResponse("Emails for members of '" + what + "' with parameter '" + param + "':\n" + emails, 
                         mimetype = "text/plain")
+
+
+def sharemod(request, share_id):
+    share = Share.objects.get(pk = share_id)
+    projects = Project.objects.all()
+    persons = Person.objects.all()
+
+    share_project = projects.filter(shares = share)[0] # there can be
+                                                       # only one project in
+                                                       # an array
+    if request.method == "POST":
+        try:
+            share.name = request.POST.get('set_share_name')
+            new_share_type = request.POST.get('set_share_type')
+            for s in SHARE_TYPE_CHOICES:
+                if new_share_type == s[1]:
+                    new_share_type = s[0]
+            share.share_type = new_share_type
+            share.save()
+        except Exception, e:
+            print "sharemod: error storing new data: ", e
+            return HttpResponsRedirect(reverse('persondb.views.sharemod', args=(share_id,)))
+
+    # Handle GET request
+
+    share_users = persons.filter(projects = share_project).order_by('lastName')
+    return render_to_response('sharemod.html',
+                              {
+                               'share': share,
+                               'project': share_project,
+                               'users': share_users,
+                               'share_types': SHARE_TYPE_CHOICES,
+                              },
+                              context_instance=RequestContext(request),)
+
 
 
 def usermod(request, user_id):
