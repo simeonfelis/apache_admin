@@ -99,44 +99,55 @@ def overview(request, what):
         return HttpResponse("The requested overview " + what + " is not available / implemented")
 
 def write_configs(request, which):
+
+    def error_message(message):
+        return HttpResponse(message)
+
+
+    gen_folder = os.path.join("var", "django", "generated")
+
     if which == "all":
         for typ in share_types:
-            filename = os.path.join("..", typ + ".config")
+            filename = os.path.join(gen_folder, typ + ".config")
             try:
                 shares = get_shares_to_render(typ)
                 open(filename, "wb").write(render_to_string(typ + ".config", 
                                                             {'shares': shares},
                                                             ))
             except Exception, e:
-                return HttpResponse("Could not write config files: " + e)
-
+                message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
+                error_message(message)
         try:
-            filename = os.path.join("..", "groups.dav")
+            filename = os.path.join(gen_folder, "groups.dav")
             groups = get_groups_to_render()
             open(filename, "wb").write(render_to_string("groups.dav",
                                                         {'groups': groups},
                                                         ))
         except Exception, e:
-            return HttpResponse("Could not write config files: " + e)
+            message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
+            error_message(message)
 
 
     elif which == "groups.dav":
         pass
 
     elif which in share_types:
-        filename = os.path.join("..", which + ".config")
+        filename = os.path.join(gen_folder, which + ".config")
         try:
             shares = get_shares_to_render(which)
             open(filename, "wb").write(render_to_string(which + ".config", 
                                                         {'shares': shares},
                                                         ))
         except Exception, e:
-            return HttpResponse("Could not write config files: " + e)
+            message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
+            error_message(message)
+
 
     else:
-        return HttpResponse("Invalid conifig file requested: " + which)
+        message = "Invalid config file requested: " + which
+        error_message(message)
 
-    return HttpResponse("Looks like writing config file for '" + which + "' succeeded. They are in /var/django")
+    return HttpResponse("Looks like writing config file for '" + which + "' succeeded. They are in " + gen_folder)
 
 
 
