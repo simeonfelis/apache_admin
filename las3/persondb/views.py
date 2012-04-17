@@ -1,16 +1,55 @@
-import datetime
+import datetime, os
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import Context, loader, RequestContext
+from django.template.loader import render_to_string
 
-from persondb.models import Person, Project, Share, MEMBER_TYPE_CHOICES
+from persondb.models import Person, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 #from persondb.models import ProjectShares
 
-share_types = ['dav', 'bzr', 'git', 'svn']
+
+share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 
 member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
+
+def get_shares_to_render(typ):
+    shares = Share.objects.filter(share_type__exact=typ)
+    #print "Shares: ", shares
+    projects = Project.objects.all()
+    #print "Projects: ", projects
+
+    project_shares = []
+    for share in shares:
+        a = {}
+        a['projects'] = projects.filter(shares=share)
+        if not len(a['projects']) == 0:
+                a['share'] = share
+                project_shares.append(a)
+                #print "project related to share", share, ":", projects.filter(shares=share)
+    #print "project_shares:", project_shares
+
+    return project_shares
+    
+def get_groups_to_render():
+    shares = Share.objects.all()
+    persons = Person.objects.all()
+    projects = Project.objects.all()
+
+    groups_render = []
+    for share in shares:
+        [share_project] = projects.filter(shares = share) # there can be
+                                                          # only one project in
+                                                          # an array
+        share_users = persons.filter(projects = share_project)
+        groups_render.append({
+                             'share': share,
+                             'project': share_project,
+                             'users': share_users
+                             })
+    return groups_render
+
 
 def home(request):
 
@@ -57,7 +96,49 @@ def overview(request, what):
                                       'persons': persons,
                                   })
     else:
-        return RenderToResponse("The requested overview " + what + " is not available / implemented")
+        return HttpResponse("The requested overview " + what + " is not available / implemented")
+
+def write_configs(request, which):
+    if which == "all":
+        for typ in share_types:
+            filename = os.path.join("..", typ + ".config")
+            try:
+                shares = get_shares_to_render(typ)
+                open(filename, "wb").write(render_to_string(typ + ".config", 
+                                                            {'shares': shares},
+                                                            ))
+            except Exception, e:
+                return HttpResponse("Could not write config files: " + e)
+
+        try:
+            filename = os.path.join("..", "groups.dav")
+            groups = get_groups_to_render()
+            open(filename, "wb").write(render_to_string("groups.dav",
+                                                        {'groups': groups},
+                                                        ))
+        except Exception, e:
+            return HttpResponse("Could not write config files: " + e)
+
+
+    elif which == "groups.dav":
+        pass
+
+    elif which in share_types:
+        filename = os.path.join("..", which + ".config")
+        try:
+            shares = get_shares_to_render(which)
+            open(filename, "wb").write(render_to_string(which + ".config", 
+                                                        {'shares': shares},
+                                                        ))
+        except Exception, e:
+            return HttpResponse("Could not write config files: " + e)
+
+    else:
+        return HttpResponse("Invalid conifig file requested: " + which)
+
+    return HttpResponse("Looks like writing config file for '" + which + "' succeeded. They are in /var/django")
+
+
 
 def emails(request, what, param, which):
     # param what can be: project, a member_type_*, share_*,  all
@@ -295,24 +376,10 @@ def projectmod(request, project_id, message=None):
                               context_instance=RequestContext(request),)
 
 def groups_dav(request):
-    shares = Share.objects.all()
-    persons = Person.objects.all()
-    projects = Project.objects.all()
-
-    share_render = []
-    for share in shares:
-        [share_project] = projects.filter(shares = share) # there can be
-                                                          # only one project in
-                                                          # an array
-        share_users = persons.filter(projects = share_project)
-        share_render.append({
-                             'share': share,
-                             'project': share_project,
-                             'users': share_users
-                             })
+    groups = get_groups_to_render()
 
     return render_to_response('groups.dav',
-                              {'groups': share_render},
+                              {'groups': groups},
                               mimetype="text/plain",
                               )
 
@@ -322,23 +389,9 @@ def get_config(request, typ):
     if not typ in share_types:
         return HttpResponse(typ + " is a invalid share type. Supported are: " + ", ".join(share_types))
 
-    shares = Share.objects.filter(share_type__exact=typ)
-    #print "Shares: ", shares
-    projects = Project.objects.all()
-    #print "Projects: ", projects
-
-    project_shares = []
-    for share in shares:
-        a = {}
-        a['projects'] = projects.filter(shares=share)
-        if not len(a['projects']) == 0:
-                a['share'] = share
-                project_shares.append(a)
-                #print "project related to share", share, ":", projects.filter(shares=share)
-    #print "project_shares:", project_shares
-    
+    shares = get_shares_to_render(typ)
     return render_to_response(typ + '.config',
-                              {'shares': project_shares},
+                              {'shares': shares},
                               mimetype="text/plain",
                               )
 
