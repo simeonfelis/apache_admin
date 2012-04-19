@@ -56,7 +56,7 @@ class Person(models.Model):
     extern = models.BooleanField('External (not in LaS3 or at HSR)', default=False, editable=False)
     member_type = models.CharField(max_length=10, choices=MEMBER_TYPE_CHOICES, default='none')
 
-    firstName = models.CharField('fore name', max_length=128)
+    firstName = models.CharField('first name', max_length=128)
     lastName = models.CharField('name', max_length=128)
     shortName = models.CharField('login name (unique)', max_length=10, unique=True)
 
