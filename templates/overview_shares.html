@@ -2,7 +2,11 @@
     <head>
     </head>
     <body>
-        <h1>Share Information</h1>
+        <h1>Add shares</h2>
+
+        <p>You can add shares in <a href="{% url home %}admin/persondb/share/add/">Django's admin interface</a>.</p>
+
+        <h1>List of all shares</h1>
         {% if shares %}
         <table align="center" border="1" width="75%">
             <tr>
