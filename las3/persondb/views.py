@@ -55,21 +55,20 @@ def get_shares_to_render(typ):
     
 def get_groups_to_render():
     shares = Share.objects.all()
-    persons = Person.objects.all()
+    members = Member.objects.all()
     projects = Project.objects.all()
 
-    groups_render = []
+    shares_render = []
     for share in shares:
-        [share_project] = projects.filter(shares = share) # there can be
-                                                          # only one project in
-                                                          # an array
-        share_users = persons.filter(projects = share_project)
-        groups_render.append({
+        share_projects = projects.filter(shares = share)
+        share_members = []
+        for share_project in share_projects:
+            share_members.append(members.filter(projects = share_project))
+        shares_render.append({
                              'share': share,
-                             'project': share_project,
-                             'users': share_users
+                             'member': share_members
                              })
-    return groups_render
+    return shares_render
 
 
 def home(request):
@@ -95,23 +94,29 @@ def overview(request, what):
                                       'projects': proj_render,
                                   })
     elif what == "shares":
-        shares = Share.objects.all().order_by('name')
+        shares = Share.objects.all()
         projects = Project.objects.all()
-        share_render = []
+        shares_render = []
         for share in shares:
-            share_project = projects.filter(shares = share)[0] # there can be
-                                                               # only one project in
-                                                               # an array
-            share_members = members.filter(projects = share_project)
-            share_render.append({
+            shares_projects = projects.filter(shares = share)
+            share_members = []
+            share_projects = []
+            if len(shares_projects) == 0:
+                shares_projects = []
+            else:
+                for p in shares_projects:
+                    share_projects.append(p)
+                    for m in members.filter(projects = p):
+                        share_members.append(m)
+            shares_render.append({
                                  'share': share,
-                                 'project': share_project,
+                                 'projects': share_projects,
                                  'members': share_members
                                  })
 
         return render_to_response('overview_shares.html',
                                   {
-                                   'shares': share_render,
+                                   'shares': shares_render,
                                   })
     elif what == "users":
         print users
@@ -287,6 +292,32 @@ def sharemod(request, share_id):
     form = ShareModForm(instance=share)
 
     return render_to_response('sharemodform.html',
+                              {
+                                  'form' : form,
+                              },
+                              context_instance=RequestContext(request),
+                              )
+
+def shareadd(request):
+    if request.method == 'POST':
+        form = CreateShareForm(request.POST)
+        if not form.is_valid():
+            return input_error(template = 'shareadd.html', error = form.errors, request = request, form = form)
+
+        new_share = form.save()
+        
+        form = ShareModForm(instance = new_share)
+        return render_to_response('sharemodform.html',
+                {
+                    'form':    form,
+                    'created': True,
+                },
+                context_instance=RequestContext(request),
+                )
+
+    # Handle GET requests
+    form = CreateShareForm()
+    return render_to_response('shareadd.html',
                               {
                                   'form' : form,
                               },

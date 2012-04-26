@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-corner-all">Folgende Angaben waren Fehlerhaft:
+{{ error }}
+</p>
+{% endif %}
+
+<form action="{% url home %}shareadd" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table>
+    <input type="submit" value="Add"/>
+</form>
+{% endblock %}

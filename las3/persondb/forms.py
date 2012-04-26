@@ -38,6 +38,10 @@ class ShareModForm(forms.ModelForm):
     class Meta:
         model = Share
 
+class CreateShareForm(forms.ModelForm):
+    class Meta:
+        model = Share
+
 class ProjectModForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectModForm, self).__init__(*args, **kwargs)

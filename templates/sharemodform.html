@@ -12,6 +12,10 @@
 <p class="ui-corner-all">Daten wurden übernommen. Lüg ich oder was?!?  </p>
 {% endif %}
 
+{% if created %}
+<p class="ui-corner-all">Share wurde erstellt. Noch mal editieren?</p>
+{% endif %}
+
 
 <form action="{% url home %}sharemod/{{ form.instance.pk }}" method="POST">
     {% csrf_token %}

@@ -17,9 +17,8 @@
     <a href="{% url todo-mine %}">My Tasks</a>
 
     <h2>Edit data</h2>
-    <p style='color:red;'>Want to view sensitive data, enter or change the data? Login into the system and check out the <a href="{% url home %}admin">Admin Interface</a> first.</p>
-    <p>There is also a more straight forward method to add users to a project by clicking on projects in the <a href="{% url home %}overview/projects">project overview</a> (login required).</p>
-    <p>There is also an extra page for modifying users. Click on users in the <a href="{% url home %}overview/users">user overview</a> (login required).</p>
+    <p style='color:red;'>Want to change the database directly? If you know what you are doing login into the <a href="{% url home %}admin">Admin Interface</a> first.</p>
+    <p>Please edit shares, projects, member/users only at the links below. No login to django is required.</p>
 
     <h2>Where to go from here</h2>
 
@@ -27,7 +26,7 @@
 
 
     <p>You can get an <a href="{% url home %}overview/projects">overview of projects</a> or <a href="{% url home %}projectadd">add a project</a>.</p>
-    <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a>.</p>
+    <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a> or <a href="{% url home %}shareadd">add a share</a>.</p>
     <p>You can get an <a href="{% url home %}overview/users">overview of users</a> or <a href="{% url home %}useradd">add a user</a>.</p>
 
     <h3>Email lists</h3>

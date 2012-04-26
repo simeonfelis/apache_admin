@@ -1,23 +1,35 @@
-<html>
-    <head>
-    </head>
-    <body>
+{% extends "base.html" %}
+{% block content %}
         <h1>Add shares</h2>
 
-        <p>You can add shares in <a href="{% url home %}admin/persondb/share/add/">Django's admin interface</a>.</p>
+        <p>You can also <a href="{% url home %}shareadd">add shares</a>.</p>
 
         <h1>List of all shares</h1>
         {% if shares %}
         <table align="center" border="1" width="75%">
             <tr>
-                <th>Name</th><th>Type</th><th>Related Project</th><th>Persons</th>
+                <th>Name</th><th>Type</th><th>Related Projects</th><th>Persons</th>
             </tr>
             {% for s in shares %}
             <tr>
                 <td><a href="{% url home %}sharemod/{{ s.share.pk }}">{{ s.share.name }}</a></td>
-                <td>{{ s.share.share_type }}</td>
-                <td><a href="{% url home %}projectmod/{{ s.project.pk }}">{{ s.project.name }}</a></td>
-                <td>{% for m in s.members %}<a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a><br />{% endfor %}</td>
+                <td>{{ s.share.get_share_type_display }}</td>
+                <td>
+                    {% if s.projects|length_is:"0" %}
+                    No projects related!
+                    {% endif %}
+                    {% for p in s.projects %}
+                    <a href="{% url home %}projectmod/{{ p.pk }}">{{ p.name }}</a><br />
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if s.members|length_is:"0" %}
+                    No user set!
+                    {% endif %}
+                    {% for m in s.members %}
+                    <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a><br />
+                    {% endfor %}
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -25,7 +37,6 @@
         <p>I cannot show you any share information at the moment</p>
         <p>Maybe something went wrong</p>
         {% endif %} {# shares #}
-    </body>
-</html>
+{% endblock %}
 
 
