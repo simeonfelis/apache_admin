@@ -1,6 +1,15 @@
-from persondb.models import Person, Project, Share
+#from django.contrib.auth.admin import UserAdmin
+#from django.contrib.auth.models import User
 from django.contrib import admin
 
+from persondb.models import Member, Project, Share
+
+#admin.site.unregister(User)
+#
+#class UserProfileAdmin(UserAdmin):
+#    list_display = ('email', 'first_name', 'last_name', 'is_active', 'date_joined', 'member_set.all',) #, 'is_staff')
+#
+#admin.site.register(User, UserProfileAdmin)
 
 class ShareInline(admin.TabularInline):
     model = Share
@@ -13,8 +22,8 @@ class AdminProject(admin.ModelAdmin):
 
 admin.site.register(Project, AdminProject)
 
-class PersonInline(admin.StackedInline):
-    model = Person
+class MemberInline(admin.StackedInline):
+    model = Member
     extra = 3
 
 class AdminShare(admin.ModelAdmin):
@@ -27,9 +36,10 @@ class AdminShare(admin.ModelAdmin):
 admin.site.register(Share, AdminShare)
 
 
-class AdminPerson(admin.ModelAdmin):
-    list_display = ('lastName', 'firstName', 'shortName', 'begins', 'expires', 'is_expired', 'mailAddress', 'member_type')
+class AdminMember(admin.ModelAdmin):
+    #list_display = ('lastName', 'firstName', 'shortName', 'begins', 'expires', 'is_expired', 'mailAddress', 'member_type')
+    list_display = ('user', 'begins', 'expires', 'member_type', )
 
     list_filter = ['expires', 'member_type']
 
-admin.site.register(Person, AdminPerson)
+admin.site.register(Member, AdminMember)

@@ -1,18 +1,39 @@
 import datetime, os
+from hashlib import md5 # htdigest password generation
+
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.shortcuts import render_to_response
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
 
-from persondb.models import Person, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
+from django.contrib.auth.models import User
+
+from persondb.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
+from persondb.forms import *
 #from persondb.models import ProjectShares
 
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 
 member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
+
+def create_apache_htdigest(username, password):
+    apache_prefix = username + ":Login:"
+    apache_password = md5(apache_prefix + password).hexdigest()
+    apache_htdigest = apache_prefix + apache_password
+    return apache_htdigest
+
+def input_error(template, form, error, request):
+    return render_to_response(template,
+            {
+             'error': error,
+             'form':  form,
+            },
+            context_instance=RequestContext(request),
+            )
 
 def get_shares_to_render(typ):
     shares = Share.objects.filter(share_type__exact=typ)
@@ -54,19 +75,21 @@ def get_groups_to_render():
 def home(request):
 
     return render_to_response('index.html',
-                              {'configs': share_types, }
+                              {'configs': share_types, },
+                              context_instance=RequestContext(request),
                               )
 
 def overview(request, what):
-    persons = Person.objects.all().order_by('lastName')
+#    persons = Person.objects.all().order_by('lastName')
+    members = Member.objects.all()
+    users = User.objects.all()
 
     if what == "projects":
         projects = Project.objects.all().order_by('name')
         proj_render = []
         for project in projects:
-            project_persons = persons.filter(projects = project).order_by('lastName')
-            #print "Project to render:", project, "with pk:", project.pk
-            proj_render.append({'project' : project, 'persons' : project_persons})
+            project_members = members.filter(projects = project)
+            proj_render.append({'project' : project, 'members' : project_members})
         return render_to_response('overview_projects.html',
                                   {
                                       'projects': proj_render,
@@ -79,11 +102,11 @@ def overview(request, what):
             share_project = projects.filter(shares = share)[0] # there can be
                                                                # only one project in
                                                                # an array
-            share_users = persons.filter(projects = share_project).order_by('lastName')
+            share_members = members.filter(projects = share_project)
             share_render.append({
                                  'share': share,
                                  'project': share_project,
-                                 'users': share_users
+                                 'members': share_members
                                  })
 
         return render_to_response('overview_shares.html',
@@ -91,9 +114,10 @@ def overview(request, what):
                                    'shares': share_render,
                                   })
     elif what == "users":
+        print users
         return render_to_response('overview_users.html',
                                   {
-                                      'persons': persons,
+                                      'users': users,
                                   })
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
@@ -240,193 +264,252 @@ def emails(request, what, param, which):
 
 
 def sharemod(request, share_id):
-    share = Share.objects.get(pk = share_id)
-    projects = Project.objects.all()
-    persons = Person.objects.all()
 
-    share_project = projects.filter(shares = share)[0] # there can be
-                                                       # only one project in
-                                                       # an array
+    share = Share.objects.get(pk = share_id)
+    
     if request.method == "POST":
-        try:
-            share.name = request.POST.get('set_share_name')
-            new_share_type = request.POST.get('set_share_type')
-            for s in SHARE_TYPE_CHOICES:
-                if new_share_type == s[1]:
-                    new_share_type = s[0]
-            share.share_type = new_share_type
-            share.save()
-        except Exception, e:
-            print "sharemod: error storing new data: ", e
-            return HttpResponsRedirect(reverse('persondb.views.sharemod', args=(share_id,)))
+        print request.POST
+        form = ShareModForm(request.POST, instance=share) # remember database instance and inputs
+        if not form.is_valid():
+            return input_error(template='sharemodform.html', request = request, form = form, error = form.errors)
+        
+        form.save()
+
+        return render_to_response('sharemodform.html',
+                                  {
+                                      'success': True,
+                                      'form' : form,
+                                  },
+                                  context_instance=RequestContext(request),
+                                  )
 
     # Handle GET request
+    form = ShareModForm(instance=share)
 
-    share_users = persons.filter(projects = share_project).order_by('lastName')
-    return render_to_response('sharemod.html',
+    return render_to_response('sharemodform.html',
                               {
-                               'share': share,
-                               'project': share_project,
-                               'users': share_users,
-                               'share_types': SHARE_TYPE_CHOICES,
+                                  'form' : form,
                               },
-                              context_instance=RequestContext(request),)
+                              context_instance=RequestContext(request),
+                              )
 
+def useradd(request):
+    if request.method == 'POST':
+        form = CreateMemberForm(request.POST)
+        if not form.is_valid():
+            return render_to_response('member.html',
+                                      {
+                                       'error' : form.errors,
+                                       'form' : form,
+                                      },
+                                      context_instance=RequestContext(request),
+                                      )
 
+        new_user = form.save(commit=False)
+        # We have a cleartext password. generate the correct one
+        password = request.POST.get('password')
+        new_user.set_password(password)
+        new_user.save()
+
+        # Also create a apache htdigest compatible password
+        username = request.POST.get('username')
+        apache_htdigest = create_apache_htdigest(username, password)
+
+        new_member = Member(
+                htdigest    = apache_htdigest,
+                expires     = request.POST.get('expires'),
+                begins      = request.POST.get('begins'),
+                member_type = request.POST.get('member_type'),
+                user        = new_user,
+                )
+
+        try:
+            new_member.clean_fields()
+        except ValidationError, e:
+            new_user.delete()
+            return render_to_response('member.html',
+                    {
+                        'error' : e,
+                        'form' : form,
+                    },
+                    context_instance=RequestContext(request),
+                    )
+
+        new_member.save()
+
+        form = UserModForm(instance = new_member.user)
+        return render_to_response('usermodform.html',
+                {
+                    'form':    form,
+                    'created': True,
+                },
+                context_instance=RequestContext(request),
+                )
+
+    # Handle GET requests
+    form = CreateMemberForm()
+    return render_to_response('member.html',
+                              {
+                                  'form' : form,
+                              },
+                              context_instance=RequestContext(request),
+                              )
 
 def usermod(request, user_id):
-    if not request.user.is_authenticated():
-        return HttpResponse("Before you can view email address of our users, login first (go to admin interface)")
 
     try:
-        person = Person.objects.get(pk = user_id)
+        user = User.objects.get(pk = user_id)
     except:
         return HttpResponse("ID " + user_id + " is not a valid user id")
 
-    projects_person = person.projects.all()
+    member = Member.objects.filter(user = user)
+    if len(member) == 0:
+        return HttpResponse("This user has not a member. Looks like the database is inconsistent. Or you should not edit this user here, but with django admin.")
+    member = member[0]
 
     if request.method == "POST":
-        # These are user IDs which shall belong to that project
-        print request.POST
-        project_ids = request.POST.getlist('set_project')
-        project_ids = [ int(k) for k in project_ids ]
 
-        for project in projects_person:
-            if not project.pk in project_ids:
-                print "Project", project, "with pk", project.pk, "is not in", project_ids, ". Remove it!"
-                person.projects.remove(project)
+        form = UserModForm(instance=user)
 
-        for project_id in project_ids:
+        # Set user data
+        user.first_name  = request.POST.get('first_name')
+        user.last_name   = request.POST.get('last_name')
+        user.email       = request.POST.get('email')
+
+        new_password     = request.POST.get('password')
+        new_username     = request.POST.get('username')
+
+        if new_password == user.password:
+            print "Won't change password"
+            new_password = ""
+        else:
+            user.set_password(new_password)
+
+
+        # Don't check uniquenes of username if it did not change
+        if new_username == user.username:
             try:
-                project = Project.objects.get(pk = project_id)
-            except Exception, e:
-                print "in usermod(): Could not retrieve project id", project_id, "which was in submitted project ids:", project_ids
-                return HttpResponse("Something went wrong. Call the admin.")
-
-            if not project in projects_person:
-                print "Project", project, "with pk", project.pk, "is in", project_ids, ". Add it!"
-                try:
-                    person.projects.add(project)
-                    person.save()
-                except Exception, e:
-                    print "Error in usermod: Could not add person to project:", e
-                    return HttpResponsRedirect(reverse('persondb.views.usermod', args=(user_id,)))
-
-        new_expires      = request.POST.get('set_expires')
-        new_begins       = request.POST.get('set_begins')
-        new_short_name   = request.POST.get('set_short_name')
-        new_first_name   = request.POST.get('set_first_name')
-        new_last_name    = request.POST.get('set_last_name')
-        new_mail_address = request.POST.get('set_mail_address')
-        new_member_type  = request.POST.get('set_member_type')
-        # the POST sent me the display value of the Choice tuple, I want the key value
-        for m in MEMBER_TYPE_CHOICES:
-            if new_member_type == m[1]:
-                new_member_type = m[0]
-        try:
-            person.shortName   = new_short_name
-            person.firstName   = new_first_name
-            person.lastName    = new_last_name
-            person.mailAddress = new_mail_address
-            person.member_type = new_member_type
-            person.begins      = new_begins  # We rely on format "YYYY-MM-DD"
-            person.expires     = new_expires # We rely on format "YYYY-MM-DD"
-            person.save()
-        except Exception, e:
-            print "Error in usermod: could not set mostly text data:", e
-            return HttpResponseRedirect(reverse('persondb.views.usermod', args=(user_id,)))
-
-        return HttpResponseRedirect(reverse('persondb.views.usermod', args=(user_id,)))
-
-    # Handle GET requeset here
-    projects = Project.objects.all().order_by('name')
-    p = []
-    for project in projects:
-        if project in projects_person:
-            participant = True
+                user.full_clean(exclude=["username",])
+            except ValidationError, e:
+                return input_error(template = 'usermodform.html', request = request, form = form, error = e)
         else:
-            participant = False
+            user.username = new_username
+            try:
+                user.full_clean()
+            except ValidationError, e:
+                return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
-        p.append({
-                  'project': project,
-                  'participant': participant,
-                 })
+        # Now set member data
+        if not new_password == "":
+            member.htdigest = create_apache_htdigest(new_username, new_password)
 
-    return render_to_response('usermod.html',
-                              {'user' : person,
-                               'projects' : p,
-                               'member_types': MEMBER_TYPE_CHOICES,
-                              }, 
-                              context_instance=RequestContext(request),)
+        member.member_type = request.POST.get('member_type')
+        member.begins      = request.POST.get('begins')
+        member.expires     = request.POST.get('expires')
 
+        new_projects       = [ int(i) for i in request.POST.getlist('projects')]
 
-def projectmod(request, project_id, message=None):
+        for mp in member.projects.all():
+            if not mp.pk in new_projects:
+                member.projects.remove(mp)
+        
+        for p in Project.objects.in_bulk(new_projects):
+            member.projects.add(p)
 
-    project = Project.objects.get(pk=project_id)
-    persons = Person.objects.all().order_by('lastName')
-    persons_project = Person.objects.all().filter(projects = project).order_by('lastName')
+        try:
+            member.full_clean()
+        except ValidationError, e:
+            return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+
+        # OK, all data should be verified now
+        user.save()
+        member.save()
+
+        # Make sure all the new information will be displayed
+        form = UserModForm(instance=user)
+
+        return render_to_response('usermodform.html',
+                                  {
+                                      'success': True,
+                                      'form' : form,
+                                  },
+                                  context_instance=RequestContext(request),
+                                  )
+        
+    # Handle GET requeset here
+    form = UserModForm(instance=user)
+
+    return render_to_response('usermodform.html',
+                              {
+                                  'user' : user,
+                                  'form' : form,
+                              },
+                              context_instance=RequestContext(request),
+                              )
+
+def projectadd(request):
+    if request.method == 'POST':
+        form = CreateProjectForm(request.POST)
+        if not form.is_valid():
+            return input_error(template = 'projectadd.html', error = form.errors, request = request, form = form)
+
+        new_project = form.save()
+        
+        form = ProjectModForm(instance = new_project)
+        return render_to_response('projectmodform.html',
+                {
+                    'form':    form,
+                    'created': True,
+                },
+                context_instance=RequestContext(request),
+                )
+
+    # Handle GET requests
+    form = CreateProjectForm()
+    return render_to_response('projectadd.html',
+                              {
+                                  'form' : form,
+                              },
+                              context_instance=RequestContext(request),
+                              )
+
+def projectmod(request, project_id):
+
+    project = Project.objects.get(pk = project_id)
 
     if request.method == "POST":
-        if not request.user.is_authenticated():
-            return HttpResponse("Before you can edit the database, login first (go to admin interface)")
-
-        # These are user IDs which shall belong to that project
-        user_ids = request.POST.getlist('set_user')
-        user_ids = [ int(k) for k in user_ids ]
+        print request.POST
+        form = ProjectModForm(request.POST, instance=project) # remember database instance and inputs
+        if not form.is_valid():
+            return input_error(template = "projectmodform.html", request = request, form = form, error = form.errors)
         
+        new_members = [ int(m) for m in request.POST.getlist('members') ]
+        members_project = Member.objects.in_bulk(new_members)
+        for m in Member.objects.all():
+            if m.pk in members_project.keys():
+                m.projects.add(project)
+            else:
+                m.projects.remove(project)
 
-        for person in persons_project:
-            if not person.pk in user_ids:
-                print "Person", person, "with pk", person.pk, "is not in", user_ids, ". Remove it!"
-                person.projects.remove(project)
+        form.save() # Will also take care about m2m-relations
 
-        for user_id in user_ids:
-            person = Person.objects.get(pk = user_id)
-            if not person in persons_project:
-                print "Person", person, "with pk", person.pk, "is in", user_ids, ". Add it!"
-                try:
-                    person.projects.add(project)
-                    person.save()
-                except Exception, e:
-                    print "Error in projectmod: Could not add person to project:", e
-                    return HttpResponsRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
-
-        try:
-            project.name        = request.POST.get('set_project_name')
-            project.description = request.POST.get('set_project_description')
-            project.start       = request.POST.get('set_project_start')
-            project.end         = request.POST.get('set_project_end')
-            project.save()
-        except Exception, e:
-            print "Error in projectmod:", e
-            return HttpResponseRedirect(reverse('persondb.views.projectmod', 
-                                                args=(project_id),))
-
-        return HttpResponseRedirect(reverse('persondb.views.projectmod', args=(project_id,)))
-
-    # Handle GET request here
-    #project = Project.objects.get(pk=project_id)
-    #persons = Person.objects.all()
-    #persons_project = Person.objects.all().filter(projects = project)
-
-    users = []
-    for person in persons:
-        if person in persons_project:
-            users.append({'user': person, 
-                          'is_member': True,
-                         },)
-        else:
-            users.append({'user': person, 
-                          'is_member': False,
-                         },)
-
-    return render_to_response('projectmod.html',
+        return render_to_response('projectmodform.html',
+                                  {
+                                      'success': True,
+                                      'form' : form,
+                                  },
+                                  context_instance=RequestContext(request),
+                                  )
+            
+    # Handle GET requeset here
+    form = ProjectModForm(instance=project)
+    return render_to_response('projectmodform.html',
                               {
-                               'project': project,
-                               'users': users,
-                               'message': message,
+                                  'project': project,
+                                  'form' : form,
                               },
-                              context_instance=RequestContext(request),)
+                              context_instance=RequestContext(request),
+                              )
 
 def groups_dav(request):
     groups = get_groups_to_render()

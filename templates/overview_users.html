@@ -8,25 +8,26 @@
 
         <p>You can add users in <a href="{% url home %}admin/persondb/person/add/">Django's admin interface</a>.</p>
 
-        {% if persons %}
+        {% if users %}
 
         <h2>Active Users</h2>
 
         <table align="center" border="1" width="75%" >
             <tr>
-                <th>Last name</th><th>First Name</th><th>Member type</th><th>Projects</th><th>Shares</th>
+                <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
             </tr>
-            {% for p in persons %} {% if not p.is_expired %}
+            {% for u in users %} {% if u.is_active %}
             <tr>
-                <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.lastName }}</a></td>
-                <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.firstName }}</a></td>
-                <td>{{ p.get_member_type_display }}</td>
-                <td>{% for project in p.projects.all %}
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.last_name }}</a></td>
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.first_name }}</a></td>
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.username }}</a></td>
+                <td>{{ u.member_set.all.0.get_member_type_display }}</td>
+                <td>{% for project in u.member_set.all.0.projects.all %}
                     <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
                     {% endfor %}
                 </td>
-                <td>{% for project in p.projects.all %} {% for share in project.shares.all %}
-                    {{ share }} <br />
+                <td>{% for project in u.member_set.all.0.projects.all %} {% for share in project.shares.all %}
+                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a> <br />
                     {% endfor %} {% endfor %}
                 </td>
             </tr>
@@ -37,19 +38,20 @@
         <h2>Expired Users</h2>
         <table align="center" border="1" width="75%" >
             <tr>
-                <th>Last name</th><th>First Name</th><th>Member type</th><th>Projects</th><th>Shares</th>
+                <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
             </tr>
-            {% for p in persons %} {% if p.is_expired %}
+            {% for u in users %} {% if not u.is_active %}
             <tr>
-                <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.lastName }}</a></td>
-                <td><a href="{% url home %}usermod/{{ p.pk }}">{{ p.firstName }}</a></td>
-                <td>{{ p.get_member_type_display }}</td>
-                <td>{% for project in p.projects.all %}
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.last_name }}</a></td>
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.first_name }}</a></td>
+                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.username }}</a></td>
+                <td>{{ u.member_set.all.0.get_member_type_display }}</td>
+                <td>{% for project in u.member_set.all.0.projects.all %}
                     <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
                     {% endfor %}
                 </td>
-                <td>{% for project in p.projects.all %} {% for share in project.shares.all %}
-                    {{ share }} <br />
+                <td>{% for project in u.member_set.all.0.projects.all %} {% for share in project.shares.all %}
+                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a> <br />
                     {% endfor %} {% endfor %}
                 </td>
             </tr>

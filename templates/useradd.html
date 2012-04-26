@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block header %}
+<title>LAS3 Admin - Add user</title>
+{% endblock %}{# header #}
+
+{% block content %}
+<h1>Add user</h1>
+
+<form action="{% url home %}useradd" method="post">
+{% csrf_token %}
+<table>
+    <tr>
+        <td>Last Name</td>
+        <td><input type="text" name="set_last_name" id="set_last_name" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>First Name</td>
+        <td><input type="text" name="set_first_name" id="set_first_name" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>Username (LasFir)</td>
+        <td><input type="text" name="set_username" id="set_username" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>E-Mail</td>
+        <td><input type="text" name="set_email" id="set_email" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>Begins (YYYY-MM-DD)</td>
+        <td><input type="text" name="set_begins" id="set_begins" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>Expires (YYYY-MM-DD)</td>
+        <td><input type="text" name="set_expires" id="set_expires" size="30" maxlength="30"/></td>
+    </tr>
+    <tr>
+        <td>Member Type</td>
+        <td><select name="set_member_type" id="set_member_type">{% for typ in member_types %}
+                <option> {{ typ.1 }}
+            {% endfor %}
+        </select></td>
+    </tr>
+
+</table>
+
+<input type="submit" value="Add user" />
+
+</form>
+
+{% endblock %}{# content #}
+

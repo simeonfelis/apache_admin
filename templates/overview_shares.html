@@ -12,12 +12,12 @@
             <tr>
                 <th>Name</th><th>Type</th><th>Related Project</th><th>Persons</th>
             </tr>
-            {% for share in shares %}
+            {% for s in shares %}
             <tr>
-                <td><a href="{% url home %}sharemod/{{ share.share.pk }}">{{ share.share.name }}</a></td>
-                <td>{{ share.share.share_type }}</td>
-                <td><a href="{% url home %}projectmod/{{ share.project.pk }}">{{ share.project.name }}</a></td>
-                <td>{% for u in share.users %}<a href="{% url home %}usermod/{{ u.pk }}">{{ u }}</a><br />{% endfor %}</td>
+                <td><a href="{% url home %}sharemod/{{ s.share.pk }}">{{ s.share.name }}</a></td>
+                <td>{{ s.share.share_type }}</td>
+                <td><a href="{% url home %}projectmod/{{ s.project.pk }}">{{ s.project.name }}</a></td>
+                <td>{% for m in s.members %}<a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a><br />{% endfor %}</td>
             </tr>
             {% endfor %}
         </table>

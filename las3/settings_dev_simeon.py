@@ -2,6 +2,8 @@
 #
 # Only change the absolute paths
 
+print "Using simeon development settings"
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -47,16 +49,19 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+# MEDIA_ROOT = ''
+MEDIA_ROOT = '/home/simeon/workspace/django/las3-django/las3/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+# MEDIA_URL = ''
+MEDIA_URL = '/site_media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
+# ADMIN_MEDIA_PREFIX = '/usr/lib/python2.7/site-packages/django/contrib/admin/static/admin/static/'
 # ADMIN_MEDIA_PREFIX = ''
 
 # Make this unique, and don't share it with anybody.
@@ -89,6 +94,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'persondb',
     'django.contrib.auth',
+    'todo',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',

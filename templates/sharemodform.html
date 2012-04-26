@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-corner-all">Folgende Angaben waren Fehlerhaft:<br />
+{{ error }}
+</p>
+{% endif %}
+
+{% if success %}
+<p class="ui-corner-all">Daten wurden übernommen. Lüg ich oder was?!?  </p>
+{% endif %}
+
+
+<form action="{% url home %}sharemod/{{ form.instance.pk }}" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table>
+    <input type="submit" value="Change"/>
+</form>
+{% endblock %}

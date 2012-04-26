@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-corner-all">Folgende Angaben waren Fehlerhaft:<br />
+{{ error }}
+</p>
+{% endif %}
+
+{% if success %}
+<p class="ui-corner-all">Daten wurden übernommen. Lüg ich oder was?!?  </p>
+{% endif %}
+
+{% if created %}
+<p class="ui-corner-all">Neues Projekt wurde angelegt. Mehr Informationen setzen?</p>
+{% endif %}
+
+
+<form action="{% url home %}projectmod/{{ form.instance.pk }}" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table>
+    <input type="submit" value="Change"/>
+</form>
+{% endblock %}

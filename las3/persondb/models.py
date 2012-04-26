@@ -1,7 +1,7 @@
-import datetime
+import datetime, re
 from django.db import models
-from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 SHARE_TYPE_CHOICES = (
         ('bzr', 'Bazaar'),
@@ -25,9 +25,10 @@ class Share(models.Model):
         return self.share_type + " share " + self.name
 
     def clean(self):
-        if " " in self.name or "    " in self.name or "/" in self.name or "\\" in self.name:
-            raise ValidationError("Shares must not contain white spaces or slashes")
-            
+        if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
+            return self.name
+        raise ValidationError("name may only contain chars, numbers, - and _")
+
     name = models.CharField(max_length=40)
     share_type = models.CharField(max_length=3, choices=SHARE_TYPE_CHOICES)
 
@@ -35,36 +36,38 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    name = models.CharField(max_length=20)
-    description = models.CharField(max_length=200)
+    def clean(self):
+        if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
+            return self.name
+        raise ValidationError("name may only contain chars, numbers, - and _")
+
+    name = models.CharField(max_length=40)
+    description = models.CharField(max_length=255)
     start = models.DateField('project starts')
     end = models.DateField('project ends')
-    shares = models.ManyToManyField(Share)
+    shares = models.ManyToManyField(Share, blank=True, null=True)
 
-class Person(models.Model):
+class Member(models.Model):
     def __unicode__(self):
-        return self.firstName + " " + self.lastName
+        return self.user.last_name + " " + self.user.first_name + " (" + self.user.username + ")"
 
-    def clean(self):
-        if " " in self.shortName or "    " in self.shortName or "/" in self.shortName or "\\" in self.shortName:
-            raise ValidationError("Short Names must not contain white spaces or slashes")
+    #def clean(self):
+    #    if " " in self.shortName or "    " in self.shortName or "/" in self.shortName or "\\" in self.shortName:
+    #        raise ValidationError("Short Names must not contain white spaces or slashes")
             
-    def is_expired(self):
-        return self.expires < datetime.date.today()
-    is_expired.short_description = 'User account expired?'
+    #def is_expired(self):
+    #    return self.expires < datetime.date.today()
+    #is_expired.short_description = 'User account expired?'
 
-    extern = models.BooleanField('External (not in LaS3 or at HSR)', default=False, editable=False)
-    member_type = models.CharField(max_length=10, choices=MEMBER_TYPE_CHOICES, default='none')
+    #shortName = models.CharField('login name (unique)', max_length=10, unique=True)
 
-    firstName = models.CharField('fore name', max_length=128)
-    lastName = models.CharField('name', max_length=128)
-    shortName = models.CharField('login name (unique)', max_length=10, unique=True)
-
-    mailAddress = models.EmailField('email')
+    user = models.ForeignKey(User, unique = True)
+    htdigest = models.CharField(max_length=255)
 
     begins = models.DateField('access begins')
     expires = models.DateField('access expires')
 
     projects = models.ManyToManyField(Project)
 
+    member_type = models.CharField(max_length=10, choices=MEMBER_TYPE_CHOICES, default='none')
 

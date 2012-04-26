@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <link type="text/css" href="{{MEDIA_URL}}css/jquery-ui-1.8.19.custom.css" rel="Stylesheet" />
+        <script type="text/javascript" src="{{MEDIA_URL}}js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{MEDIA_URL}}js/ui.core.js"></script>
+        <script src="{{MEDIA_URL}}js/ui.datepicker.js" type="text/javascript"></script>
+
+        {% block header %}{% endblock %}
+
+        {# Required for django-tod #}
+        {% block extrahead %}{% endblock %}
+    </head>
+    <body>
+
+        {% block content %}{% endblock %}
+
+    </body>
+</html>
