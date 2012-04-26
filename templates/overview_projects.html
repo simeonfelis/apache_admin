@@ -1,12 +1,10 @@
-<html>
-    <head>
-        <title>LaS³ Django Admin Interface - Overview Projects</title>
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block content %}
 
         <h1>Add projects</h2>
 
-        <p>You can add projects in <a href="{% url home %}admin/persondb/project/add/">Django's admin interface</a>.</p>
+        <p>You can  <a href="{% url home %}projectadd">add projects</a>.</p>
 
         <h2>List of all projects</h2>
 
@@ -36,7 +34,6 @@
         <p>I cannot show you any project information at the moment</p>
         <p>Maybe something went wrong</p>
         {% endif %} {# projects #}
+        
+{% endblock %}
 
-
-    </body>
-</html>

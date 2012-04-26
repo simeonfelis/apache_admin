@@ -9,15 +9,22 @@ class CreateProjectForm(forms.ModelForm):
         super(CreateProjectForm, self).__init__(*args, **kwargs)
 
         self.fields["description"] = forms.CharField(widget=forms.Textarea)
+        self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+        self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+
 
     class Meta:
         model = Project
+        exclude = ("shares",)
 
 class CreateMemberForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateMemberForm, self).__init__(*args, **kwargs)
 
         self.fields['password'] = forms.CharField(widget=forms.PasswordInput)
+        self.fields['begins']   = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+        self.fields['expires']  = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+
 
     class Meta:
         model = User
@@ -51,6 +58,8 @@ class ProjectModForm(forms.ModelForm):
 
         self.fields['members'].initial = [u.pk for u in Member.objects.filter(projects = self.instance) ]
         self.fields['description']     = forms.CharField(widget=forms.Textarea)
+        self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+        self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
 
     class Meta:
         model = Project
@@ -71,11 +80,13 @@ class UserModForm(forms.ModelForm):
 
         member = Member.objects.get(user = self.instance)
 
+        self.fields['begins']   = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+        self.fields['expires']  = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+
         self.fields['projects'].initial     = [p.pk for p in member.projects.all() ]
         self.fields['begins'].initial       = member.begins
         self.fields['expires'].initial      = member.expires
         self.fields['member_type'].initial  = member.member_type
-
         self.fields['password'] = forms.CharField(label="Password", widget=forms.PasswordInput)
 
     class Meta:

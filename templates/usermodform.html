@@ -1,19 +1,32 @@
 {% extends "base.html" %}
 
+{% block header %}
+<script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+     });
+
+</script>
+{% endblock %}
+
+
 {% block content %}
 
 {% if error %}
-<p class="ui-corner-all">Folgende Angaben waren Fehlerhaft:<br />
+<p class="ui-state-error">Folgende Angaben waren Fehlerhaft:<br />
 {{ error }}
 </p>
 {% endif %}
 
 {% if success %}
-<p class="ui-corner-all">Daten wurden übernommen. Lüg ich oder was?!?  </p>
+<p class="ui-state-highlight">Daten wurden übernommen. Lüg ich oder was?!?  </p>
 {% endif %}
 
 {% if created %}
-<p class="ui-corner-all">Benutzer erstellt. Hier mehr infos angeben?</p>
+<p class="ui-state-highlight">Benutzer erstellt. Hier mehr infos angeben?</p>
 {% endif %}
 
 
@@ -21,7 +34,14 @@
     {% csrf_token %}
     <table>
     {{ form.as_table }}
+    <tr>
+        <td align="left">
+            <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Delete</a>
+        </td>
+        <td align="right">
+            <input type="submit" value="Change"/>
+        </td>
+    </tr>
     </table>
-    <input type="submit" value="Change"/>
 </form>
 {% endblock %}
