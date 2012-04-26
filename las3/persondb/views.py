@@ -100,7 +100,7 @@ def overview(request, what):
     elif what == "shares":
         return render_to_response('overview_shares.html',
                                   {
-                                   'shares': get_groups_to_render,
+                                   'shares': get_groups_to_render(),
                                   })
     elif what == "users":
         print users
@@ -175,15 +175,12 @@ def emails(request, what, param, which):
     # param what can be: project, a member_type_*, share_*,  all
     # param which is the pk of what
     # param param can be: active, expired, all
-    if not request.user.is_authenticated():
-        return HttpResponse("Before you can view email address of our users, login first (go to admin interface)")
-
-
-    persons = Person.objects.all().order_by('lastName')
 
     if not param in ["active", "expired", "all"]:
         return HttpResponse("The parameter '" + param + "' is not valid. Valid parameters are: 'all', 'expired', 'active'. E.g: \nemails/project/expired/1",
                             mimetype = "text/plain")
+
+    members = Member.objects.all()
 
     if what == "project":
         try:
@@ -193,19 +190,20 @@ def emails(request, what, param, which):
                                 "text/plain")
 
         if param == "active":
-            users = persons.filter(projects = project, expires__gt = datetime.date.today())
+            users = [m.user for m in members.filter(projects = project, expires__gt = datetime.date.today())]
         elif param == "expired":
-            users = persons.filter(projects = project, expires__lte = datetime.date.today())
+            users = [m.user for m in members.filter(projects = project, expires__lte = datetime.date.today())]
         elif param == "all":
-            users = persons.filter(projects = project)
+            users = [m.user for m in members.filter(projects = project)]
+        print users
 
     elif what == "all":
         if param == "active":
-            users = persons.filter(expires__gt = datetime.date.today())
+            users = [m.user for m in members.filter(expires__gt = datetime.date.today())]
         elif param == "expired":
-            users = persons.filter(expires__lte = datetime.date.today())
+            users = [m.user for m in members.filter(expires__lte = datetime.date.today())]
         elif param == "all":
-            users = persons
+            users = [m.user for m in members]
 
     elif "member_type_" in what:
 
@@ -216,11 +214,11 @@ def emails(request, what, param, which):
                                 "text/plain")
 
         if param == "active":
-            users = persons.filter(member_type = member_type, expires__gt = datetime.date.today())
+            users = [m.user for m in members.filter(member_type = member_type, expires__gt = datetime.date.today())]
         elif param == "expired":
-            users = persons.filter(member_type = member_type, expires__lte = datetime.date.today())
+            users = [m.user for m in members.filter(member_type = member_type, expires__lte = datetime.date.today())]
         elif param == "all":
-            users = persons.filter(member_type = member_type)
+            users = [m.user for m in members.filter(member_type = member_type)]
 
     elif "share_type_" in what:
 
@@ -229,24 +227,23 @@ def emails(request, what, param, which):
             return HttpResponse("I don't know share type " + share_type)
 
         if param == "active":
-            users = persons.filter(expires__gt = datetime.date.today())
+            ms = members.filter(expires__gt = datetime.date.today())
         elif param == "expired":
-            users = persons.filter(expires__lte = datetime.date.today())
+            ms = members.filter(expires__lte = datetime.date.today())
         elif param == "all":
-            users = persons
+            ms = members
 
         unique_users = {}
-        for user in users:
-            for project in user.projects.all():
-                for share in project.shares.filter(share_type = share_type):
-                    unique_users[user.shortName] = user
+        for m in ms:
+            for project in m.projects.all():
+                for s in project.shares.filter(share_type = share_type):
+                    unique_users[m.user.username] = m.user
         users = [ unique_users[key] for key in unique_users.keys() ]
-
 
     else:
         return HttpResponse("Retrieving emails from '" + what + "' not yet implemented/not supported." , mimetype="text/plain")
 
-    email_list = [ mail.mailAddress for mail in users ]
+    email_list = [ u.email for u in users ]
     emails = ", \n".join(email_list)
     return HttpResponse("Emails for members of '" + what + "' with parameter '" + param + "':\n" + emails, 
                         mimetype = "text/plain")
