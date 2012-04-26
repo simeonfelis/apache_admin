@@ -55,21 +55,26 @@ def get_shares_to_render(typ):
     
 def get_groups_to_render():
     shares = Share.objects.all()
-    members = Member.objects.all()
     projects = Project.objects.all()
-
+    members = Member.objects.all()
     shares_render = []
     for share in shares:
-        share_projects = projects.filter(shares = share)
+        shares_projects = projects.filter(shares = share)
         share_members = []
-        for share_project in share_projects:
-            share_members.append(members.filter(projects = share_project))
+        share_projects = []
+        if len(shares_projects) == 0:
+            shares_projects = []
+        else:
+            for p in shares_projects:
+                share_projects.append(p)
+                for m in members.filter(projects = p):
+                    share_members.append(m)
         shares_render.append({
                              'share': share,
-                             'member': share_members
+                             'projects': share_projects,
+                             'members': share_members
                              })
     return shares_render
-
 
 def home(request):
 
@@ -79,7 +84,6 @@ def home(request):
                               )
 
 def overview(request, what):
-#    persons = Person.objects.all().order_by('lastName')
     members = Member.objects.all()
     users = User.objects.all()
 
@@ -94,29 +98,9 @@ def overview(request, what):
                                       'projects': proj_render,
                                   })
     elif what == "shares":
-        shares = Share.objects.all()
-        projects = Project.objects.all()
-        shares_render = []
-        for share in shares:
-            shares_projects = projects.filter(shares = share)
-            share_members = []
-            share_projects = []
-            if len(shares_projects) == 0:
-                shares_projects = []
-            else:
-                for p in shares_projects:
-                    share_projects.append(p)
-                    for m in members.filter(projects = p):
-                        share_members.append(m)
-            shares_render.append({
-                                 'share': share,
-                                 'projects': share_projects,
-                                 'members': share_members
-                                 })
-
         return render_to_response('overview_shares.html',
                                   {
-                                   'shares': shares_render,
+                                   'shares': get_groups_to_render,
                                   })
     elif what == "users":
         print users
@@ -544,6 +528,7 @@ def projectmod(request, project_id):
 
 def groups_dav(request):
     groups = get_groups_to_render()
+    print groups
 
     return render_to_response('groups.dav',
                               {'groups': groups},
