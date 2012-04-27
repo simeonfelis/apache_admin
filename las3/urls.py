@@ -21,6 +21,8 @@ urlpatterns = patterns('',
     url(r'^shareadd', 'persondb.views.shareadd'), # POST and GET
     url(r'^usermod/(?P<user_id>\d+)', 'persondb.views.usermod'), # POST and GET
     url(r'^useradd', 'persondb.views.useradd'), # POST and GET
+    url(r'^(?P<what>\w+)/delete/(?P<which>\d+)', 'persondb.views.delete'),
+
     url(r'^overview/(?P<what>\w+)$', 'persondb.views.overview'),
     url(r'^emails/(?P<what>.*)/(?P<param>\w+)/(?P<which>\d+)', 'persondb.views.emails'),
     url(r'^write_configs/(?P<which>.*)$', 'persondb.views.write_configs'),

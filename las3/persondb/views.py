@@ -5,7 +5,7 @@ from hashlib import md5 # htdigest password generation
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
 
@@ -84,6 +84,35 @@ def home(request):
                               {'configs': share_types, },
                               context_instance=RequestContext(request),
                               )
+
+def delete(request, what, which):
+
+    user_is_sure = False
+
+    if request.method == 'POST':
+        user_is_sure = True
+
+    if what == 'projectmod':
+        instance = get_object_or_404(Project, pk=which)
+    elif what == "usermod":
+        pass
+    elif what == "sharemod":
+        pass
+
+    if user_is_sure:
+        instance.delete()
+        print "Thing deleted. Redirect to ", what[:-3] + "s"
+        return overview(request=request, what=what[:-3] + "s")
+    else:
+        return render_to_response('delete.html',
+                {
+                    'what': what,
+                    'instance': instance,
+                },
+                context_instance=RequestContext(request),
+                )
+
+    print "Delete", what, "with id", which
 
 def overview(request, what):
     members = Member.objects.all()
