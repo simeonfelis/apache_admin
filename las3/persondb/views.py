@@ -98,18 +98,24 @@ def overview(request, what):
         return render_to_response('overview_projects.html',
                                   {
                                       'projects': proj_render,
-                                  })
+                                  },
+                                      context_instance=RequestContext(request),
+                                      )
     elif what == "shares":
         return render_to_response('overview_shares.html',
                                   {
                                    'shares': get_groups_to_render(),
-                                  })
+                                  },
+                                      context_instance=RequestContext(request),
+                                      )
     elif what == "users":
         print users
         return render_to_response('overview_users.html',
                                   {
                                       'users': users,
-                                  })
+                                  },
+                                      context_instance=RequestContext(request),
+                                      )
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
 
