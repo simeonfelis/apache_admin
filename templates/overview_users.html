@@ -1,7 +1,32 @@
-<html>
-    <head>
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block header %}
+        <script src="{{ MEDIA_URL }}js/ui.datepicker.js" type="text/javascript"></script>
+        <link type="text/css" href="{{ MEDIA_URL }}css/jquery-ui-1.8.19.custom.css" rel="Stylesheet" />
+
+	    <link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.ui.all.css">
+	    
+	    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.7.2.min.js"></script>
+	    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.19.custom.min.js"></script>
+
+<!-- CSS and JavaScript  -->
+
+<script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $("table thead").addClass("ui-widget-header");
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+     });
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+
         <h1>User information</h1>
 
         <h2>Add user</h2>
@@ -12,10 +37,13 @@
 
         <h2>Active Users</h2>
 
-        <table align="center" border="1" width="75%" >
-            <tr>
+        <table align="center" border="1" width="75%" class="ui-widget" >
+            <thead>
+            <tr class="ui-widget-header">
                 <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
             </tr>
+            </thead>
+            <tbody class=ui-widget-content">
             {% for u in users %} {% if u.is_active %}
             <tr>
                 <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.last_name }}</a></td>
@@ -31,7 +59,9 @@
                     {% endfor %} {% endfor %}
                 </td>
             </tr>
-            {% endif %} {% endfor %}
+            {% endif %}
+            {% endfor %}
+            </tbody>
         </table>
 
 
@@ -64,7 +94,5 @@
         <p>Maybe something went wrong</p>
         {% endif %}
         
-    </body>
-</html>
-
+{% endblock %}
 

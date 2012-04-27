@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 
+{% block header %}
+<!-- CSS and JavaScript  -->
+
+<script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+            {% if thedate %}
+        $('#id_due_date').datepicker({defaultDate: new Date({{thedate.year}}, {{thedate.month}} - 1, {{thedate.day}}), dateFormat: 'yy-mm-dd',});
+            {% else %}
+        $('#id_due_date').datepicker({defaultDate: new Date(2012, 04 - 1, 26), dateFormat: 'dd-mm-yy', });
+            {% endif %}
+     });
+
+</script>
+{% endblock %}
+
 {% block content %}
 
 {% if error %}
@@ -12,7 +31,11 @@
     {% csrf_token %}
     <table>
     {{ form.as_table }}
+    <tr>
+        <td class="left">
+            <input type="submit" value="Add"/>
+        </td>
+        <td></td>
     </table>
-    <input type="submit" value="Add"/>
 </form>
 {% endblock %}
