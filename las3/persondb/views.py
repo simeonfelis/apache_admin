@@ -22,7 +22,9 @@ member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
-    apache_password = md5(apache_prefix + password).hexdigest()
+    # md5 does not speak unicode
+    # we need to convert the codec
+    apache_password = md5(apache_prefix.encode('utf-8') + password.encode('utf-8')).hexdigest()
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
 
@@ -325,7 +327,11 @@ def useradd(request):
 
         # Also create a apache htdigest compatible password
         username = request.POST.get('username')
-        apache_htdigest = create_apache_htdigest(username, password)
+        try:
+            apache_htdigest = create_apache_htdigest(username, password)
+        except Exception, e:
+            new_user.delete()
+            return input_error(template='member.html', form=form, request=request, error=e)
 
         new_member = Member(
                 htdigest    = apache_htdigest,
@@ -339,13 +345,7 @@ def useradd(request):
             new_member.clean_fields()
         except ValidationError, e:
             new_user.delete()
-            return render_to_response('member.html',
-                    {
-                        'error' : e,
-                        'form' : form,
-                    },
-                    context_instance=RequestContext(request),
-                    )
+            return input_error(template='member.html', form=form, error=e, request=request)
 
         new_member.save()
 
