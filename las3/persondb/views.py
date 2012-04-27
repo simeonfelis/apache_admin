@@ -56,7 +56,7 @@ def get_shares_to_render(typ):
     return project_shares
     
 def get_groups_to_render():
-    shares = Share.objects.all()
+    shares = Share.objects.all().order_by("name")
     projects = Project.objects.all()
     members = Member.objects.all()
     shares_render = []
@@ -95,9 +95,10 @@ def delete(request, what, which):
     if what == 'projectmod':
         instance = get_object_or_404(Project, pk=which)
     elif what == "usermod":
+        return HttpResponse("Not yet implemented")
         pass
     elif what == "sharemod":
-        pass
+        instance = get_object_or_404(Share, pk=which)
 
     if user_is_sure:
         instance.delete()

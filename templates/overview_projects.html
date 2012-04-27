@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 
 {% block header %}
+<!-- CSS and JavaScript  -->
+
 <script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
     $(document).ready(function(){
-        $("tr").addClass("ui-widget-content");
-        $("td").addClass("ui-widget-header");
+        $("table thead").addClass("ui-widget-header");
+        $("table tbody").addClass("ui-widget-content");
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
      });
+
 </script>
 {% endblock %}
+
 
 {% block content %}
 
@@ -18,25 +26,29 @@
         <h2>List of all projects</h2>
 
         {% if projects %}
-        <table align="center" border="1" width="75%">
-            <tr>
-                <th>Project</th><th width="">Description</th><th>Shares</th><th>Users</th>
-            </tr>
-            {% for p in projects %}
-            <tr>
-                <td><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project.name }}</a></td>
-                <td>{{ p.project.description }}</td>
-                <td> {% for share in p.project.shares.all %}
-                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br />
-                    {% endfor %}
-                </td>
-                <td> {% if p.members|length_is:"0" %}
-                    No user is part of this project
-                    {% else %} {% for m in p.members %}
-                    <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.username }}</a> <br />
-                    {% endfor %} {% endif %}
-                </td>
-            </tr>
+        <table align="center" border="1" width="80%">
+            <thead>
+                <tr>
+                    <th width="20%">Project</th><th>Description</th><th width="15%">Shares</th><th width="20%">Users</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in projects %}
+                <tr>
+                    <td><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project.name }}</a></td>
+                    <td>{{ p.project.description }}</td>
+                    <td> {% for share in p.project.shares.all %}
+                        <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br />
+                        {% endfor %}
+                    </td>
+                    <td> {% if p.members|length_is:"0" %}
+                        No user is part of this project
+                        {% else %} {% for m in p.members %}
+                        <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.first_name }} {{ m.user.last_name }}</a> <br />
+                        {% endfor %} {% endif %}
+                    </td>
+                </tr>
+            </tbody>
             {% endfor %}
         </table>
         {% else %}

@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 
+{% block header %}
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+     });
+
+</script>
+{% endblock %}
+
 {% block content %}
 
 {% if error %}
@@ -13,6 +23,6 @@
     <table>
     {{ form.as_table }}
     </table>
-    <input type="submit" value="Add"/>
+    <input type="submit" value="Erstellen"/>
 </form>
 {% endblock %}
