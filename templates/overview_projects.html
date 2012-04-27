@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block header %}
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+        $("tr").addClass("ui-widget-content");
+        $("td").addClass("ui-widget-header");
+     });
+</script>
+{% endblock %}
+
 {% block content %}
 
         <h1>Add projects</h2>
