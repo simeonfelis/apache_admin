@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import datetime, os
 from hashlib import md5 # htdigest password generation
 
-
 from django.http import HttpResponse, HttpResponseRedirect
+from django.conf import settings
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.shortcuts import render_to_response, get_object_or_404
@@ -13,17 +16,17 @@ from django.contrib.auth.models import User
 
 from persondb.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 from persondb.forms import *
-#from persondb.models import ProjectShares
-
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 
 member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
 
+admins_names = [ a[0] for a in settings.ADMINS ]
+admins_emails = [ a[1] for a in settings.ADMINS ]
+
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
-    # md5 does not speak unicode
-    # we need to convert the codec
+    # md5 does not speak unicode, we need to convert the codec
     apache_password = md5(apache_prefix.encode('utf-8') + password.encode('utf-8')).hexdigest()
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
@@ -77,6 +80,37 @@ def get_groups_to_render():
                              'members': share_members
                              })
     return shares_render
+
+def get_account_expired_text(member):
+    return """
+Hallo Frau oder Herr %s,
+
+Ihr account %s an unserem Server rfhete470.hs-regensburg.de ist am %s abgelaufen.
+
+Ihre Projektdaten beiben erhalten, ihr Zugang wird aber deaktiviert.
+
+Wenn Sie Ihren Zugang noch benoetigen, beachrichtigen Herrn Mottok oder mich.
+
+
+Mit freundlichen Grüßen,
+
+Ihr rfhete470 Admin
+""".decode('utf-8') %(member.user.last_name, member.user.username, str(member.expires))
+
+def get_account_activated_text(member):
+    return """
+Hallo Frau oder Herr %s,
+
+Ihr account %s an unserem Server rfhete470.hs-regensburg.de ist aktiviert worden.
+
+Er bleibt bis zum %s aktiv.
+
+Viel Spaß!
+
+Mit freundlichen Grüßen,
+
+Ihr rfhete470 Admin
+""".decode('utf-8') %(member.user.last_name, member.user.username, str(member.expires))
 
 def home(request):
 
@@ -149,63 +183,89 @@ def overview(request, what):
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
 
-def write_configs(request, which):
-    # which can be: all, groups.dav, element of share_types
+def maintenance(request):
+    # writes configs, updates is_active flag
+
+    def answer(request, message, error=None):
+        return render_to_response("maintenance.html",
+                {
+                    'error': error,
+                    'message': message,
+                    'enabled_members': enabled_members,
+                    'disabled_members': disabled_members,
+                    'email_problem': email_problem,
+                },
+                context_instance=RequestContext(request),
+                )
+
+
+    email_problem = False
+    disabled_members = []
+    enabled_members = []
+
+    # take care about expired users
+    for m in Member.objects.filter(user__is_active=True, expires__lt=datetime.date.today()):
+        print "The member", m.user, "expired at", m.expires, m.user.first_name, m.user.last_name, "will be set inactive"
+        m.user.is_active = False
+        #m.user.save()
+        disabled_members.append(m)
+        try:
+            sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
+        except Exception, e:
+            email_problem = True
+            # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
+            pass
+
+    # take care about activating users
+    for m in Member.objects.filter(user__is_active=False, expires__gte=datetime.date.today()):
+        print "The member", m.user, "became active at", m.expires, m.user.first_name, m.user.last_name, "will be activated"
+        m.user.is_active = True
+        #m.user.save()
+        enabled_members.append(m)
+        try:
+            sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
+        except Exception, e:
+            email_problem = True
+            # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
+            pass
 
     gen_folder = os.path.join("var", "django", "generated")
 
-    if which == "all":
-        for typ in share_types:
-            print "Generating config for ", typ, "in ", os.path.join(gen_folder, typ + ".config")
-            filename = os.path.join(gen_folder, typ + ".config")
-            try:
-                shares = get_shares_to_render(typ)
-                a = open(filename, "wb").write(render_to_string(typ + ".config", 
-                                                            {'shares': shares},
-                                                            ))
-            except Exception, e:
-                message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
-                return HttpResponse(message)
+    # vcs and dav configs
+    for typ in share_types:
+        filename = os.path.join(gen_folder, typ + ".config")
         try:
-            filename = os.path.join(gen_folder, "groups.dav")
-            groups = get_groups_to_render()
-            open(filename, "wb").write(render_to_string("groups.dav",
-                                                        {'groups': groups},
-                                                        ))
+            shares = get_shares_to_render(typ)
+            open(filename, "wb").write(render_to_string(typ + ".config", 
+                {
+                    'shares': shares
+                },))
         except Exception, e:
-            message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
-            return HttpResponse(message)
+            error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+            return answer(request=request, message="There was a problem.", error=error)
 
+    # Apache group file
+    filename = os.path.join(gen_folder, "groups.dav")
+    groups = get_groups_to_render()
+    try:
+        open(filename, "wb").write(render_to_string("groups.dav",
+            {
+                'groups': groups,
+            },))
+    except Exception, e:
+        error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+        return answer(request=request, message="There was a problem.", error=error)
 
-    elif which == "groups.dav":
-        try:
-            filename = os.path.join(gen_folder, "groups.dav")
-            groups = get_groups_to_render()
-            open(filename, "wb").write(render_to_string("groups.dav",
-                                                        {'groups': groups},
-                                                        ))
-        except Exception, e:
-            message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
-            return HttpResponse(message)
+    # Apache password file
+    filename = os.path.join(gen_folder, "passwd.dav")
+    passwd = "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=True)])
+    try:
+        open(filename, "wb").write(passwd)
+    except Exception, e:
+        error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+        return answer(request=request, message="There was a problem.", error=error)
 
-
-    elif which in share_types:
-        filename = os.path.join(gen_folder, which + ".config")
-        try:
-            shares = get_shares_to_render(which)
-            open(filename, "wb").write(render_to_string(which + ".config", 
-                                                        {'shares': shares},
-                                                        ))
-        except Exception, e:
-            message = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + e.__str__()
-            return HttpResponse(message)
-
-
-    else:
-        message = "Invalid config file requested: " + which
-        return HttpResponse(message)
-
-    return HttpResponse("Looks like writing config file for '" + which + "' succeeded. They are in " + gen_folder)
+    return answer(request=request, message="Schaut aus als ob die Wartung klappt. Warte auf den Server, bis er die neuen Einstellungen läd.")
 
 
 

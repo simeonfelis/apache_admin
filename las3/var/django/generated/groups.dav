@@ -1,0 +1,23 @@
+ 
+svn_r3tos: BayMic KraSte MotJue NieMic RaaPet 
+
+bzr_s3core: FelSim MotJue NieMic EllTob MadRal 
+
+dav_docshare: ScuMic FelSim NieMic BraJue JosSas KraSte MotJue RaaPet ResMic 
+
+git_ipcore: BayMic BraJue KraSte MadRal MotJue NacGun RaaPet FelSim 
+
+svn_las3-compiler: BayMic BraJue KraSte MadRal MotJue NacGun RaaPet FelSim 
+
+git_las3-django: FelSim MotJue NieMic 
+
+bzr_lesseons: FarMic KneFra MotJue NieMic 
+
+svn_smartmeter-private: AlbTho HanGer HarAnd MotJue StaChr 
+
+svn_smartmeter-public: AlbTho FroAnd HacRud HanGer HarAnd KnoPau MotJue StaChr ZinPet 
+
+dav_transfer: MotJue AlbTho BocTho BayMic BraJue FelSim HriPet JosSas KraSte NacGun NieMic RaaPet ResMic ScuMic StaChr 
+
+svn_vitas3: MotJue NicMat 
+

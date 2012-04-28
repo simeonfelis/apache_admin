@@ -7,11 +7,11 @@ SHARE_TYPE_CHOICES = (
         ('bzr', 'Bazaar'),
         ('git', 'Git'),
         ('svn', 'Subversion'),
-        ('dav', 'Wedav folder share'),
+        ('dav', 'Wedav Folder'),
 )
 
 MEMBER_TYPE_CHOICES = (
-        ('master', '(Resarch) Master Student'),
+        ('master', 'Master Student'),
         ('bachelor', 'Bachelor Student'),
         ('phd', 'PhD Student'),
         ('shk', 'Studentische Hilfskraft'),
