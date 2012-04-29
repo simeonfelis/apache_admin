@@ -166,8 +166,13 @@
 
     {% endif %}{# is_god #}
 
-    {% endif %}{# member #}
+    {% else %}{# member #}
+
+    <p>Irgendwas ist schief gegangen. Evt. ist die django-Datenbank nicht synchron mit der passwd, apache hat noch nicht die neuen configs geladen oder du solltest dich unter django admin abmelden.</p>
+    <p>Es kann auch sein dass du dein Passwort neu setzen musst. Benutze das las3-formular dafür (usermod/....)</p>
+
     </div><!-- las3-member-content -->
+    {% endif %}{# member #}
 
 {% endblock %}
 

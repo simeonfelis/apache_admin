@@ -174,10 +174,11 @@ def check_god_or_nothing(request):
 def is_god(request):
     """ returns True if request comes from a god member, otherwise False"""
     members_auth = apache_or_django_auth(request)
-    groups_auth = [ g.name for g in members_auth.user.groups.all() ]
-    for g in groups_auth:
-        if 'Gods' == g:
-            return True
+    if not members_auth == None:
+        groups_auth = [ g.name for g in members_auth.user.groups.all() ]
+        for g in groups_auth:
+            if 'Gods' == g:
+                return True
 
     return False
 
