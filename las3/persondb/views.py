@@ -141,38 +141,45 @@ def apache_or_django_auth(request):
 
     return member
 
-def is_allowed_project_member(request, project):
+def check_allowed_project_member_or_nothing(request, project):
     """ returns True if allowed, otherwise PermissionDenied exception is raised"""
 
     member = apache_or_django_auth(request)
 
     if project in member.projects.all():
             return True
-    elif is_god(request):
+    elif check_god_or_nothing(request):
         return True
 
     raise PermissionDenied
 
-def is_allowed_member(request, member):
+def check_allowed_member_or_nothing(request, member):
     """ returns True if allowed, otherwise PermissionDenied exception is raised"""
 
     member_auth = apache_or_django_auth(request)
     if member.pk == member_auth.pk:
         return True
-    elif is_god(request):
+    elif check_god_or_nothing(request):
         return True
 
     raise PermissionDenied
 
-def is_god(request):
+def check_god_or_nothing(request):
     """ returns True if allowed, otherwise PermissionDenied exception is raised"""
+
+    if is_god(request):
+        return True
+    raise PermissionDenied
+
+def is_god(request):
+    """ returns True if request comes from a god member, otherwise False"""
     members_auth = apache_or_django_auth(request)
     groups_auth = [ g.name for g in members_auth.user.groups.all() ]
     for g in groups_auth:
         if 'Gods' == g:
             return True
 
-    raise PermissionDenied
+    return False
 
 def home(request):
 
@@ -187,6 +194,8 @@ def home(request):
                               {
                                   'member': member,
                                   'projects': projects,
+                                  'is_god': is_god(request),
+                                  'configs': ["svn", "bzr", "dav", "git"],
                               },
                               context_instance=RequestContext(request),
                               )
@@ -196,7 +205,7 @@ def delete(request, what, which):
     user_is_sure = False
 
     if request.method == 'POST':
-        is_god(request)
+        check_god_or_nothing(request)
         user_is_sure = True
 
     if what == 'projectmod':
@@ -368,7 +377,7 @@ def emails(request, what, param, which):
 
     elif what == "all":
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         if param == "active":
             users = [m.user for m in members.filter( user__is_active = True)]
@@ -379,7 +388,7 @@ def emails(request, what, param, which):
 
     elif "member_type_" in what:
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         member_type = what[12:]
 
@@ -396,7 +405,7 @@ def emails(request, what, param, which):
 
     elif "share_type_" in what:
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         share_type = what[11:]
         if not share_type in share_types:
@@ -430,7 +439,7 @@ def sharemod(request, share_id):
     share = Share.objects.get(pk = share_id)
     
     if request.method == "POST":
-        is_god(request)
+        check_god_or_nothing(request)
 
         form = ShareModForm(request.POST, instance=share) # remember database instance and inputs
         if not form.is_valid():
@@ -461,7 +470,7 @@ def shareadd(request):
 
     if request.method == 'POST':
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         form = CreateShareForm(request.POST)
         if not form.is_valid():
@@ -492,7 +501,7 @@ def useradd(request):
 
     if request.method == 'POST':
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         form = CreateMemberForm(request.POST)
         if not form.is_valid():
@@ -565,7 +574,7 @@ def usermod(request, user_id):
 
     if request.method == "POST":
 
-        is_allowed_member(request, member)
+        check_allowed_member_or_nothing(request, member)
 
         form = UserModForm(instance=user)
 
@@ -648,7 +657,7 @@ def usermod(request, user_id):
     return render_to_response('usermodform.html',
                               {
                                   'user' : user,
-                                  'is_member': is_allowed_member(request, member),
+                                  'is_member': check_allowed_member_or_nothing(request, member),
                                   'form' : form,
                               },
                               context_instance=RequestContext(request),
@@ -659,7 +668,7 @@ def projectadd(request):
 
     if request.method == 'POST':
 
-        is_god(request)
+        check_god_or_nothing(request)
 
         form = CreateProjectForm(request.POST)
         if not form.is_valid():
@@ -693,7 +702,7 @@ def projectmod(request, project_id):
     is_allowed_project_member(request, project)
 
     if request.method == "POST":
-        is_god(request)
+        check_god_or_nothing(request)
 
         form = ProjectModForm(request.POST, instance=project) # remember database instance and inputs
         if not form.is_valid():
