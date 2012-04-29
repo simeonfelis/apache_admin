@@ -277,10 +277,11 @@ def maintenance(request):
     for m in Member.objects.filter(user__is_active=True, expires__lt=datetime.date.today()):
         print "The member", m.user, "expired at", m.expires, m.user.first_name, m.user.last_name, "will be set inactive"
         m.user.is_active = False
-        #m.user.save()
+        m.user.save()
         disabled_members.append(m)
         try:
-            sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
+            print "fake mail send"
+            #sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
@@ -290,10 +291,11 @@ def maintenance(request):
     for m in Member.objects.filter(user__is_active=False, expires__gte=datetime.date.today()):
         print "The member", m.user, "became active at", m.expires, m.user.first_name, m.user.last_name, "will be activated"
         m.user.is_active = True
-        #m.user.save()
+        m.user.save()
         enabled_members.append(m)
         try:
-            sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
+            print "fake mail send"
+            #sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
