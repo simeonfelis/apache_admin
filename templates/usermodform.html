@@ -36,11 +36,11 @@
     {{ form.as_table }}
     <tr>
         <td align="left">
-            <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Delete</a>
+            <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Löschen</a>
         </td>
         <td align="right">
             <a class="button" href="{% url home %}useradd">Neuer Benutzer</a>
-            <input type="submit" value="Change"/>
+            {% if is_member %}<input type="submit" value="Ändern"/>{% endif %}
         </td>
     </tr>
     </table>

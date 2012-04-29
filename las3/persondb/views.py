@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
@@ -18,9 +18,7 @@ from persondb.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_T
 from persondb.forms import *
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
-
 member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
-
 admins_names = [ a[0] for a in settings.ADMINS ]
 admins_emails = [ a[1] for a in settings.ADMINS ]
 
@@ -112,10 +110,84 @@ Mit freundlichen Grüßen,
 Ihr rfhete470 Admin
 """.decode('utf-8') %(member.user.last_name, member.user.username, str(member.expires))
 
+def apache_or_django_auth(request):
+    """
+    Returns a member if request has valid information, None otherwise.
+    This assumes apache is correctly configured and checks permission for locations.
+    """
+
+    # django-auth
+    if request.user.is_authenticated():
+        user = get_object_or_404(User, username = request.user.username)
+        member = Member.objects.filter(user__username = request.user.username)
+
+        if len(member) > 0:
+            member = member[0]
+        else:
+            member = None
+    # apache-auth
+    elif 'REMOTE_USER' in request.META.keys():
+
+        member = Member.objects.filter(user__username = request.META['REMOTE_USER'])
+
+        if len(member) > 0:
+            member = member[0]
+        else:
+            member = None
+            print "apache authenticated who has access to django, but is not a member. Who the fuck corrupted the database?"
+    else:
+        # Neither django nor apache could authenticate the user
+        member = None
+
+    return member
+
+def is_allowed_project_member(request, project):
+    """ returns True if allowed, otherwise PermissionDenied exception is raised"""
+
+    member = apache_or_django_auth(request)
+
+    if project in member.projects.all():
+            return True
+    elif is_god(request):
+        return True
+
+    raise PermissionDenied
+
+def is_allowed_member(request, member):
+    """ returns True if allowed, otherwise PermissionDenied exception is raised"""
+
+    member_auth = apache_or_django_auth(request)
+    if member.pk == member_auth.pk:
+        return True
+    elif is_god(request):
+        return True
+
+    raise PermissionDenied
+
+def is_god(request):
+    """ returns True if allowed, otherwise PermissionDenied exception is raised"""
+    members_auth = apache_or_django_auth(request)
+    groups_auth = [ g.name for g in members_auth.user.groups.all() ]
+    for g in groups_auth:
+        if 'Gods' == g:
+            return True
+
+    raise PermissionDenied
+
 def home(request):
 
+    member = apache_or_django_auth(request)
+    projects = []
+    if not member == None:
+        for p in member.projects.all().order_by("name"):
+            members = Member.objects.filter(projects=p)
+            projects.append({'project': p, 'members': members})
+
     return render_to_response('index.html',
-                              {'configs': share_types, },
+                              {
+                                  'member': member,
+                                  'projects': projects,
+                              },
                               context_instance=RequestContext(request),
                               )
 
@@ -124,6 +196,7 @@ def delete(request, what, which):
     user_is_sure = False
 
     if request.method == 'POST':
+        is_god(request)
         user_is_sure = True
 
     if what == 'projectmod':
@@ -146,8 +219,6 @@ def delete(request, what, which):
                 },
                 context_instance=RequestContext(request),
                 )
-
-    print "Delete", what, "with id", which
 
 def overview(request, what):
     members = Member.objects.all()
@@ -173,7 +244,6 @@ def overview(request, what):
                                       context_instance=RequestContext(request),
                                       )
     elif what == "users":
-        print users
         return render_to_response('overview_users.html',
                                   {
                                       'users': users,
@@ -267,11 +337,9 @@ def maintenance(request):
 
     return answer(request=request, message="Schaut aus als ob die Wartung klappt. Warte auf den Server, bis er die neuen Einstellungen läd.")
 
-
-
 def emails(request, what, param, which):
     # param what can be: project, a member_type_*, share_*,  all
-    # param which is the pk of what
+    # param which is the pk of what or 0
     # param param can be: active, expired, all
 
     if not param in ["active", "expired", "all"]:
@@ -287,23 +355,29 @@ def emails(request, what, param, which):
             return HttpResponse("Id " + which + " is not a valid project ID",
                                 "text/plain")
 
+        is_allowed_project_member(request, project)
+
         if param == "active":
-            users = [m.user for m in members.filter(projects = project, expires__gt = datetime.date.today())]
+            users = [m.user for m in members.filter(projects = project, user__is_active = True)]
         elif param == "expired":
-            users = [m.user for m in members.filter(projects = project, expires__lte = datetime.date.today())]
+            users = [m.user for m in members.filter(projects = project, user__is_active = False)]
         elif param == "all":
             users = [m.user for m in members.filter(projects = project)]
-        print users
 
     elif what == "all":
+
+        is_god(request)
+
         if param == "active":
-            users = [m.user for m in members.filter(expires__gt = datetime.date.today())]
+            users = [m.user for m in members.filter( user__is_active = True)]
         elif param == "expired":
-            users = [m.user for m in members.filter(expires__lte = datetime.date.today())]
+            users = [m.user for m in members.filter( user__is_active = False)]
         elif param == "all":
             users = [m.user for m in members]
 
     elif "member_type_" in what:
+
+        is_god(request)
 
         member_type = what[12:]
 
@@ -312,22 +386,24 @@ def emails(request, what, param, which):
                                 "text/plain")
 
         if param == "active":
-            users = [m.user for m in members.filter(member_type = member_type, expires__gt = datetime.date.today())]
+            users = [m.user for m in members.filter(member_type = member_type, user__is_active = True)]
         elif param == "expired":
-            users = [m.user for m in members.filter(member_type = member_type, expires__lte = datetime.date.today())]
+            users = [m.user for m in members.filter(member_type = member_type, user__is_active = False)]
         elif param == "all":
             users = [m.user for m in members.filter(member_type = member_type)]
 
     elif "share_type_" in what:
+
+        is_god(request)
 
         share_type = what[11:]
         if not share_type in share_types:
             return HttpResponse("I don't know share type " + share_type)
 
         if param == "active":
-            ms = members.filter(expires__gt = datetime.date.today())
+            ms = members.filter(user__is_active = True)
         elif param == "expired":
-            ms = members.filter(expires__lte = datetime.date.today())
+            ms = members.filter(user__is_active = False)
         elif param == "all":
             ms = members
 
@@ -352,7 +428,8 @@ def sharemod(request, share_id):
     share = Share.objects.get(pk = share_id)
     
     if request.method == "POST":
-        print request.POST
+        is_god(request)
+
         form = ShareModForm(request.POST, instance=share) # remember database instance and inputs
         if not form.is_valid():
             return input_error(template='sharemodform.html', request = request, form = form, error = form.errors)
@@ -378,7 +455,12 @@ def sharemod(request, share_id):
                               )
 
 def shareadd(request):
+    """ Only Gods may add projects"""
+
     if request.method == 'POST':
+
+        is_god(request)
+
         form = CreateShareForm(request.POST)
         if not form.is_valid():
             return input_error(template = 'shareadd.html', error = form.errors, request = request, form = form)
@@ -404,7 +486,12 @@ def shareadd(request):
                               )
 
 def useradd(request):
+    """ Only Gods may add users"""
+
     if request.method == 'POST':
+
+        is_god(request)
+
         form = CreateMemberForm(request.POST)
         if not form.is_valid():
             return render_to_response('member.html',
@@ -464,18 +551,19 @@ def useradd(request):
                               )
 
 def usermod(request, user_id):
+    """Only the member itself or Gods can modify users"""
 
-    try:
-        user = User.objects.get(pk = user_id)
-    except:
-        return HttpResponse("ID " + user_id + " is not a valid user id")
+    user = get_object_or_404(User, pk=user_id)
 
     member = Member.objects.filter(user = user)
     if len(member) == 0:
         return HttpResponse("This user has not a member. Looks like the database is inconsistent. Or you should not edit this user here, but with django admin.")
+
     member = member[0]
 
     if request.method == "POST":
+
+        is_allowed_member(request, member)
 
         form = UserModForm(instance=user)
 
@@ -486,6 +574,13 @@ def usermod(request, user_id):
 
         new_password     = request.POST.get('password')
         new_username     = request.POST.get('username')
+
+        # If a member wants to change the username, this will cause problems with apache's REMOTE_USER and django's user session
+        # because the browser will transmit the old username which will not be found on the next request with authentication.
+        # quickfix: let only others change the username. And this means, only Gods.
+        if not new_username == user.username:
+            e = "Du darfst deinen Benutzernamen nicht selber ändern. Bitte einen (anderen) Admin darum"
+            return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
         if new_password == user.password:
             print "Won't change password"
@@ -539,6 +634,7 @@ def usermod(request, user_id):
         return render_to_response('usermodform.html',
                                   {
                                       'success': True,
+                                      'is_member': True,
                                       'form' : form,
                                   },
                                   context_instance=RequestContext(request),
@@ -550,13 +646,19 @@ def usermod(request, user_id):
     return render_to_response('usermodform.html',
                               {
                                   'user' : user,
+                                  'is_member': is_allowed_member(request, member),
                                   'form' : form,
                               },
                               context_instance=RequestContext(request),
                               )
 
 def projectadd(request):
+    """Only Gods can add projects"""
+
     if request.method == 'POST':
+
+        is_god(request)
+
         form = CreateProjectForm(request.POST)
         if not form.is_valid():
             return input_error(template = 'projectadd.html', error = form.errors, request = request, form = form)
@@ -582,11 +684,15 @@ def projectadd(request):
                               )
 
 def projectmod(request, project_id):
+    """Only project members can view and Gods may modify projects"""
 
-    project = Project.objects.get(pk = project_id)
+    project = get_object_or_404(Project,pk = project_id)
+
+    is_allowed_project_member(request, project)
 
     if request.method == "POST":
-        print request.POST
+        is_god(request)
+
         form = ProjectModForm(request.POST, instance=project) # remember database instance and inputs
         if not form.is_valid():
             return input_error(template = "projectmodform.html", request = request, form = form, error = form.errors)

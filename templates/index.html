@@ -1,20 +1,99 @@
 {% extends "base.html" %}
 
 {% block header %}
-        <title>LaS³ Projects, Shares and Users - Start</title>
+        <title>LaS³ Projektverwaltung</title>
 {% endblock %}
 
 
 {% block content %}
-    <h1 align="center">LaS³ Projects, Shares and Users - Start</h1>
-    <h1>Hi. Check out project data, user data and various config generators by clicking and reading.</h1>
+    <h1 align="center">LaS³ Projekte - Start</h1>
 
-    <h1>Django-todo</h1>
+    USER:
+    {{ user }}<br />
+    AUTHENTICATED:
+    {{ authenticated }}<br />
+    IS_AUTHENTICATED:
+    {{ user.is_authenticated }}<br />
+    MEMBER:
+    {{ member }}<br />
+    USERNAME:
+    {{ username }}<br />
+    PROJECTS:
+    {{ projects }}<br />
+    REQUEST:
+    {{ request }}<br />
+    META:
+    {{ meta }}<br />
+    MEATA.keys()
+    {{ meta.keys }}<br />
 
-    <p>This is a task management-application</p>
+    {% if member %}
+
+    <h1>Hallo {{ member.user.first_name }}</h1>
+    
+    <p>Hier hast du Einblick in Projekte rund ums LaS³.</p>
+
+    <h1>Aufgabenverwaltung</h1>
+
+    <p>Aufgaben, die dir zugewiesen sind</p>
 
     <a href="{% url todo-lists %}">To-do Lists</a>
     <a href="{% url todo-mine %}">My Tasks</a>
+
+    <h1>Projekte</h1>
+
+    <p>Projekte und Freigaben von dir</p>
+
+    {% for p in projects%}
+    <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>
+    <p>Andere Projektmitglieder</p>
+    <ul>
+        {% for m in p.members %}{% if m.pk != member.pk %}
+        <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a></li>
+        {% endif %}{% endfor %}
+    </ul>
+
+    <p><a href="{% url home %}emails/project/active/{{ p.project.pk }}">E-Mail Liste der beteiligten</a></p>
+    {% endfor %}
+
+    <h1>Profil</h1>
+
+    <p>Hier hast du Einblick in dein <a href="{% url home %}usermod/{{ member.user.pk }}">Profil</a>.</p>
+
+    <h1>Administration</h2>
+
+    <h2>E-Mail -- Listen</h2>
+
+    <p>Wähle eine E-Mail Liste mit den folgenden Parametern</p>
+
+    <h2>Gesamtübersicht</h2>
+
+    <ul>
+        <li>Alle Projekte</li>
+        <li>Alle Freigaben</li>
+        <li>Alle Benutzer</li>
+    </ul>
+
+    <h2>Erstellen</h2>
+
+    <ul>
+        <li>Neuer Benutzer</li>
+        <li>Neues Projekt</li>
+        <li>Neue Freigabe</li>
+    </ul>
+
+    <h2>Konfigurationen</h2>
+
+    <p>Ein Einblick in Konfigurationen für den Webserver, welche regelmäßig generiert werden, gibt es hier:</p>
+
+    <ul>
+        <li>groups.dav -- Die Gruppenzugehörigkeiten</li>
+        <li>subversion, webdav....</li>
+    </ul>
+
+    <p>Die Konfigurationen können auch <it>jetzt</li> neu geschrieben werden, wenn man hier klickt</p>
+
+
 
     <h2>Edit data</h2>
     <p style='color:red;'>Want to change the database directly? If you know what you are doing login into the <a href="{% url home %}admin">Admin Interface</a> first.</p>
@@ -71,7 +150,16 @@
     <p>No configs available</p>
     {% endif %}
 
+    {% else %}{# member #}
+
+    {% if username %}
+    <p>Du bist als {{ username }} angemeldet, welcher keinem Member zugeordnet ist. Ich zeige dir vorsichtshalber mal nichts an.</p>
+    {% else %}
+    <p>Ich kenne dich nicht. Deswegen wird dir hier nichts angezeigt.</p>
+    <p>Hast du dich als Member eingeloggt?</p>
+    {% endif %}
+
+    {% endif %}
+
 {% endblock %}
 
-    </body>
-</html>
