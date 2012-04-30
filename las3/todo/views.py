@@ -261,12 +261,14 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
     return render_to_response('todo/view_list.html', locals(), context_instance=RequestContext(request))
 
 
-@user_passes_test(check_user_allowed)
+#@user_passes_test(check_user_allowed)
 def view_task(request,task_id):
 
     """
     View task details. Allow task details to be edited.
     """
+
+    user = user_from_remote(request)
 
     task = get_object_or_404(Item, pk=task_id)
     comment_list = Comment.objects.filter(task=task_id)
