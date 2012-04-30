@@ -587,7 +587,7 @@ def usermod(request, user_id):
 
     if request.method == "POST":
 
-        check_allowed_project_member_or_nothing(request, member)
+        check_allowed_member_or_nothing(request, member)
 
         form = UserModForm(instance=user)
 
@@ -637,12 +637,13 @@ def usermod(request, user_id):
         # the many-to-many relation has to be resolved manually
         new_projects       = [ int(i) for i in request.POST.getlist('projects')]
 
-        for mp in member.projects.all():
-            if not mp.pk in new_projects:
-                member.projects.remove(mp)
-        
-        for p in Project.objects.in_bulk(new_projects):
-            member.projects.add(p)
+        if is_god(request):
+            for mp in member.projects.all():
+                if not mp.pk in new_projects:
+                    member.projects.remove(mp)
+
+            for p in Project.objects.in_bulk(new_projects):
+                member.projects.add(p)
 
         try:
             member.full_clean()
@@ -650,18 +651,19 @@ def usermod(request, user_id):
             return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
         # also, the group memberships have to be set manually
-        member_auth = apache_or_django_auth(request)
-        new_groups = [ int(i) for i in request.POST.getlist('groups')]
-        for mg in user.groups.all():
-            if not mg.pk in new_groups:
-                if mg.name == "Gods" and member.pk == member_auth.pk:
-                    e = "You should not remove yourself from Gods"
-                    return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+        if is_god(request):
+            member_auth = apache_or_django_auth(request)
+            new_groups = [ int(i) for i in request.POST.getlist('groups')]
+            for mg in user.groups.all():
+                if not mg.pk in new_groups:
+                    if mg.name == "Gods" and member.pk == member_auth.pk:
+                        e = "You should not remove yourself from Gods"
+                        return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
-                user.groups.remove(mg)
+                    user.groups.remove(mg)
 
-        for g in Group.objects.in_bulk(new_groups):
-            user.groups.add(g)
+            for g in Group.objects.in_bulk(new_groups):
+                user.groups.add(g)
 
 
         # OK, all data should be verified now

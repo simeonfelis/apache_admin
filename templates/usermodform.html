@@ -22,7 +22,13 @@
 {% endif %}
 
 {% if success %}
-<p class="ui-state-highlight">Daten wurden übernommen. Lüg ich oder was?!?  </p>
+<p class="ui-state-highlight">
+    Daten wurden übernommen. Passts?
+    {% if is_god %}
+    {% else %}
+        <br /> Ach ja, du bist nicht teil von 'Gods', evt. Änderungen an Projekten wurde nicht übernommen
+    {% endif %}
+</p>
 {% endif %}
 
 {% if created %}
