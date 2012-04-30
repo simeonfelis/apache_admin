@@ -34,6 +34,26 @@
     {% csrf_token %}
     <table>
     {{ form.as_table }}
+
+    {% if is_god %}
+    <tr>
+        <th>Gruppen</th>
+        <td>
+            {% for g in groups %}
+            <li>
+                <label for="{{ forloop.counter0 }}">
+                    <input {% if g.is_member %}checked="checked"{% endif %} 
+                        type="checkbox" 
+                        name="groups" 
+                        value="{{ g.group.pk }}" 
+                        id="id_group_{{ forloop.counter0 }}" /> 
+                    {{ g.group }}
+                </label>
+            </li>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endif %}{# is_god #}
     <tr>
         <td align="left">
             <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Löschen</a>

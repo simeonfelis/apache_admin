@@ -12,7 +12,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from persondb.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 from persondb.forms import *
@@ -565,6 +565,16 @@ def useradd(request):
 def usermod(request, user_id):
     """Only the member itself or Gods can modify users"""
 
+    def get_member_groups():
+        groups = []
+        for g in Group.objects.all():
+            if g in user.groups.all():
+                groups.append({'group': g, 'is_member': True})
+            else:
+                groups.append({'group': g, 'is_member': False})
+        return groups
+
+
     user = get_object_or_404(User, pk=user_id)
 
     member = Member.objects.filter(user = user)
@@ -622,6 +632,7 @@ def usermod(request, user_id):
         member.begins      = request.POST.get('begins')
         member.expires     = request.POST.get('expires')
 
+        # the many-to-many relation has to be resolved manually
         new_projects       = [ int(i) for i in request.POST.getlist('projects')]
 
         for mp in member.projects.all():
@@ -636,6 +647,21 @@ def usermod(request, user_id):
         except ValidationError, e:
             return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
+        # also, the group memberships have to be set manually
+        member_auth = apache_or_django_auth(request)
+        new_groups = [ int(i) for i in request.POST.getlist('groups')]
+        for mg in user.groups.all():
+            if not mg.pk in new_groups:
+                if mg.name == "Gods" and member.pk == member_auth.pk:
+                    e = "You should not remove yourself from Gods"
+                    return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+
+                user.groups.remove(mg)
+
+        for g in Group.objects.in_bulk(new_groups):
+            user.groups.add(g)
+
+
         # OK, all data should be verified now
         user.save()
         member.save()
@@ -647,6 +673,8 @@ def usermod(request, user_id):
                                   {
                                       'success': True,
                                       'is_member': True,
+                                      'is_god': is_god(request),
+                                      'groups': get_member_groups(),
                                       'form' : form,
                                   },
                                   context_instance=RequestContext(request),
@@ -659,6 +687,8 @@ def usermod(request, user_id):
                               {
                                   'user' : user,
                                   'is_member': check_allowed_member_or_nothing(request, member),
+                                  'is_god': is_god(request),
+                                  'groups': get_member_groups(),
                                   'form' : form,
                               },
                               context_instance=RequestContext(request),
