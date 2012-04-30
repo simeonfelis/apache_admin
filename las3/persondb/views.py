@@ -290,8 +290,9 @@ def maintenance(request):
         m.user.save()
         disabled_members.append(m)
         try:
-            print "fake mail send"
+            #print "fake mail send"
             #sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
+            sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, ["simeon.felis@hs-regensburg.de"])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
@@ -304,8 +305,9 @@ def maintenance(request):
         m.user.save()
         enabled_members.append(m)
         try:
-            print "fake mail send"
+            #print "fake mail send"
             #sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
+            sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, ["simeon.felis@hs-regensburg.de"])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
