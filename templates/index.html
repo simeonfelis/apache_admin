@@ -30,139 +30,153 @@
 
     {% if member %}
 
-    <div class="las3-member-welcome">
-    <h1>Hallo {{ member.user.first_name }}</h1>
+    <div class="las3-content">
+
+        <div class="member-welcome">
+            <h1>Hallo {{ member.user.first_name }}</h1>
+            
+            <p>Hier hast du Einblick in Projekte rund ums LaS³.</p>
+            <p>Du kannst auch dein <a href="{% url home %}usermod/{{ member.user.pk }}">Profil ändern</a>.</p>
+        </div>
     
-    <p>Hier hast du Einblick in Projekte rund ums LaS³.</p>
-    <p>Du kannst auch dein <a href="{% url home %}usermod/{{ member.user.pk }}">Profil ändern</a>.</p>
-    </div>
-
-    <div class="las3-member-content">
-    <div class="las3-member-todo">
-    <h1>Aufgabenverwaltung</h1>
-
-    <p>Aufgaben, die dir zugewiesen sind</p>
-
-    <a href="{% url todo-lists %}">To-do Lists</a>
-    <a href="{% url todo-mine %}">My Tasks</a>
-    </div>
-
-    <div class="las3-member-projects">
-    <h1>Projekte</h1>
-
-    <p>Projekte und Freigaben von dir</p>
-
-    {% for p in projects%}
-    <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>
-    <p>Andere Projektmitglieder</p>
-    <ul>
-        {% for m in p.members %}{% if m.pk != member.pk %}
-        <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a></li>
-        {% endif %}{% endfor %}
-    </ul>
-
-    <p><a href="{% url home %}emails/project/active/{{ p.project.pk }}">E-Mail Liste der beteiligten</a></p>
-    {% endfor %}
-    </div>
-
-    {% if is_god %}
-    <div class="las3-gods">
-        <h1>Administration</h1>
-        <p>Du bist einer von 'Gods'. Walte deines Amtes.</p>
-
-
-        <h2>E-Mail - Adressen</h2>
-
-        <p>Hol dir die E-Mail Adressen von:</p>
-        <ul>
-            <li><a href="{% url home %}emails/all/active/0">Aktive</a></li>
-            <li><a href="{% url home %}emails/all/expired/0">Inaktive</a></li>
-            <li><a href="{% url home %}emails/all/all/0">Alle</a></li>
-        </ul>
-
-        <h2>Gesamtübersichten</h2>
-
-        <ul>
-            <li><a href="{% url home %}overview/users">Alle Benutzer</a></li>
-            <li><a href="{% url home %}overview/projects">Alle Projekte</a></li>
-            <li><a href="{% url home %}overview/shares">Alle Freigaben</a></li>
-        </ul>
-
-        <h2>Erstellen</h2>
-
-        <ul>
-            <li><a href="{% url home %}useradd">Neuer Benutzer</a></li>
-            <li><a href="{% url home %}projectadd">Neues Projekt</a></li>
-            <li><a href="{% url home %}shareadd">Neue Freigabe</a></li>
-        </ul>
-
-        <h2>Konfigurationen</h2>
-
-        <p>Ein Einblick in Konfigurationen für den Webserver, welche regelmäßig generiert werden, gibt es hier:</p>
-
-        <ul>
-            <li><a href="{% url home %}congig/groups.dav">groups.dav</a></li>
-        {% for c in configs %}
-            <li><a href="{% url home %}config/{{ c }}">{{ c }}</a></li>
-        {% endfor %}
-        </ul>
-
-        <p>Die Konfigurationen können auch <strong>jetzt</strong> neu <a href="{% url home %}maintenance">geschrieben</a> werden.</p>
-
-
-
-
-    <h1>VERALTET</h2>
-
-    <h3>Database overview</h3>
-
-
-    <p>You can get an <a href="{% url home %}overview/projects">overview of projects</a> or <a href="{% url home %}projectadd">add a project</a>.</p>
-    <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a> or <a href="{% url home %}shareadd">add a share</a>.</p>
-    <p>You can get an <a href="{% url home %}overview/users">overview of users</a> or <a href="{% url home %}useradd">add a user</a>.</p>
-
-    <h3>Email lists</h3>
-
-    <p>Email lists for projects can retrieved in the <a href="{% url home %}overview/projects">project overview</a>. To view email addresses, a login is required.</p>
-    <p>
-        Other email lists are:
-        <ul>
-            <li>All <a href="{% url home %}emails/all/active/0">active users</a></li>
-            <li>All <a href="{% url home %}emails/all/expired/0">expired users</a></li>
-            <li>All <a href="{% url home %}emails/all/all/0">users</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_extern/active/0">Extern users</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_phd/active/0">PhD students</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_bachelor/active/0">Bachelor students</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_master/active/0">Master students</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_prof/active/0">Professors</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/member_type_none/active/0">None of the above</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/share_type_svn/active/0">SVN users</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/share_type_bzr/active/0">Bazaar users</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/share_type_git/active/0">Git users</a></li>
-            <li>Active users filtered by <a href="{% url home %}emails/share_type_dav/active/0">Webdav users</a></li>
-        </ul>
-    </p>
-
-
-    {% if configs %}
-    <h3>Config information</h3>
-
-    <p>Have a look at the generated <a href="{% url home %}groups.dav">apache group file</a> for our users.</p>
-
-    <p>Have a look at the generated config files for out shares.</p>
-
-    <ul>
-    {% for c in configs %}
-        <li><a href="{% url home %}config/{{ c }}">Config for {{ c }}</a></li>
-    {% endfor %}
-    </ul>
-    <p>If you think the config files are OK, you can <a href="{% url home %}write_configs/all">do the maintenance</a>. 
-    This will write config files to the server and notify users about changes on their status.</p>
-
-    {% else %}{# configs #}
-    <p>No configs available</p>
-    {% endif %}
-    </div>
+        <div class="columns">
+    
+            <div class="middle"> </div>
+    
+            <div class="left">
+                <h1>Projekte</h1>
+    
+                <p>Projekte und Freigaben von dir</p>
+    
+                {% for p in projects%}
+                <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>
+                <p>Andere Projektmitglieder</p>
+                <ul>
+                    {% for m in p.members %}{% if m.pk != member.pk %}
+                    <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a></li>
+                    {% endif %}{% endfor %}
+                </ul>
+    
+                <p><a href="{% url home %}emails/project/active/{{ p.project.pk }}">E-Mail Liste der beteiligten</a></p>
+                {% endfor %}
+            </div>
+    
+            <div class="right">
+    
+                <h1>Aufgabenverwaltung</h1>
+    
+                <p>Aufgaben, die dir zugewiesen sind</p>
+    
+                <a href="{% url todo-lists %}">To-do Lists</a>
+                <a href="{% url todo-mine %}">My Tasks</a>
+    
+            </div>
+    
+    
+            <div class="clear"></div>
+    
+        </div><!-- columns -->
+    
+        {% if is_god %}
+        <div class="gods">
+            <h1>Administration</h1>
+            <p>Du bist einer von 'Gods'. Walte deines Amtes.</p>
+    
+    
+            <h2>E-Mail - Adressen</h2>
+    
+            <p>Hol dir die E-Mail Adressen von:</p>
+            <ul>
+                <li><a href="{% url home %}emails/all/active/0">Aktive</a></li>
+                <li><a href="{% url home %}emails/all/expired/0">Inaktive</a></li>
+                <li><a href="{% url home %}emails/all/all/0">Alle</a></li>
+            </ul>
+    
+            <h2>Gesamtübersichten</h2>
+    
+            <ul>
+                <li><a href="{% url home %}overview/users">Alle Benutzer</a></li>
+                <li><a href="{% url home %}overview/projects">Alle Projekte</a></li>
+                <li><a href="{% url home %}overview/shares">Alle Freigaben</a></li>
+            </ul>
+    
+            <h2>Erstellen</h2>
+    
+            <ul>
+                <li><a href="{% url home %}useradd">Neuer Benutzer</a></li>
+                <li><a href="{% url home %}projectadd">Neues Projekt</a></li>
+                <li><a href="{% url home %}shareadd">Neue Freigabe</a></li>
+            </ul>
+    
+            <h2>Konfigurationen</h2>
+    
+            <p>Ein Einblick in Konfigurationen für den Webserver, welche regelmäßig generiert werden, gibt es hier:</p>
+    
+            <ul>
+                <li><a href="{% url home %}groups.dav">groups.dav</a></li>
+            {% for c in configs %}
+                <li><a href="{% url home %}config/{{ c }}">{{ c }}</a></li>
+            {% endfor %}
+            </ul>
+    
+            <p>Die Konfigurationen können auch <strong>jetzt</strong> neu <a href="{% url home %}maintenance">geschrieben</a> werden.</p>
+    
+    
+    
+    
+            <h1>VERALTET</h1>
+        
+            <h3>Database overview</h3>
+        
+        
+            <p>You can get an <a href="{% url home %}overview/projects">overview of projects</a> or <a href="{% url home %}projectadd">add a project</a>.</p>
+            <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a> or <a href="{% url home %}shareadd">add a share</a>.</p>
+            <p>You can get an <a href="{% url home %}overview/users">overview of users</a> or <a href="{% url home %}useradd">add a user</a>.</p>
+        
+            <h3>Email lists</h3>
+        
+            <p>Email lists for projects can retrieved in the <a href="{% url home %}overview/projects">project overview</a>. To view email addresses, a login is required.</p>
+            <p>
+                Other email lists are:
+                <ul>
+                    <li>All <a href="{% url home %}emails/all/active/0">active users</a></li>
+                    <li>All <a href="{% url home %}emails/all/expired/0">expired users</a></li>
+                    <li>All <a href="{% url home %}emails/all/all/0">users</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_extern/active/0">Extern users</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_phd/active/0">PhD students</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_bachelor/active/0">Bachelor students</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_master/active/0">Master students</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_prof/active/0">Professors</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/member_type_none/active/0">None of the above</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/share_type_svn/active/0">SVN users</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/share_type_bzr/active/0">Bazaar users</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/share_type_git/active/0">Git users</a></li>
+                    <li>Active users filtered by <a href="{% url home %}emails/share_type_dav/active/0">Webdav users</a></li>
+                </ul>
+            </p>
+        
+        
+            {% if configs %}
+            <h3>Config information</h3>
+        
+            <p>Have a look at the generated <a href="{% url home %}groups.dav">apache group file</a> for our users.</p>
+        
+            <p>Have a look at the generated config files for out shares.</p>
+        
+            <ul>
+            {% for c in configs %}
+                <li><a href="{% url home %}config/{{ c }}">Config for {{ c }}</a></li>
+            {% endfor %}
+            </ul>
+            <p>If you think the config files are OK, you can <a href="{% url home %}write_configs/all">do the maintenance</a>. 
+            This will write config files to the server and notify users about changes on their status.</p>
+        
+            {% else %}{# configs #}
+            <p>No configs available</p>
+            {% endif %}
+        </div><!-- gods -->
+    
+    </div><!-- contents -->
 
     {% endif %}{# is_god #}
 
@@ -171,7 +185,6 @@
     <p>Irgendwas ist schief gegangen. Evt. ist die django-Datenbank nicht synchron mit der passwd, apache hat noch nicht die neuen configs geladen oder du solltest dich unter django admin abmelden.</p>
     <p>Es kann auch sein dass du dein Passwort neu setzen musst. Benutze das las3-formular dafür (usermod/....)</p>
 
-    </div><!-- las3-member-content -->
     {% endif %}{# member #}
 
 {% endblock %}

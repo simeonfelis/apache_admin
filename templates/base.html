@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script src="{{ MEDIA_URL }}js/ui.datepicker.js" type="text/javascript"></script>
+        {# <script src="{{ MEDIA_URL }}js/ui.datepicker.js" type="text/javascript"></script> #}
         <link type="text/css" href="{{ MEDIA_URL }}css/jquery-ui-1.8.19.custom.css" rel="Stylesheet" />
 
 	    <link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.ui.all.css">
@@ -9,34 +9,65 @@
 	    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.19.custom.min.js"></script>
 
         <style type="text/css">
-            .las3-member-content {
+            * {
+                font-family: sans-serif, Verdana, Arial, Helvetica;
+            }
+            .las3-content {
+                margin-left: auto;
+                margin-right: auto;
                 position: relative;
-                width: 90%;
+                width: 80%;
                 top: 0;
             }
-            .las3-member-projects {
-                background-color: #bbbbbb;
+            .las3-content .member-welcome {
+                background-color: #B2E681;
                 border-radius: 10px;
-                margin: 5px;
                 padding: 5px;
-                float: left;
-                width: 40%;
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
             }
-            .las3-member-todo {
-                background-color: #bbbbbb;
-                border-radius: 10px;
-                margin: 5px;
-                padding: 5px;
-                float: left;
-                width: 40%;
+            .las3-content .columns {
+                padding-left: 45%;  /* half of left column */
+                padding-right: 45%; /* half of right column */
+                /* rest is 10% */
             }
-            .las3-gods {
+            .columns .middle {
+                position: relative;
+                width: 100%;        /* rest from .columns */
+                float: left;
+            }
+            .columns .left {
+                background-color: #B6D1EE;
                 border-radius: 10px;
-                margin: 5px;
-                padding: 5px;
-                background-color: #999999;
+                 padding: 5px;
+                /* margin: 5px;*/
+                position: relative;
+                width: 440%;  /* little less than multiple of rest from .columns */
+                right: 0;
+                margin-left: -450%;
+                float: left;
+            }
+            .columns .right {
+                background-color: #B6D1EE;
+                border-radius: 10px;
+                /* margin: 5px;*/
+                padding: 5px; 
+                position: relative;
+                width: 450%;  /* multiple of rest from .columns */
+                left: 100%;
+                float: left;
+            }
+            .columns .clear {
                 clear: both;
-                width: 80%;
+            }
+            .las3-content .gods {
+                border-radius: 10px;
+                top-margin: 5px;
+                bottom-margin: 5px;
+                padding: 5px;
+                background-color: #bbbbbb;
+                width: 100%;
             }
         </style>
 
