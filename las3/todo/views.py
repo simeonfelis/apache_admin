@@ -123,10 +123,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
     # Always authorize the "mine" view. Admins can view/edit all lists.
 
     if list_slug == "mine"  or list_slug == "recent-add" or list_slug == "recent-complete" :
-        #return HttpResponse("mine or list_slug == recent-add|recent-complete")
         auth_ok =1
     else: 
-        #return HttpResponse("get list from List with list_slug: " + str(list_slug))
         list = get_object_or_404(List, slug=list_slug)
         listid = list.id    
         
@@ -210,7 +208,6 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
 
 
     if request.POST.getlist('add_task') :
-        return HttpResponse("POST: add_task with list: " + str(list))
         print "Adding a task"
         form = AddItemForm(list, request.POST,initial={
         #'assigned_to':request.user.id,
