@@ -98,8 +98,8 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'persondb',
-    'django.contrib.auth',
     'todo',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',

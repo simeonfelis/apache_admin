@@ -71,8 +71,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.RemoteUserMiddleware',
+)
+
+AUTHENTICATION_BACKEND = (
+    'djang.contrib.auth.backends.RemoteBackend',
 )
 
 ROOT_URLCONF = 'las3.urls'
@@ -86,6 +91,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'persondb',
+    'todo',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
