@@ -369,7 +369,7 @@ def emails(request, what, param, which):
             return HttpResponse("Id " + which + " is not a valid project ID",
                                 "text/plain")
 
-        is_allowed_project_member(request, project)
+        check_allowed_project_member_or_nothing(request, project)
 
         if param == "active":
             users = [m.user for m in members.filter(projects = project, user__is_active = True)]
