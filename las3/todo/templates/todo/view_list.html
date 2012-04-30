@@ -84,7 +84,7 @@ $(document).ready(function() {
 	    </table>
 	
         <input type="hidden" name="priority" value="999" id="id_priority">
-        <input type="hidden" name="created_by" value="{{ request.user.id }}" id="id_created_by">
+        <input type="hidden" name="created_by" value="{{ user.id }}" id="id_created_by">
         <input type="hidden" name="list" value="{{ listid }}" id="id_list">
         <input type="hidden" name="created_date" value="{{ created_date }}" id="id_created_date">	        
 	    
