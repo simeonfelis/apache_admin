@@ -29,14 +29,16 @@ def check_user_allowed(user):
     """
     test for user_passes_test decorator
     """
-    if settings.STAFF_ONLY:
-        return user.is_authenticated() and user.is_staff
-    else:
-        return user.is_authenticated()
+    return True
+#    if settings.STAFF_ONLY:
+#        return user.is_authenticated() and user.is_staff
+#    else:
+#        return user.is_authenticated()
 
+def user_from_remote(request):
+    return User.objects.get(username = request.META['REMOTE_USER'])
 
-
-@user_passes_test(check_user_allowed)
+#@user_passes_test(check_user_allowed)
 def list_lists(request):
 
     """
@@ -44,7 +46,9 @@ def list_lists(request):
     """
     
     # Make sure user belongs to at least one group.
-    group_count = request.user.groups.all().count()
+    #group_count = request.user.groups.all().count()
+    user = user_from_remote(request)
+    group_count = user.groups.all().count()
     if group_count == 0:
         messages.error(request, "You do not yet belong to any groups. Ask your administrator to add you to one.")                        
         
@@ -54,7 +58,8 @@ def list_lists(request):
     if request.user.is_superuser:
         list_list = List.objects.all().order_by('group','name')
     else:
-        list_list = List.objects.filter(group__in=request.user.groups.all).order_by('group','name')
+        list_list = List.objects.filter(group__in=user.groups.all).order_by('group', 'name')
+        #list_list = List.objects.filter(group__in=request.user.groups.all).order_by('group','name')
     
     # Count everything
     list_count = list_list.count()
@@ -63,7 +68,8 @@ def list_lists(request):
     if request.user.is_superuser :
         item_count = Item.objects.filter(completed=0).count()        
     else:
-        item_count = Item.objects.filter(completed=0).filter(list__group__in=request.user.groups.all()).count()
+        item_count = Item.objects.filter(completed=0).filter(list__group__in=user.groups.all()).count()
+        #item_count = Item.objects.filter(completed=0).filter(list__group__in=request.user.groups.all()).count()
 
     return render_to_response('todo/list_lists.html', locals(), context_instance=RequestContext(request))  
     
@@ -75,8 +81,9 @@ def del_list(request,list_id,list_slug):
     Delete an entire list. Danger Will Robinson! Only staff members should be allowed to access this view.
     """
     
-    if request.user.is_staff:
-        can_del = 1
+    #if request.user.is_staff:
+    #    can_del = 1
+    can_del = 1
 
     # Get this list's object (to derive list.name, list.id, etc.)
     list = get_object_or_404(List, slug=list_slug)
@@ -109,6 +116,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
     """
     Display and manage items in a task list
     """
+
+    user = user_from_remote(request)
     
     # Make sure the accessing user has permission to view this list.
     # Always authorize the "mine" view. Admins can view/edit all lists.
@@ -120,7 +129,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
         listid = list.id    
         
         # Check whether current user is a member of the group this list belongs to.
-        if list.group in request.user.groups.all() or request.user.is_staff or list_slug == "mine" :
+        #if list.group in request.user.groups.all() or request.user.is_staff or list_slug == "mine" :
+        if list.group in user.groups.all() or list_slug == "mine":
             auth_ok = 1   # User is authorized for this view
         else: # User does not belong to the group this list is attached to
             messages.error(request, "You do not have permission to view/edit this list.")                                    
@@ -173,18 +183,22 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
 
     # Get list of items with this list ID, or filter on items assigned to me, or recently added/completed
     if list_slug == "mine":
-        task_list = Item.objects.filter(assigned_to=request.user, completed=0)
-        completed_list = Item.objects.filter(assigned_to=request.user, completed=1)
+        #task_list = Item.objects.filter(assigned_to=request.user, completed=0)
+        #completed_list = Item.objects.filter(assigned_to=request.user, completed=1)
+        task_list = Item.objects.filter(assigned_to=user, completed=0)
+        completed_list = Item.objects.filter(assigned_to=user, completed=1)
         
     elif list_slug == "recent-add":
         # We'll assume this only includes uncompleted items to avoid confusion.
         # Only show items in lists that are in groups that the current user is also in.
-        task_list = Item.objects.filter(list__group__in=(request.user.groups.all()),completed=0).order_by('-created_date')[:50]
+        #task_list = Item.objects.filter(list__group__in=(request.user.groups.all()),completed=0).order_by('-created_date')[:50]
+        task_list = Item.objects.filter(list__group__in=(user.groups.all()),completed=0).order_by('-created_date')[:50]
         # completed_list = Item.objects.filter(assigned_to=request.user, completed=1)   
         
     elif list_slug == "recent-complete":
         # Only show items in lists that are in groups that the current user is also in.
-        task_list = Item.objects.filter(list__group__in=request.user.groups.all(),completed=1).order_by('-completed_date')[:50]
+        #task_list = Item.objects.filter(list__group__in=request.user.groups.all(),completed=1).order_by('-completed_date')[:50]
+        task_list = Item.objects.filter(list__group__in=user.groups.all(),completed=1).order_by('-completed_date')[:50]
         # completed_list = Item.objects.filter(assigned_to=request.user, completed=1)             
 
 
@@ -196,7 +210,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
     if request.POST.getlist('add_task') :
         print "Adding a task"
         form = AddItemForm(list, request.POST,initial={
-        'assigned_to':request.user.id,
+        #'assigned_to':request.user.id,
+        'assigned_to':user.id,
         'priority':999,
         })
         print "Form:", form
@@ -208,7 +223,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
             # Send email alert only if the Notify checkbox is checked AND the assignee is not the same as the submittor
             # Email subect and body format are handled by templates
             if "notify" in request.POST :
-                if new_task.assigned_to != request.user :
+                #if new_task.assigned_to != request.user :
+                if new_task.assigned_to != user :
                                         
                     # Send email
                     email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': new_task })                    
@@ -233,12 +249,14 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
     else:
         if list_slug != "mine" and list_slug != "recent-add" and list_slug != "recent-complete" : # We don't allow adding a task on the "mine" view
             form = AddItemForm(list, initial={
-                'assigned_to':request.user.id,
+                #'assigned_to':request.user.id,
+                'assigned_to':user.id,
                 'priority':999,
                 } )
 
-    if request.user.is_staff:
-        can_del = 1
+    #if request.user.is_staff:
+    #    can_del = 1
+    can_del = 1
 
     return render_to_response('todo/view_list.html', locals(), context_instance=RequestContext(request))
 
@@ -257,7 +275,8 @@ def view_task(request,task_id):
     # Determine the group this task belongs to, and check whether current user is a member of that group.
     # Admins can edit all tasks.
 
-    if task.list.group in request.user.groups.all() or request.user.is_staff:
+    #if task.list.group in request.user.groups.all() or request.user.is_staff:
+    if task.list.group in user.groups.all() or request.user.is_staff:
         
         auth_ok = 1
         if request.POST:
@@ -269,7 +288,8 @@ def view_task(request,task_id):
                  # Also save submitted comment, if non-empty
                  if request.POST['comment-body']:
                      c = Comment(
-                         author=request.user, 
+                         #author=request.user, 
+                         author=user, 
                          task=task,
                          body=request.POST['comment-body'],
                      )
@@ -277,7 +297,8 @@ def view_task(request,task_id):
                     
                      # And email comment to all people who have participated in this thread.
                      email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': task })                    
-                     email_body = render_to_string("todo/email/newcomment_body.txt", { 'task': task, 'body':request.POST['comment-body'], 'site': current_site, 'user':request.user })
+                     #email_body = render_to_string("todo/email/newcomment_body.txt", { 'task': task, 'body':request.POST['comment-body'], 'site': current_site, 'user':request.user })
+                     email_body = render_to_string("todo/email/newcomment_body.txt", { 'task': task, 'body':request.POST['comment-body'], 'site': current_site, 'user':user })
 
                      # Get list of all thread participants - task creator plus everyone who has commented on it.
                      recip_list = []
@@ -361,7 +382,8 @@ def external_add(request):
                 # Don't commit the save until we've added in the fields we need to set
                 item = form.save(commit=False)
                 item.list_id = 20 # Hate hard-coding in IDs like this.
-                item.created_by = request.user
+                #item.created_by = request.user
+                item.created_by = user
                 item.assigned_to = User.objects.get(username='roy_baril')
                 item.save()
                 
@@ -390,9 +412,12 @@ def add_list(request):
     """
     Allow users to add a new todo list to the group they're in.
     """
+
+    user = user_from_remote(request)
     
-    if request.POST:    
-        form = AddListForm(request.user,request.POST)
+    if request.POST:
+        #form = AddListForm(request.user,request.POST)
+        form = AddListForm(user,request.POST)
         if form.is_valid():
             try:
                 form.save()
@@ -403,7 +428,8 @@ def add_list(request):
                 
             
     else:
-        form = AddListForm(request.user)
+        #form = AddListForm(request.user)
+        form = AddListForm(user)
         
     return render_to_response('todo/add_list.html', locals(), context_instance=RequestContext(request))
 
