@@ -585,7 +585,7 @@ def usermod(request, user_id):
 
     if request.method == "POST":
 
-        check_allowed_member_or_nothing(request, member)
+        check_allowed_project_member_or_nothing(request, member)
 
         form = UserModForm(instance=user)
 
@@ -730,7 +730,7 @@ def projectmod(request, project_id):
 
     project = get_object_or_404(Project,pk = project_id)
 
-    is_allowed_project_member(request, project)
+    check_allowed_project_member_or_nothing(request, project)
 
     if request.method == "POST":
         check_god_or_nothing(request)
