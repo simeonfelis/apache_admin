@@ -19,20 +19,18 @@
 {% block content %}
 
 
-        <h1>User information</h1>
+        <h1>Benutzer Übersicht</h1>
 
-        <h2>Add user</h2>
-
-        <p>You can also <a href="{% url home %}useradd">add users</a>.</p>
+        <p>Du kannst auch <a class="button" href="{% url home %}useradd">Benutzer hinzufügen</a>.</p>
 
         {% if users %}
 
-        <h2>Active Users</h2>
+        <h2>Aktive Benutzer</h2>
 
         <table align="center" border="1" width="75%" class="ui-widget" >
             <thead>
             <tr class="ui-widget-header">
-                <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
+                <th>Nachname</th><th>Vorname</th><th>Username</th><th>Member type</th><th>Projekte</th><th>Freigaben</th>
             </tr>
             </thead>
             <tbody class=ui-widget-content">
@@ -57,7 +55,7 @@
         </table>
 
 
-        <h2>Expired Users</h2>
+        <h2>Inaktive Nutzer</h2>
         <table align="center" border="1" width="75%" >
             <tr>
                 <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
