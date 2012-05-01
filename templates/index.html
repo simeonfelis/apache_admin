@@ -71,6 +71,18 @@
                 <a href="{% url todo-mine %}">My Tasks</a>
     
             </div>
+
+            <div class="right">
+                <h1>Gruppen</h1>
+                
+                <p>Gruppen, zu denen du gehörst</p>
+
+                <ul>
+                    {% for g in member.user.groups.all %}
+                    <li>{{ g }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
     
     
             <div class="clear"></div>
@@ -98,6 +110,7 @@
                 <li><a href="{% url home %}overview/users">Alle Benutzer</a></li>
                 <li><a href="{% url home %}overview/projects">Alle Projekte</a></li>
                 <li><a href="{% url home %}overview/shares">Alle Freigaben</a></li>
+                <li><a href="{% url home %}overview/groups">Alle Gruppen</a></li>
             </ul>
     
             <h2>Erstellen</h2>

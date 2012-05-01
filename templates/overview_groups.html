@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block header %}
+<!-- CSS and JavaScript  -->
+
+<script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $("table thead").addClass("ui-widget-header");
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+     });
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+
+        <h1>Gruppen Übersicht</h1>
+
+        {% if groups %} 
+        <ul>
+        {% for g in groups %}
+            <li>{{ g.group }}</li>
+            <ul>
+                {% for m in g.members %}
+                <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        </ul>
+
+
+        {% else %}
+        <p>I cannot show you any groups at the moment</p>
+        <p>Maybe something went wrong</p>
+        {% endif %}
+        
+{% endblock %}
+

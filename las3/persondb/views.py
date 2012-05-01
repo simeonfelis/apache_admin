@@ -231,6 +231,9 @@ def delete(request, what, which):
                 )
 
 def overview(request, what):
+
+    check_god_or_nothing(request)
+
     members = Member.objects.all()
     users = User.objects.all()
 
@@ -260,6 +263,17 @@ def overview(request, what):
                                   },
                                       context_instance=RequestContext(request),
                                       )
+    elif what == "groups":
+        groups = []
+        for g in Group.objects.all():
+            groups.append({'group': g, 'members': Member.objects.filter(user__groups = g)})
+        
+        return render_to_response('overview_groups.html',
+                {
+                    'groups': groups,
+                },
+                context_instance=RequestContext(request),
+                )
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
 
