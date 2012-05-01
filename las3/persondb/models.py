@@ -8,6 +8,7 @@ SHARE_TYPE_CHOICES = (
         ('git', 'Git'),
         ('svn', 'Subversion'),
         ('dav', 'Wedav Folder'),
+        ('wik', 'Wiki'),
 )
 
 MEMBER_TYPE_CHOICES = (
