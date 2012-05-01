@@ -8,14 +8,14 @@ class CreateProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateProjectForm, self).__init__(*args, **kwargs)
 
-        self.fields["description"] = forms.CharField(widget=forms.Textarea)
+        self.fields['description'] = forms.CharField(widget=forms.Textarea)
         self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
         self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
 
 
     class Meta:
         model = Project
-        exclude = ("shares",)
+        exclude = ('shares',)
 
 class CreateMemberForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -67,10 +67,12 @@ class ProjectModForm(forms.ModelForm):
     members = forms.ModelMultipleChoiceField(
             widget   = forms.CheckboxSelectMultiple(),
             queryset = Member.objects.all(),
+            required = False,
             )
     shares = forms.ModelMultipleChoiceField(
         widget   = forms.CheckboxSelectMultiple(),
         queryset = Share.objects.all(),
+        required = False,
         )
 
 
@@ -106,5 +108,6 @@ class UserModForm(forms.ModelForm):
     projects = forms.ModelMultipleChoiceField(
             widget   = forms.CheckboxSelectMultiple(),
             queryset = Project.objects.all(),
+            required = False,
             )
 
