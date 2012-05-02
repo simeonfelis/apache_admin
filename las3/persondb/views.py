@@ -196,7 +196,7 @@ def home(request):
                                   'member': member,
                                   'projects': projects,
                                   'is_god': is_god(request),
-                                  'configs': ["svn", "bzr", "dav", "git"],
+                                  'configs': share_types,
                               },
                               context_instance=RequestContext(request),
                               )
