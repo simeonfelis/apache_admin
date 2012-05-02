@@ -59,7 +59,6 @@
             {% endfor %}
         </td>
     </tr>
-    {% endif %}{# is_god #}
     <tr>
         <td align="left">
             <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Löschen</a>
@@ -69,6 +68,15 @@
             <input type="submit" value="Ändern"/>
         </td>
     </tr>
+    {% else %}{# is_god #}
+    <tr>
+        <td align="left">
+        </td>
+        <td align="right">
+            <input type="submit" value="Ändern"/>
+        </td>
+    </tr>
+    {% endif %}{# is_god #}
     </table>
 </form>
 {% endblock %}
