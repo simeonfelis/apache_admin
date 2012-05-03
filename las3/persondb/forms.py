@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms import ModelForm
 from django.contrib.auth.models import User, Group
 
@@ -59,6 +60,22 @@ class ProjectModForm(forms.ModelForm):
 
         if not self.instance.pk == None:
             self.fields['shares'].initial = [s.pk for s in self.instance.shares.all() ]
+            # prefill only with shares related to project, if member is not in Gods
+            if self.member.user in Group.objects.filter(name__exact="Gods"):
+                self.fields['shares'].queryset = Share.objects.all()
+            else:
+                # get all projects from member, after that all the related shares, after that the share's pks, afterthat set the query for these pks on Share
+                shares = []
+                for p in self.member.projects.all():
+                    for s in p.shares.all():
+                        shares.append(s)
+
+                shares = [ s.pk for s in shares ]
+                queries = [ Q(pk=s) for s in shares ]
+                query = queries.pop()
+                for i in queries:
+                    query |= i
+                self.fields['shares'].queryset = Share.objects.filter(query)
 
         self.fields['members'].initial = [u.pk for u in Member.objects.filter(projects = self.instance) ]
         self.fields['description']     = forms.CharField(widget=forms.Textarea)

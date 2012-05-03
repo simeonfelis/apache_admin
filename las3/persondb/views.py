@@ -791,7 +791,7 @@ def projectmod(request, project_id):
     if request.method == "POST":
         check_god_or_nothing(request)
 
-        form = ProjectModForm(request.POST, instance=project) # remember database instance and inputs
+        form = ProjectModForm(request.POST, instance=project, member=apache_or_django_auth(request)) # remember database instance and inputs
         if not form.is_valid():
             return input_error(template = "projectmodform.html", request = request, form = form, error = form.errors)
         
