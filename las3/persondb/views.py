@@ -714,9 +714,10 @@ def usermod(request, user_id):
 
         # now update the ejabberd passwd
         try:
-            ejabberd_update_account(user.username, new_password)
+            ejabberd_account_update(user.username, new_password)
         except Exception, e:
             print "Error updating ejabberd account", e
+            return input_error(template = 'usermodform.html', request = request, form=form, error=e)
 
         # OK, all data should be verified now
         user.save()
