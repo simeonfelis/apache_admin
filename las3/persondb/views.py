@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime, os
 from hashlib import md5 # htdigest password generation
+import subprocess
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
@@ -21,6 +22,8 @@ share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
 admins_names = [ a[0] for a in settings.ADMINS ]
 admins_emails = [ a[1] for a in settings.ADMINS ]
+
+servername = "rfhete470.hs-regensburg.de"
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
@@ -55,6 +58,31 @@ def get_shares_to_render(typ):
     #print "project_shares:", project_shares
 
     return project_shares
+
+def ejabberd_account_create(username, passwd):
+    try:
+        subprocess.check_call(["ejabberdctl", "register", username, servername, password])
+    except subprocess.CalledProcessError:
+        # Probably exists, but not for sure
+        return "error"
+
+    return "success"
+
+
+def ejabberd_account_update(username, password):
+    try:
+        subprocess.check_call(["ejabberdctl", "check-account", username, servername])
+    except subprocess.CalledProcessError: # when call return other than 0. 
+
+        # Create account first
+        if ejabberd_account_create(username, password) == "success":
+            subprocess.check_call(["ejabberdctl", "check-account", username, servername])
+        else:
+            raise "Could not update ejabberd account for " + username
+
+    # if exists, change password
+    else:
+        subprocess.check_call(["ejabberdctl", "change-password", username, servername, password])
     
 def get_groups_to_render():
     shares = Share.objects.all().order_by("name")
@@ -560,6 +588,11 @@ def useradd(request):
 
         new_member.save()
 
+        try:
+            ejabberd_account_update(username, password)
+        except Exception, e:
+            print "I could not create the ejabberd account for", username, ", ignoring..."
+
         form = UserModForm(instance = new_member.user)
         return render_to_response('usermodform.html',
                 {
@@ -622,7 +655,6 @@ def usermod(request, user_id):
 
         if new_password == user.password:
             print "Won't change password"
-            new_password = ""
         else:
             user.set_password(new_password)
 
@@ -651,6 +683,7 @@ def usermod(request, user_id):
         # the many-to-many relation has to be resolved manually
         new_projects       = [ int(i) for i in request.POST.getlist('projects')]
 
+        # projects won't be set if user is not god
         if is_god(request):
             for mp in member.projects.all():
                 if not mp.pk in new_projects:
@@ -664,7 +697,7 @@ def usermod(request, user_id):
         except ValidationError, e:
             return input_error(template = 'usermodform.html', request = request, form = form, error = e)
 
-        # also, the group memberships have to be set manually
+        # also, the group memberships have to be set manually, but only if user is god
         if is_god(request):
             member_auth = apache_or_django_auth(request)
             new_groups = [ int(i) for i in request.POST.getlist('groups')]
@@ -679,6 +712,11 @@ def usermod(request, user_id):
             for g in Group.objects.in_bulk(new_groups):
                 user.groups.add(g)
 
+        # now update the ejabberd passwd
+        try:
+            ejabberd_update_account(user.username, new_password)
+        except Exception, e:
+            print "Error updating ejabberd account", e
 
         # OK, all data should be verified now
         user.save()
@@ -776,7 +814,7 @@ def projectmod(request, project_id):
                                   )
             
     # Handle GET requeset here
-    form = ProjectModForm(instance=project)
+    form = ProjectModForm(instance=project, member=apache_or_django_auth(request))
     return render_to_response('projectmodform.html',
                               {
                                   'project': project,
