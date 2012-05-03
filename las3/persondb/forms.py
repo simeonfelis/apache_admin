@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from persondb.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 
@@ -51,6 +51,10 @@ class CreateShareForm(forms.ModelForm):
 
 class ProjectModForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+
+        if 'member' in kwargs:
+            self.member = kwargs.pop('member')
+
         super(ProjectModForm, self).__init__(*args, **kwargs)
 
         if not self.instance.pk == None:
