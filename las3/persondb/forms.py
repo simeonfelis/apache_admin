@@ -81,7 +81,7 @@ class ProjectModForm(forms.ModelForm):
         self.fields['description']     = forms.CharField(widget=forms.Textarea)
         self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
         self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
-        if self.member.user in Group.objects.filter(name__exact="Gods"):
+        if self.member.user in Group.objects.filter(name="Gods")[0].user_set.all():
             self.fields['members'].queryset = Member.objects.all()
         else:
             self.fields['members'].queryset = Member.objects.filter(projects = self.instance)
