@@ -61,6 +61,11 @@ def get_shares_to_render(typ):
     return project_shares
 
 def ejabberd_account_create(username, passwd):
+    if type(username) == unicode:
+        username = username.encode('utf-8')
+    if type(password) == unicode:
+        password = password.encode('utf-8')
+
     try:
         subprocess.check_call([ejabberdcmd, "register", username, servername, password])
     except subprocess.CalledProcessError:
@@ -71,6 +76,11 @@ def ejabberd_account_create(username, passwd):
 
 
 def ejabberd_account_update(username, password):
+    if type(username) == unicode:
+        username = username.encode('utf-8')
+    if type(password) == unicode:
+        password = password.encode('utf-8')
+
     try:
         subprocess.check_call([ejabberdcmd, "check-account", username, servername])
     except subprocess.CalledProcessError, e: # when call return other than 0. 
@@ -722,7 +732,8 @@ def usermod(request, user_id):
             ejabberd_account_update(user.username, new_password)
         except Exception, e:
             print "Error updating ejabberd account", e
-            return input_error(template = 'usermodform.html', request = request, form=form, error=e)
+            error = "Error updating ejabberd account. I'm not showing you anything to avoid exposing your password"
+            return input_error(template = 'usermodform.html', request = request, form=form, error=error)
 
         # OK, all data should be verified now
         user.save()
