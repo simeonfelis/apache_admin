@@ -33,7 +33,7 @@ def create_apache_htdigest(username, password):
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
 
-def input_error(template, form, error, request):
+def input_error_global(template, form, error, request):
     return render_to_response(template,
             {
              'error': error,
@@ -503,7 +503,7 @@ def sharemod(request, share_id):
 
         form = ShareModForm(request.POST, instance=share) # remember database instance and inputs
         if not form.is_valid():
-            return input_error(template='sharemodform.html', request = request, form = form, error = form.errors)
+            return input_error_global(template='sharemodform.html', request = request, form = form, error = form.errors)
         
         form.save()
 
@@ -534,7 +534,7 @@ def shareadd(request):
 
         form = CreateShareForm(request.POST)
         if not form.is_valid():
-            return input_error(template = 'shareadd.html', error = form.errors, request = request, form = form)
+            return input_error_global(template = 'shareadd.html', error = form.errors, request = request, form = form)
 
         new_share = form.save()
         
@@ -585,7 +585,7 @@ def useradd(request):
             apache_htdigest = create_apache_htdigest(username, password)
         except Exception, e:
             new_user.delete()
-            return input_error(template='member.html', form=form, request=request, error=e)
+            return input_error_global(template='member.html', form=form, request=request, error=e)
 
         new_member = Member(
                 htdigest    = apache_htdigest,
@@ -599,7 +599,7 @@ def useradd(request):
             new_member.clean_fields()
         except ValidationError, e:
             new_user.delete()
-            return input_error(template='member.html', form=form, error=e, request=request)
+            return input_error_global(template='member.html', form=form, error=e, request=request)
 
         new_member.save()
 
@@ -628,6 +628,16 @@ def useradd(request):
 
 def usermod(request, user_id):
     """Only the member itself or Gods can modify users"""
+    def input_error(form, error):
+        return render_to_response(template,
+                {
+                 'groups': get_member_groups(),
+                 'error': error,
+                 'form':  form,
+                },
+                context_instance=RequestContext(request),
+                )
+
 
     def get_member_groups():
         groups = []
@@ -643,7 +653,7 @@ def usermod(request, user_id):
 
     member = Member.objects.filter(user = user)
     if len(member) == 0:
-        return HttpResponse("This user has not a member. Looks like the database is inconsistent. Or you should not edit this user here, but with django admin.")
+        return HttpResponse("This user has no member. Looks like the database is inconsistent. Or you should not edit this user here, but with django admin.")
 
     member = member[0]
 
@@ -666,7 +676,7 @@ def usermod(request, user_id):
         # quickfix: let only others change the username. And this means, only Gods.
         if not new_username == user.username:
             e = "Du darfst deinen Benutzernamen nicht selber ändern. Bitte einen (anderen) Admin darum"
-            return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+            return input_error(form = form, error = e)
 
         if new_password == user.password:
             print "Won't change password"
@@ -679,13 +689,13 @@ def usermod(request, user_id):
             try:
                 user.full_clean(exclude=["username",])
             except ValidationError, e:
-                return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+                return input_error(form = form, error = e)
         else:
             user.username = new_username
             try:
                 user.full_clean()
             except ValidationError, e:
-                return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+                return input_error(form = form, error = e)
 
         # Now set member data
         if not new_password == "":
@@ -710,7 +720,7 @@ def usermod(request, user_id):
         try:
             member.full_clean()
         except ValidationError, e:
-            return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+            return input_error(form = form, error = e)
 
         # also, the group memberships have to be set manually, but only if user is god
         if is_god(request):
@@ -720,7 +730,7 @@ def usermod(request, user_id):
                 if not mg.pk in new_groups:
                     if mg.name == "Gods" and member.pk == member_auth.pk:
                         e = "You should not remove yourself from Gods"
-                        return input_error(template = 'usermodform.html', request = request, form = form, error = e)
+                        return input_error(form = form, error = e)
 
                     user.groups.remove(mg)
 
@@ -733,7 +743,7 @@ def usermod(request, user_id):
         except Exception, e:
             print "Error updating ejabberd account", e
             error = "Error updating ejabberd account. I'm not showing you anything to avoid exposing your password"
-            return input_error(template = 'usermodform.html', request = request, form=form, error=error)
+            return input_error(form=form, error=error)
 
         # OK, all data should be verified now
         user.save()
