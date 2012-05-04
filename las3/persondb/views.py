@@ -851,7 +851,7 @@ def projectadd(request):
 
         form = CreateProjectForm(request.POST)
         if not form.is_valid():
-            return input_error(template = 'projectadd.html', error = form.errors, request = request, form = form)
+            return input_error_global(template = 'projectadd.html', error = form.errors, request = request, form = form)
 
         new_project = form.save()
         
@@ -887,7 +887,7 @@ def projectmod(request, project_id):
 
         form = ProjectModForm(request.POST, instance=project, member=apache_or_django_auth(request)) # remember database instance and inputs
         if not form.is_valid():
-            return input_error(template = "projectmodform.html", request = request, form = form, error = form.errors)
+            return input_error_global(template = "projectmodform.html", request = request, form = form, error = form.errors)
         
         new_members = [ int(m) for m in request.POST.getlist('members') ]
         members_project = Member.objects.in_bulk(new_members)
