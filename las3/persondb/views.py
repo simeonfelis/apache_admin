@@ -629,7 +629,7 @@ def useradd(request):
 def usermod(request, user_id):
     """Only the member itself or Gods can modify users"""
     def input_error(form, error):
-        return render_to_response(template,
+        return render_to_response('usermodform.html',
                 {
                  'groups': get_member_groups(),
                  'error': error,
