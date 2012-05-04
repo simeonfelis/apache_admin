@@ -23,7 +23,7 @@
 
 {% if success %}
 <p class="ui-state-highlight">
-    Daten wurden übernommen. Passts?
+    Daten wurden übernommen.
     {% if is_god %}
     {% else %}
         <br /> Ach ja, du bist nicht teil von 'Gods', evt. Änderungen an Projekten wurde nicht übernommen
@@ -39,6 +39,7 @@
 <form action="{% url home %}usermod/{{ form.instance.pk }}" method="POST">
     {% csrf_token %}
     <table>
+
     {{ form.as_table }}
 
     {% if is_god %}

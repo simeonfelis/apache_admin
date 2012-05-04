@@ -259,9 +259,18 @@ def home(request):
                                   'projects': projects,
                                   'is_god': is_god(request),
                                   'configs': share_types,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
+
+def info(request):
+    return render_to_response('info.html',
+            {
+                'breadcrums': get_breadcrums(request),
+            },
+            context_instance=RequestContext(request),
+            )
 
 def delete(request, what, which):
 
@@ -680,17 +689,18 @@ def useradd(request):
 
 def usermod(request, user_id):
     """Only the member itself or Gods can modify users"""
+
     def input_error(form, error):
         return render_to_response('usermodform.html',
                 {
                  'groups': get_member_groups(),
+                 'is_god': is_god(request),
                  'breadcrums': get_breadcrums(request),
                  'error': error,
                  'form':  form,
                 },
                 context_instance=RequestContext(request),
                 )
-
 
     def get_member_groups():
         groups = []
@@ -793,8 +803,8 @@ def usermod(request, user_id):
         try:
             ejabberd_account_update(user.username, new_password)
         except Exception, e:
-            print "Error updating ejabberd account", e
-            error = "Error updating ejabberd account. I'm not showing you anything to avoid exposing your password"
+            print "Error updating ejabberd account"
+            error = "Error updating ejabberd account"
             return input_error(form=form, error=error)
 
         # OK, all data should be verified now
@@ -805,16 +815,16 @@ def usermod(request, user_id):
         form = UserModForm(instance=user)
 
         return render_to_response('usermodform.html',
-                                  {
-                                      'success': True,
-                                      'is_member': True,
-                                      'is_god': is_god(request),
-                                      'groups': get_member_groups(),
-                                      'form' : form,
-                                      'breadcrums': get_breadcrums(request),
-                                  },
-                                  context_instance=RequestContext(request),
-                                  )
+                {
+                    'success': True,
+                    'is_member': True,
+                    'is_god': is_god(request),
+                    'groups': get_member_groups(),
+                    'form' : form,
+                    'breadcrums': get_breadcrums(request),
+                },
+                context_instance=RequestContext(request),
+                )
         
     # Handle GET requeset here
     form = UserModForm(instance=user)

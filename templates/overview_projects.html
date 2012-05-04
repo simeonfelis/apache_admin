@@ -19,42 +19,9 @@
 
 {% block content %}
 
-        <h1>Add projects</h2>
+        <p><a class="button" href="{% url home %}projectadd">Projekt hinzufügen</a></p>
 
-        <p>You can  <a href="{% url home %}projectadd">add projects</a>.</p>
-
-        <h2>List of all projects</h2>
-
-        {% if projects %}
-        <table align="center" border="1" width="80%">
-            <thead>
-                <tr>
-                    <th width="20%">Project</th><th>Description</th><th width="15%">Shares</th><th width="20%">Users</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in projects %}
-                <tr>
-                    <td><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project.name }}</a></td>
-                    <td>{{ p.project.description }}</td>
-                    <td> {% for share in p.project.shares.all %}
-                        <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br />
-                        {% endfor %}
-                    </td>
-                    <td> {% if p.members|length_is:"0" %}
-                        No user is part of this project
-                        {% else %} {% for m in p.members %}
-                        <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.first_name }} {{ m.user.last_name }}</a> <br />
-                        {% endfor %} {% endif %}
-                    </td>
-                </tr>
-            </tbody>
-            {% endfor %}
-        </table>
-        {% else %}
-        <p>I cannot show you any project information at the moment</p>
-        <p>Maybe something went wrong</p>
-        {% endif %} {# projects #}
+        {% include "projects.html" %}
         
 {% endblock %}
 

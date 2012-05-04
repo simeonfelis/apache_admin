@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^overview/(?P<what>\w+)$', 'persondb.views.overview'),
     url(r'^emails/(?P<what>.*)/(?P<param>\w+)/(?P<which>\d+)', 'persondb.views.emails'),
     url(r'^maintenance$', 'persondb.views.maintenance'),
+    url(r'^info', 'persondb.views.info'),
     #url(r'^projectmod/(?P<project_id>\d+)/set_users', 'persondb.views.projectmod'),
     # url(r'^las3/', include('las3.foo.urls')),
 

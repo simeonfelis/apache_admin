@@ -4,9 +4,11 @@
         <title>LaS³ Projektverwaltung</title>
 {% endblock %}
 
+{% block title %}
+<h1 align="center">LaS³ Projekte - Start</h1>
+{% endblock %}
 
 {% block content %}
-    <h1 align="center">LaS³ Projekte - Start</h1>
     {% comment %}
     USER:
     {{ user }}<br />
@@ -36,7 +38,7 @@
             <h1>Hallo {{ member.user.first_name }}</h1>
             
             <p>Hier hast du Einblick in Projekte rund ums LaS³.</p>
-            <p>Du kannst auch dein <a href="{% url home %}usermod/{{ member.user.pk }}">Profil ändern</a>.</p>
+            <p>Du kannst auch dein <a href="{% url home %}usermod/{{ member.user.pk }}">Profil ändern</a>. Schau auch mal in die <a href="{% url home %}info">info</a>.</p>
         </div>
     
         <div class="columns">
@@ -55,7 +57,6 @@
                     {% endif %}{% endfor %}
                 </ul>
     
-                <p><a href="{% url home %}emails/project/active/{{ p.project.pk }}">E-Mail Liste der beteiligten</a></p>
                 {% endfor %}
             </div>
     
@@ -66,7 +67,7 @@
                 <p>Aufgaben, die dir zugewiesen sind</p>
     
                 <a href="{% url todo-lists %}">Aufgabenlisten</a>
-                <a href="{% url todo-mine %}">Meine Aufgaben</a>
+                <a style="white-space: nowrap;" href="{% url todo-mine %}">Meine Aufgaben</a>
     
             </div>
 
