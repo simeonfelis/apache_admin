@@ -41,8 +41,6 @@
     
         <div class="columns">
     
-            <div class="middle"> </div>
-    
             <div class="left">
                 <h1>Projekte</h1>
     
@@ -61,18 +59,18 @@
                 {% endfor %}
             </div>
     
-            <div class="right">
+            <div class="left">
     
                 <h1>Aufgabenverwaltung</h1>
     
                 <p>Aufgaben, die dir zugewiesen sind</p>
     
-                <a href="{% url todo-lists %}">To-do Lists</a>
-                <a href="{% url todo-mine %}">My Tasks</a>
+                <a href="{% url todo-lists %}">Aufgabenlisten</a>
+                <a href="{% url todo-mine %}">Meine Aufgaben</a>
     
             </div>
 
-            <div class="right">
+            <div class="left">
                 <h1>Gruppen</h1>
                 
                 <p>Gruppen, zu denen du gehörst</p>

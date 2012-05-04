@@ -122,6 +122,25 @@ def get_groups_to_render():
                              })
     return shares_render
 
+def get_breadcrums(request):
+    breadcrums = [
+            {'name': 'Projekte', 'url': 'projects'},
+            {'name': 'Meine Aufgaben', 'url': 'todo/mine'},
+            {'name': 'Alle Aufgaben', 'url': 'todo'},
+            ]
+
+    member = apache_or_django_auth(request)
+
+    breadcrums.append({'name': 'Profil', 'url': 'usermod/' + str(member.user.pk)})
+
+    if is_god(request):
+        breadcrums.append({'name': 'Übersicht Projekte', 'url': 'overview/projects'})
+        breadcrums.append({'name': 'Übersicht Benutzer', 'url': 'overview/users'})
+        breadcrums.append({'name': 'Übersicht Gruppen', 'url': 'overview/groups'})
+
+    return breadcrums
+
+
 def get_account_expired_text(member):
     return """
 Hallo Frau oder Herr %s,
@@ -269,6 +288,7 @@ def delete(request, what, which):
                 {
                     'what': what,
                     'instance': instance,
+                    'breadcrums': get_breadcrums(request),
                 },
                 context_instance=RequestContext(request),
                 )
@@ -289,6 +309,7 @@ def overview(request, what):
         return render_to_response('overview_projects.html',
                                   {
                                       'projects': proj_render,
+                                      'breadcrums': get_breadcrums(request),
                                   },
                                       context_instance=RequestContext(request),
                                       )
@@ -296,6 +317,7 @@ def overview(request, what):
         return render_to_response('overview_shares.html',
                                   {
                                    'shares': get_groups_to_render(),
+                                   'breadcrums': get_breadcrums(request),
                                   },
                                       context_instance=RequestContext(request),
                                       )
@@ -303,6 +325,7 @@ def overview(request, what):
         return render_to_response('overview_users.html',
                                   {
                                       'users': users,
+                                      'breadcrums': get_breadcrums(request),
                                   },
                                       context_instance=RequestContext(request),
                                       )
@@ -314,6 +337,7 @@ def overview(request, what):
         return render_to_response('overview_groups.html',
                 {
                     'groups': groups,
+                    'breadcrums': get_breadcrums(request),
                 },
                 context_instance=RequestContext(request),
                 )
@@ -331,6 +355,7 @@ def maintenance(request):
                     'enabled_members': enabled_members,
                     'disabled_members': disabled_members,
                     'email_problem': email_problem,
+                    'breadcrums': get_breadcrums(request),
                 },
                 context_instance=RequestContext(request),
                 )
@@ -379,7 +404,8 @@ def maintenance(request):
             shares = get_shares_to_render(typ)
             open(filename, "wb").write(render_to_string(typ + ".config", 
                 {
-                    'shares': shares
+                    'shares': shares,
+                    'breadcrums': get_breadcrums(request),
                 },))
         except Exception, e:
             error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
@@ -511,6 +537,7 @@ def sharemod(request, share_id):
                                   {
                                       'success': True,
                                       'form' : form,
+                                      'breadcrums': get_breadcrums(request),
                                   },
                                   context_instance=RequestContext(request),
                                   )
@@ -521,6 +548,7 @@ def sharemod(request, share_id):
     return render_to_response('sharemodform.html',
                               {
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
@@ -542,6 +570,7 @@ def shareadd(request):
         return render_to_response('sharemodform.html',
                 {
                     'form':    form,
+                    'breadcrums': get_breadcrums(request),
                     'created': True,
                 },
                 context_instance=RequestContext(request),
@@ -552,6 +581,7 @@ def shareadd(request):
     return render_to_response('shareadd.html',
                               {
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
@@ -568,6 +598,7 @@ def useradd(request):
             return render_to_response('member.html',
                                       {
                                        'error' : form.errors,
+                                       'breadcrums': get_breadcrums(request),
                                        'form' : form,
                                       },
                                       context_instance=RequestContext(request),
@@ -612,6 +643,7 @@ def useradd(request):
         return render_to_response('usermodform.html',
                 {
                     'form':    form,
+                    'breadcrums': get_breadcrums(request),
                     'created': True,
                 },
                 context_instance=RequestContext(request),
@@ -622,6 +654,7 @@ def useradd(request):
     return render_to_response('member.html',
                               {
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
@@ -632,6 +665,7 @@ def usermod(request, user_id):
         return render_to_response('usermodform.html',
                 {
                  'groups': get_member_groups(),
+                 'breadcrums': get_breadcrums(request),
                  'error': error,
                  'form':  form,
                 },
@@ -647,7 +681,6 @@ def usermod(request, user_id):
             else:
                 groups.append({'group': g, 'is_member': False})
         return groups
-
 
     user = get_object_or_404(User, pk=user_id)
 
@@ -759,6 +792,7 @@ def usermod(request, user_id):
                                       'is_god': is_god(request),
                                       'groups': get_member_groups(),
                                       'form' : form,
+                                      'breadcrums': get_breadcrums(request),
                                   },
                                   context_instance=RequestContext(request),
                                   )
@@ -773,6 +807,7 @@ def usermod(request, user_id):
                                   'is_god': is_god(request),
                                   'groups': get_member_groups(),
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
@@ -794,6 +829,7 @@ def projectadd(request):
         return render_to_response('projectmodform.html',
                 {
                     'form':    form,
+                    'breadcrums': get_breadcrums(request),
                     'created': True,
                 },
                 context_instance=RequestContext(request),
@@ -804,6 +840,7 @@ def projectadd(request):
     return render_to_response('projectadd.html',
                               {
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )
@@ -836,6 +873,7 @@ def projectmod(request, project_id):
                                   {
                                       'success': True,
                                       'form' : form,
+                                      'breadcrums': get_breadcrums(request),
                                   },
                                   context_instance=RequestContext(request),
                                   )
@@ -846,6 +884,7 @@ def projectmod(request, project_id):
                               {
                                   'project': project,
                                   'form' : form,
+                                  'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
                               )

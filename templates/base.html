@@ -4,75 +4,10 @@
         <link type="text/css" href="{{ MEDIA_URL }}css/jquery-ui-1.8.19.custom.css" rel="Stylesheet" />
 
 	    <link rel="stylesheet" href="{{ MEDIA_URL }}css/jquery.ui.all.css">
+	    <link rel="stylesheet" href="{{ MEDIA_URL }}css/las3.css">
 	    
 	    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.7.2.min.js"></script>
 	    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.19.custom.min.js"></script>
-
-        <style type="text/css">
-            * {
-                font-family: sans-serif, Verdana, Arial, Helvetica;
-            }
-            .las3-content {
-                margin-left: auto;
-                margin-right: auto;
-                position: relative;
-                width: 80%;
-                top: 0;
-            }
-            .las3-content .member-welcome {
-                background-color: #B2E681;
-                border-radius: 10px;
-                padding: 5px;
-                top: 5px;
-                width: 100%;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .las3-content .columns {
-                padding-left: 45%;  /* half of left column */
-                padding-right: 45%; /* half of right column */
-                /* rest is 10% */
-            }
-            .columns .middle {
-                position: relative;
-                width: 100%;        /* rest from .columns */
-                float: left;
-            }
-            .columns .left {
-                background-color: #B6D1EE;
-                border-radius: 10px;
-                padding: 5px;
-                top: 5px;
-                /* margin: 5px;*/
-                position: relative;
-                width: 440%;  /* little less than multiple of rest from .columns */
-                right: 0;
-                margin-left: -450%;
-                float: left;
-            }
-            .columns .right {
-                background-color: #B6D1EE;
-                border-radius: 10px;
-                padding: 5px; 
-                top: 5px;
-                /* margin: 5px;*/
-                position: relative;
-                width: 450%;  /* multiple of rest from .columns */
-                left: 100%;
-                float: left;
-            }
-            .columns .clear {
-                clear: both;
-            }
-            .las3-content .gods {
-                border-radius: 10px;
-                top-margin: 5px;
-                bottom-margin: 5px;
-                padding: 5px;
-                background-color: #bbbbbb;
-                width: 100%;
-            }
-        </style>
 
         {% block header %}{% endblock %}
 
@@ -81,7 +16,10 @@
     </head>
     <body>
 
-        {% block content %}{% endblock %}
+        {% include "breadcrums.html" %}
+
+        {% block content %}
+        {% endblock %}
 
     </body>
 </html>
