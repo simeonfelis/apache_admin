@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block header %}
+<!-- CSS and JavaScript  -->
+
+<script type="text/javascript" charset="utf-8">
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $("table thead").addClass("ui-widget-header");
+        $("table tbody").addClass("ui-widget-content");
+        $( "input:submit, button, .button").button();
+        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
+     });
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+        <h1>Projekte bei denen du beteiligt bist</h1>
+
+        {% if projects %}
+        {% include 'projects.html' %}
+        {% else %}
+        <p>Keine Projekte.</p>
+        <p>Vielleicht lief etwas schief?</p>
+        {% endif %} {# projects #}
+        
+{% endblock %}
+

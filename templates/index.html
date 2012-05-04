@@ -44,7 +44,7 @@
             <div class="left">
                 <h1>Projekte</h1>
     
-                <p>Projekte und Freigaben von dir</p>
+                <p>Projekte und Freigaben von dir (<a href="{% url home %}projects">mehr</a>)</p>
     
                 {% for p in projects%}
                 <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>

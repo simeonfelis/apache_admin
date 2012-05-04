@@ -1,0 +1,35 @@
+
+<table align="center" border="1" width="80%">
+    <thead>
+        <tr>
+            <th width="20%">Projekt</th><th>Beschreibung</th><th width="15%">Freigaben</th><th width="20%">Benutzer</th><th>E-Mail-Liste</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in projects %}
+        <tr>
+            <td><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project.name }}</a></td>
+            <td>{{ p.project.description }}</td>
+            <td> 
+                <ul>{% for share in p.project.shares.all %}
+                    <li><a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br /></li>
+                {% endfor %}</ul>
+            </td>
+            <td> {% if p.members|length_is:"0" %}
+                Kein Benutzer im Projekt. Huh?
+                {% else %} <ul>{% for m in p.members %}
+                <!-- {{ m }} -->
+                <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.first_name }} {{ m.user.last_name }}</a> <br /></li>
+                {% endfor %} </ul> {% endif %}
+            </td>
+            <td>
+                <ul>
+                    <li><a href="{% url home %}emails/project/active/{{ p.project.pk }}">Aktive</a></li>
+                    <li><a href="{% url home %}emails/project/expired/{{ p.project.pk }}">Inaktive</a></li>
+                    <li><a href="{% url home %}emails/project/all/{{ p.project.pk }}">Beides</a></li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+    {% endfor %}
+</table>

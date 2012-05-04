@@ -293,7 +293,26 @@ def delete(request, what, which):
                 context_instance=RequestContext(request),
                 )
 
+def projects(request):
+
+    member = apache_or_django_auth(request)
+
+    projects = member.projects.all()
+    members_projects = []
+    for p in projects:
+        members = p.member_set.all()
+        members_projects.append({'project': p, 'members': members})
+
+    return render_to_response('member_projects.html',
+            {
+                'projects': members_projects,
+                'breadcrums': get_breadcrums(request),
+            },
+            context_instance=RequestContext(request),
+            )
+
 def overview(request, what):
+    """ This is for gods. refer to 'projects' for project listings of currently logged in member"""
 
     check_god_or_nothing(request)
 

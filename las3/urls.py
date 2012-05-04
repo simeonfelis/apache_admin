@@ -17,6 +17,7 @@ urlpatterns = patterns('',
 
     url(r'^projectmod/(?P<project_id>\d+)', 'persondb.views.projectmod'), # POST and GET
     url(r'^projectadd', 'persondb.views.projectadd'), # POST and GET
+    url(r'^projects', 'persondb.views.projects'),
     url(r'^sharemod/(?P<share_id>\d+)', 'persondb.views.sharemod'), # POST and GET
     url(r'^shareadd', 'persondb.views.shareadd'), # POST and GET
     url(r'^usermod/(?P<user_id>\d+)', 'persondb.views.usermod'), # POST and GET
