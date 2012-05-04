@@ -20,6 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 import datetime
 
+from persondb.views import get_breadcrums
+
 # Need for links in email templates
 current_site = Site.objects.get_current() 
 
@@ -71,6 +73,8 @@ def list_lists(request):
         item_count = Item.objects.filter(completed=0).filter(list__group__in=user.groups.all()).count()
         #item_count = Item.objects.filter(completed=0).filter(list__group__in=request.user.groups.all()).count()
 
+    breadcrums = get_breadcrums(request)
+
     return render_to_response('todo/list_lists.html', locals(), context_instance=RequestContext(request))  
     
 
@@ -107,6 +111,8 @@ def del_list(request,list_id,list_slug):
         item_count_undone = Item.objects.filter(list=list.id,completed=0).count()
         item_count_total = Item.objects.filter(list=list.id).count()    
     
+    breadcrums = get_breadcrums(request)
+
     return render_to_response('todo/del_list.html', locals(), context_instance=RequestContext(request))
 
 
@@ -119,6 +125,8 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
 
     user = user_from_remote(request)
     
+    breadcrums = get_breadcrums(request)
+
     # Make sure the accessing user has permission to view this list.
     # Always authorize the "mine" view. Admins can view/edit all lists.
 
@@ -270,6 +278,8 @@ def view_task(request,task_id):
 
     user = user_from_remote(request)
 
+    breadcrums = get_breadcrums(request)
+
     task = get_object_or_404(Item, pk=task_id)
     comment_list = Comment.objects.filter(task=task_id)
         
@@ -417,6 +427,8 @@ def add_list(request):
 
     user = user_from_remote(request)
     
+    breadcrums = get_breadcrums(request)
+
     if request.POST:
         #form = AddListForm(request.user,request.POST)
         form = AddListForm(user,request.POST)
@@ -443,6 +455,8 @@ def search(request):
     """
     Search for tasks
     """
+
+    breadcrums = get_breadcrums(request)
 
     if request.GET:    
 
