@@ -124,19 +124,20 @@ def get_groups_to_render():
 
 def get_breadcrums(request):
     breadcrums = [
-            {'name': 'Projekte', 'url': 'projects'},
+            {'name': 'Meine Projekte', 'url': 'projects'},
             {'name': 'Meine Aufgaben', 'url': 'todo/mine'},
             {'name': 'Alle Aufgaben', 'url': 'todo'},
             ]
 
     member = apache_or_django_auth(request)
 
-    breadcrums.append({'name': 'Profil', 'url': 'usermod/' + str(member.user.pk)})
+    breadcrums.append({'name': 'Mein Profil', 'url': 'usermod/' + str(member.user.pk)})
 
     if is_god(request):
-        breadcrums.append({'name': 'Übersicht Projekte', 'url': 'overview/projects'})
-        breadcrums.append({'name': 'Übersicht Benutzer', 'url': 'overview/users'})
-        breadcrums.append({'name': 'Übersicht Gruppen', 'url': 'overview/groups'})
+        breadcrums.append({'name': 'Alle Projekte', 'url': 'overview/projects'})
+        breadcrums.append({'name': 'Alle Benutzer', 'url': 'overview/users'})
+        breadcrums.append({'name': 'Alle Gruppen', 'url': 'overview/groups'})
+        breadcrums.append({'name': 'Alle Freigaben', 'url': 'overview/shares'})
 
     return breadcrums
 
@@ -854,7 +855,7 @@ def projectadd(request):
 
         new_project = form.save()
         
-        form = ProjectModForm(instance = new_project)
+        form = ProjectModForm(instance = new_project, member=apache_or_django_auth(request))
         return render_to_response('projectmodform.html',
                 {
                     'form':    form,
