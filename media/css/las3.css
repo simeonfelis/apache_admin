@@ -5,9 +5,12 @@
     margin-top: 10px;
     margin-bottom: 10px;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.2em;
+    line-height: 2em;
 }
 .las3-breadcrums a {
+    margin: 5px;
+    white-space: nowrap;
     background-color: #B6D1EE;
     border-radius:5px;
     padding:5px;
