@@ -60,7 +60,7 @@ def get_shares_to_render(typ):
 
     return project_shares
 
-def ejabberd_account_create(username, passwd):
+def ejabberd_account_create(username, password):
     if type(username) == unicode:
         username = username.encode('utf-8')
     if type(password) == unicode:
