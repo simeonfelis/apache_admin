@@ -24,7 +24,7 @@
 
 <div align="center" width="75%" class"ui-state-highlight" style="white-space: nowrap; font-size: 200%;">
 
-    <p class="ui-state-highlight">Aber Hallo! <strong>{{ instance }}</strong> wirklich läschen?</p>
+    <p class="ui-state-highlight">Aber Hallo! <strong>{{ instance }}</strong> wirklich löschen?</p>
 
     <form action="{% url home %}{{ what }}/delete/{{ instance.pk }}" method="POST">
         {% csrf_token %}
