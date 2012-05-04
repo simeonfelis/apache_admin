@@ -24,6 +24,7 @@ admins_names = [ a[0] for a in settings.ADMINS ]
 admins_emails = [ a[1] for a in settings.ADMINS ]
 
 servername = "rfhete470.hs-regensburg.de"
+ejabberdcmd = "/usr/sbin/ejabberdctl-wrapper"
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
@@ -61,7 +62,7 @@ def get_shares_to_render(typ):
 
 def ejabberd_account_create(username, passwd):
     try:
-        subprocess.check_call(["ejabberdctl", "register", username, servername, password])
+        subprocess.check_call([ejabberdcmd, "register", username, servername, password])
     except subprocess.CalledProcessError:
         # Probably exists, but not for sure
         return "error"
@@ -71,18 +72,22 @@ def ejabberd_account_create(username, passwd):
 
 def ejabberd_account_update(username, password):
     try:
-        subprocess.check_call(["ejabberdctl", "check-account", username, servername])
-    except subprocess.CalledProcessError: # when call return other than 0. 
+        subprocess.check_call([ejabberdcmd, "check-account", username, servername])
+    except subprocess.CalledProcessError, e: # when call return other than 0. 
+        if e.returncode == 1:
+            pass
+        else:
+            raise e
 
         # Create account first
         if ejabberd_account_create(username, password) == "success":
-            subprocess.check_call(["ejabberdctl", "check-account", username, servername])
+            subprocess.check_call([ejabberdcmd, "check-account", username, servername])
         else:
-            raise "Could not update ejabberd account for " + username
+            raise Exception ("Could not update ejabberd account for " + username)
 
     # if exists, change password
     else:
-        subprocess.check_call(["ejabberdctl", "change-password", username, servername, password])
+        subprocess.check_call([ejabberdcmd, "change-password", username, servername, password])
     
 def get_groups_to_render():
     shares = Share.objects.all().order_by("name")
@@ -717,7 +722,7 @@ def usermod(request, user_id):
             ejabberd_account_update(user.username, new_password)
         except Exception, e:
             print "Error updating ejabberd account", e
-            return input_error(template = 'usermodform.html', request = request, form=form, error=e)
+            return input_error(template = 'usermodform.html', request = request, form=form, e)
 
         # OK, all data should be verified now
         user.save()
