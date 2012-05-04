@@ -1,19 +1,9 @@
 {% extends "base.html" %}
 
 {% block header %}
-<!-- CSS and JavaScript  -->
 
-<script type="text/javascript" charset="utf-8">
-    // thedate.x comes from the edit_task view. If this is a new entry, 
-    // thedate won't be present and datepicker will fall back on the default (today).
-    $(document).ready(function(){
-        $("table thead").addClass("ui-widget-header");
-        $("table tbody").addClass("ui-widget-content");
-        $( "input:submit, button, .button").button();
-        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
-     });
+    {% include "header_javascript.html" %}
 
-</script>
 {% endblock %}
 
 

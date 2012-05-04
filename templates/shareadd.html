@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 
 {% block header %}
-<script type="text/javascript" charset="utf-8">
-    $(document).ready(function(){
-        $( "input:submit, button, .button").button();
-        $( ".date").datepicker({dateFormat: 'yy-mm-dd',});
-     });
 
-</script>
+    {% include "header_javascript.html" %}
+
 {% endblock %}
 
 {% block content %}
