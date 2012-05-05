@@ -1,20 +1,20 @@
-Dear {{ task.assigned_to.first_name }} -
+Lieber {{ task.assigned_to.first_name }} -
 
-A new task on the list {{ task.list.name }} has been assigned to you by {{ task.created_by.first_name }} {{ task.created_by.last_name }}:
+Eine neue Aufgabe auf der List {{ task.list.name }} wurde dir von {{ task.created_by.first_name }} {{ task.created_by.last_name }} zugewiesen:
 
 {{ task.title }}
 
 {% if task.note %}
 {% autoescape off %}
-Note: {{ task.note }}
+Notiz: {{ task.note }}
 {% endautoescape %}
 {% endif %}
 
 
 
 
-Task details/comments:
-http://{{ site }}{% url todo-task_detail task.id %}
+Aufgabendetails/Kommentare:
+{% url home todo-task_detail task.id %}
 
 List {{ task.list.name }}:
-http://{{ site }}{% url todo-incomplete_tasks task.list.id task.list.slug %}
+{% url url todo-incomplete_tasks task.list.id task.list.slug %}
