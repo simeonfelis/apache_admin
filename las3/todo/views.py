@@ -311,7 +311,7 @@ def view_task(request,task_id):
                      c.save()
                     
                      # And email comment to all people who have participated in this thread.
-                     email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': task })                    
+                     email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': task }).strip()                    
                      #email_body = render_to_string("todo/email/newcomment_body.txt", { 'task': task, 'body':request.POST['comment-body'], 'site': current_site, 'user':request.user })
                      email_body = render_to_string("todo/email/newcomment_body.txt", { 'task': task, 'body':request.POST['comment-body'], 'site': current_site, 'user':user })
 
