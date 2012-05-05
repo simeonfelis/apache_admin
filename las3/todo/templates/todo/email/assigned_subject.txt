@@ -1,1 +1,1 @@
-GTD: Neue Aufgabe - {% autoescape off %}Notiz: {{ task.title }}{% endautoescape %}
+GTD: Neue Aufgabe - {% autoescape off %}Notiz: {{ task.title|linebreaksbr }}{% endautoescape %}
