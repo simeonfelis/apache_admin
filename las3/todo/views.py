@@ -238,7 +238,7 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
                     email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': new_task })                    
                     email_body = render_to_string("todo/email/assigned_body.txt", { 'task': new_task, 'site': current_site, })
                     try:
-                        if "regensburg.de" == new_task.created_by.email[-13:] and "regensburg.de" == new_task.assigned_to.email[:-13]:
+                        if "regensburg.de" in new_task.created_by.email and "regensburg.de" in new_task.assigned_to.email:
                             send_mail(email_subject, email_body, new_task.created_by.email, [new_task.assigned_to.email], fail_silently=False)
                         else:
                             print "Task assigner or creator has not a valid email address:", new_task.created_by.email, new_task.assigned_to.email
@@ -320,7 +320,7 @@ def view_task(request,task_id):
                      recip_list.append(task.created_by.email)
                      commenters = Comment.objects.filter(task=task)
                      for c in commenters:
-                         if "regensburg.de" == c.author.email[-13:]:
+                         if "regensburg.de" in c.author.email:
                             recip_list.append(c.author.email)
                          else:
                              print "Task commenter has not a valid email address:", c.author.email
@@ -329,14 +329,14 @@ def view_task(request,task_id):
                      
                      # Send message
                      try:
-                        if "regensburg.de" == new_task.created_by.email[-13:]:
-                            send_mail(email_subject, email_body, task.created_by.email, recip_list, fail_silently=False)
-                        else:
-                            print "Task assigner or creator has not a valid email address:", new_task.created_by.email
-                        messages.success(request, "Comment sent to thread participants.")                       
+                         if "regensburg.de" in new_task.created_by.email and len(recip_list)>0:
+                             send_mail(email_subject, email_body, task.created_by.email, recip_list, fail_silently=False)
+                         else:
+                             print "Task assigner or recipients have not a valid email address"
+                         messages.success(request, "Comment sent to thread participants.")                       
                         
                      except:
-                        messages.error(request, "Comment saved but mail not sent. Contact your administrator.")
+                         messages.error(request, "Comment saved but mail not sent. Contact your administrator.")
                     
                  
                  messages.success(request, "The task has been edited.")
@@ -408,7 +408,7 @@ def external_add(request):
                 email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': item.title })                    
                 email_body = render_to_string("todo/email/assigned_body.txt", { 'task': item, 'site': current_site, })
                 try:
-                    if "regensburg.de" == item.created_by.email[-13:] and "regensburg.de" == item.assigned_to.email[:-13]:
+                    if "regensburg.de" in item.created_by.email and "regensburg.de" in item.assigned_to.email:
                         send_mail(email_subject, email_body, item.created_by.email, [item.assigned_to.email], fail_silently=False)
                     else:
                         print "Task assigner or creator has not a valid email address:", item.created_by.email, item.assigned_to.email
