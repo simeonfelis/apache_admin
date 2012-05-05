@@ -329,7 +329,7 @@ def view_task(request,task_id):
                      
                      # Send message
                      try:
-                         if "regensburg.de" in new_task.created_by.email and len(recip_list)>0:
+                         if "regensburg.de" in task.created_by.email and len(recip_list)>0:
                              send_mail(email_subject, email_body, task.created_by.email, recip_list, fail_silently=False)
                          else:
                              print "Task assigner or recipients have not a valid email address"
