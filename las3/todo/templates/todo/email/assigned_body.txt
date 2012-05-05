@@ -14,7 +14,7 @@ Notiz: {{ task.note }}
 
 
 Aufgabendetails/Kommentare:
-{% url home %}{% url todo-task_detail task.id %}
+https://rfhete470.hs-regensburg.de{% url todo-task_detail task.id %}
 
 List {{ task.list.name }}:
-{% url home %}{% url todo-incomplete_tasks task.list.id task.list.slug %}
+https://rfhete470.hs-regensburg.de{% url todo-incomplete_tasks task.list.id task.list.slug %}
