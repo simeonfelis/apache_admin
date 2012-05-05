@@ -14,7 +14,7 @@ Notiz: {{ task.note }}
 
 
 Aufgabendetails/Kommentare:
-{% url home todo-task_detail task.id %}
+{% url home %}{% url todo-task_detail task.id %}
 
 List {{ task.list.name }}:
-{% url url todo-incomplete_tasks task.list.id task.list.slug %}
+{% url home %}{% url todo-incomplete_tasks task.list.id task.list.slug %}

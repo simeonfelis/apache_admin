@@ -12,5 +12,5 @@ Aufgabendetails/Kommentare:
 {% url home %}{% url todo-task_detail task.id %}
 
 Liste {{ task.list.name }}:
-{% url home todo-incomplete_tasks task.list.id task.list.slug %}
+{% url home %}{% url todo-incomplete_tasks task.list.id task.list.slug %}
 
