@@ -19,7 +19,7 @@
                 Kein Benutzer im Projekt. Huh?
                 {% else %} <ul>{% for m in p.members %}
                 <!-- {{ m }} -->
-                <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.first_name }} {{ m.user.last_name }}</a> <br /></li>
+                <li><a style="white-space: nowrap;" href="{% url home %}usermod/{{ m.user.pk }}">{{ m }}</a> <br /></li>
                 {% endfor %} </ul> {% endif %}
             </td>
             <td>

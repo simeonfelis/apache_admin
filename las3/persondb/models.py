@@ -42,15 +42,15 @@ class Project(models.Model):
             return self.name
         raise ValidationError("name may only contain chars, numbers, - and _")
 
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, unique=True)
     description = models.CharField(max_length=255)
-    start = models.DateField('project starts')
-    end = models.DateField('project ends')
+    start = models.DateField('project starts', help_text = "Official date. Does not have influence on access to shares.")
+    end = models.DateField('project ends', help_text = "Official date. Does not have influence on access to shares.")
     shares = models.ManyToManyField(Share, blank=True, null=True)
 
 class Member(models.Model):
     def __unicode__(self):
-        return self.user.last_name + " " + self.user.first_name + " (" + self.user.username + ")"
+        return self.user.last_name + " " + self.user.first_name + " (" + self.get_member_type_display() + ")"
 
     #def clean(self):
     #    if " " in self.shortName or "    " in self.shortName or "/" in self.shortName or "\\" in self.shortName:
