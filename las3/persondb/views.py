@@ -124,20 +124,21 @@ def get_groups_to_render():
 
 def get_breadcrums(request):
     breadcrums = [
-            {'name': 'Meine Projekte', 'url': 'projects'},
-            {'name': 'Meine Aufgaben', 'url': 'todo/mine'},
-            {'name': 'Alle Aufgaben', 'url': 'todo'},
+            {'is_god': False, 'name': 'Start', 'url': ''},
+            {'is_god': False, 'name': 'Meine Projekte', 'url': 'projects'},
+            {'is_god': False, 'name': 'Meine Aufgaben', 'url': 'todo/mine'},
+            {'is_god': False, 'name': 'Alle Aufgaben', 'url': 'todo'},
             ]
 
     member = apache_or_django_auth(request)
 
-    breadcrums.append({'name': 'Mein Profil', 'url': 'usermod/' + str(member.user.pk)})
+    breadcrums.append({'is_god': False, 'name': 'Mein Profil', 'url': 'usermod/' + str(member.user.pk)})
 
     if is_god(request):
-        breadcrums.append({'name': 'Alle Projekte', 'url': 'overview/projects'})
-        breadcrums.append({'name': 'Alle Benutzer', 'url': 'overview/users'})
-        breadcrums.append({'name': 'Alle Gruppen', 'url': 'overview/groups'})
-        breadcrums.append({'name': 'Alle Freigaben', 'url': 'overview/shares'})
+        breadcrums.append({'is_god': True, 'name': 'Alle Projekte', 'url': 'overview/projects', })
+        breadcrums.append({'is_god': True, 'name': 'Alle Benutzer', 'url': 'overview/users'})
+        breadcrums.append({'is_god': True, 'name': 'Alle Gruppen', 'url': 'overview/groups'})
+        breadcrums.append({'is_god': True, 'name': 'Alle Freigaben', 'url': 'overview/shares'})
 
     return breadcrums
 

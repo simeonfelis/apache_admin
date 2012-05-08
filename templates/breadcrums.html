@@ -1,11 +1,19 @@
 {% block breadcrums %}
+
 {% if breadcrums %}
+
 <div class="las3-breadcrums">
+
     {% for b in breadcrums %}
-    <a href="{% url home %}{{ b.url }}">{{ b.name }}</a>
+    <a {% if b.is_god %}class="gods"{% endif %} href="{% url home %}{{ b.url }}">{{ b.name }}</a>
     {% endfor %}
+
 {% else %}
+
 <!-- No breadcrums available -->
+
 {% endif %}
+
 </div>
+
 {% endblock %}

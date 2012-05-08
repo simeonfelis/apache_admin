@@ -15,6 +15,13 @@
     border-radius:5px;
     padding:5px;
 }
+.las3-breadcrums a.gods {
+    margin: 5px;
+    white-space: nowrap;
+    background-color: #bbbbbb;
+    border-radius:5px;
+    padding:5px;
+}
 .las3-breadcrums a:link    { color: black; }
 .las3-breadcrums a:visited { color: black; }
 .las3-breadcrums a:hover   { background-color: #B2E681; }
