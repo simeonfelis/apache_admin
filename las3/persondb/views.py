@@ -251,7 +251,10 @@ def home(request):
     projects = []
     if not member == None:
         for p in member.projects.all().order_by("name"):
-            members = Member.objects.filter(projects=p)
+            if p.pub_mem or is_god(request):
+                members = Member.objects.filter(projects=p)
+            else:
+                members = []
             projects.append({'project': p, 'members': members})
 
     return render_to_response('index.html',

@@ -52,12 +52,16 @@
     
                 {% for p in projects%}
                 <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>
+                {% if p.members|length > 0 %}
                 <p>Andere Projektmitglieder</p>
                 <ul>
                     {% for m in p.members %}{% if m.pk != member.pk %}
                     <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a> <span style="color: gray;">({{ m.get_member_type_display }})</span></li>
                     {% endif %}{% endfor %}
                 </ul>
+                {% else %}
+                <p>Keine</p>
+                {% endif %}
     
                 {% endfor %}
             </div>
