@@ -310,12 +310,16 @@ def projects(request):
     projects = member.projects.all()
     members_projects = []
     for p in projects:
-        members = p.member_set.all()
+        if p.pub_mem or is_god(request):
+            members = p.member_set.all()
+        else:
+            members = []
         members_projects.append({'project': p, 'members': members})
 
     return render_to_response('member_projects.html',
             {
                 'projects': members_projects,
+                'is_god': is_god(request),
                 'breadcrums': get_breadcrums(request),
             },
             context_instance=RequestContext(request),
@@ -338,6 +342,7 @@ def overview(request, what):
         return render_to_response('overview_projects.html',
                                   {
                                       'projects': proj_render,
+                                      'is_god': is_god(request),
                                       'breadcrums': get_breadcrums(request),
                                   },
                                       context_instance=RequestContext(request),
@@ -484,10 +489,14 @@ def emails(request, what, param, which):
         check_allowed_project_member_or_nothing(request, project)
 
         if param == "active":
+            if not project.pub_mem:
+                check_god_or_nothing(request)
             users = [m.user for m in members.filter(projects = project, user__is_active = True)]
         elif param == "expired":
+            check_god_or_nothing(request)
             users = [m.user for m in members.filter(projects = project, user__is_active = False)]
         elif param == "all":
+            check_god_or_nothing(request)
             users = [m.user for m in members.filter(projects = project)]
 
     elif what == "all":

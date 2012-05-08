@@ -47,6 +47,7 @@ class Project(models.Model):
     start = models.DateField('project starts', help_text = "Official date. Does not have influence on access to shares.")
     end = models.DateField('project ends', help_text = "Official date. Does not have influence on access to shares.")
     shares = models.ManyToManyField(Share, blank=True, null=True)
+    pub_mem = models.BooleanField(default=False, help_text = "Members can see each other")
 
 class Member(models.Model):
     def __unicode__(self):

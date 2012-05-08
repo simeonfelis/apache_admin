@@ -2,7 +2,7 @@
 <table align="center" border="1" width="80%">
     <thead>
         <tr>
-            <th width="15%">Projekt</th><th>Beschreibung</th><th width="15%">Freigaben</th><th width="20%">Benutzer</th><th>E-Mail-Liste</th>
+            <th width="15%">Projekt</th><th>Beschreibung</th><th width="15%">Freigaben</th><th width="20%">Benutzer</th><th>Inter</th><th>E-Mail-Liste</th>
         </tr>
     </thead>
     <tbody>
@@ -16,17 +16,26 @@
                 {% endfor %}</ul>
             </td>
             <td> {% if p.members|length_is:"0" %}
+                {% if p.project.pub_mem or is_god %}
                 Kein Benutzer im Projekt. Huh?
+                {% else %}
+                Nicht einsehbar
+                {% endif %}
                 {% else %} <ul>{% for m in p.members %}
                 <!-- {{ m }} -->
                 <li><a style="white-space: nowrap;" href="{% url home %}usermod/{{ m.user.pk }}">{{ m }}</a> <br /></li>
                 {% endfor %} </ul> {% endif %}
             </td>
             <td>
+                {% if p.project.pub_mem %}Ja{% else %}Nein{% endif %}
+            </td>
+            <td>
                 <ul>
                     <li><a href="{% url home %}emails/project/active/{{ p.project.pk }}">Aktive</a></li>
+                    {% if p.project.pub_mem or is_god %}
                     <li><a href="{% url home %}emails/project/expired/{{ p.project.pk }}">Inaktive</a></li>
                     <li><a href="{% url home %}emails/project/all/{{ p.project.pk }}">Beides</a></li>
+                    {% endif %}
                 </ul>
             </td>
         </tr>
