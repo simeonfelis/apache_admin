@@ -104,9 +104,23 @@
     
             <p>Hol dir die E-Mail Adressen von:</p>
             <ul>
-                <li><a href="{% url home %}emails/all/active/0">Aktive</a></li>
-                <li><a href="{% url home %}emails/all/expired/0">Inaktive</a></li>
-                <li><a href="{% url home %}emails/all/all/0">Alle</a></li>
+                {% for s in status %}
+                <li><a href="{% url home %}emails/all/{{ s.name }}/0">{{ s.display }}</a></li>
+                {% endfor %}
+
+                {% for t in member_types %}
+                <li>
+                    {% for s in status %} <a href="{% url home %}emails/member_type_{{ t.0 }}/{{ s.name }}/0">{{ s.display }}</a> {% endfor %}
+                    in Member Typ {{ t.1 }}
+                </li>
+                {% endfor %}
+
+                {% for st in share_types %}
+                <li>
+                    {% for s in status %} <a href="{% url home %}emails/share_type_{{ st.0 }}/{{ s.name }}/0">{{ s.display }}</a> {% endfor %}
+                    in Share Typ {{ st.1 }}
+                </li>
+                {% endfor %}
             </ul>
     
             <h2>Gesamtübersichten</h2>
@@ -138,60 +152,7 @@
             </ul>
     
             <p>Die Konfigurationen können auch <strong>jetzt</strong> neu <a href="{% url home %}maintenance">geschrieben</a> werden.</p>
-    
-    
-    
-    
-            <h1>VERALTET</h1>
-        
-            <h3>Database overview</h3>
-        
-        
-            <p>You can get an <a href="{% url home %}overview/projects">overview of projects</a> or <a href="{% url home %}projectadd">add a project</a>.</p>
-            <p>You can get an <a href="{% url home %}overview/shares">overview of shares</a> or <a href="{% url home %}shareadd">add a share</a>.</p>
-            <p>You can get an <a href="{% url home %}overview/users">overview of users</a> or <a href="{% url home %}useradd">add a user</a>.</p>
-        
-            <h3>Email lists</h3>
-        
-            <p>Email lists for projects can retrieved in the <a href="{% url home %}overview/projects">project overview</a>. To view email addresses, a login is required.</p>
-            <p>
-                Other email lists are:
-                <ul>
-                    <li>All <a href="{% url home %}emails/all/active/0">active users</a></li>
-                    <li>All <a href="{% url home %}emails/all/expired/0">expired users</a></li>
-                    <li>All <a href="{% url home %}emails/all/all/0">users</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_extern/active/0">Extern users</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_phd/active/0">PhD students</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_bachelor/active/0">Bachelor students</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_master/active/0">Master students</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_prof/active/0">Professors</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/member_type_none/active/0">None of the above</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/share_type_svn/active/0">SVN users</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/share_type_bzr/active/0">Bazaar users</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/share_type_git/active/0">Git users</a></li>
-                    <li>Active users filtered by <a href="{% url home %}emails/share_type_dav/active/0">Webdav users</a></li>
-                </ul>
-            </p>
-        
-        
-            {% if configs %}
-            <h3>Config information</h3>
-        
-            <p>Have a look at the generated <a href="{% url home %}groups.dav">apache group file</a> for our users.</p>
-        
-            <p>Have a look at the generated config files for out shares.</p>
-        
-            <ul>
-            {% for c in configs %}
-                <li><a href="{% url home %}config/{{ c }}">Config for {{ c }}</a></li>
-            {% endfor %}
-            </ul>
-            <p>If you think the config files are OK, you can <a href="{% url home %}write_configs/all">do the maintenance</a>. 
-            This will write config files to the server and notify users about changes on their status.</p>
-        
-            {% else %}{# configs #}
-            <p>No configs available</p>
-            {% endif %}
+
         </div><!-- gods -->
     
     </div><!-- contents -->

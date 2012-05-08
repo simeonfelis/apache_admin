@@ -258,9 +258,18 @@ def home(request):
                 members = []
             projects.append({'project': p, 'members': members})
 
+    status = [
+            {'name': "active", 'display': "Aktiv"},
+            {'name': "expired", 'display': "Inaktiv"},
+            {'name': "all", 'display': "Beides"},
+            ]
+
     return render_to_response('index.html',
                               {
                                   'member': member,
+                                  'member_types': MEMBER_TYPE_CHOICES,
+                                  'share_types': SHARE_TYPE_CHOICES,
+                                  'status': status,
                                   'projects': projects,
                                   'is_god': is_god(request),
                                   'configs': share_types,
