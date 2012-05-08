@@ -83,8 +83,10 @@ class ProjectModForm(forms.ModelForm):
         self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
         if self.member.user in Group.objects.filter(name="Gods")[0].user_set.all():
             self.fields['members'].queryset = Member.objects.all()
-        else:
+        elif self.instance.pub_mem == True:
             self.fields['members'].queryset = Member.objects.filter(projects = self.instance)
+        else:
+            self.fields['members'].queryset = Member.objects.filter(projects = 0)
 
     class Meta:
         model = Project
