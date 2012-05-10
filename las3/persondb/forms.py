@@ -60,9 +60,10 @@ class ProjectModForm(forms.ModelForm):
 
         if not self.instance.pk == None:
             self.fields['shares'].initial = [s.pk for s in self.instance.shares.all() ]
-            # prefill only with shares related to project, if member is not in Gods
-            if self.member.user in Group.objects.filter(name__exact="Gods"):
+            # fill with all shares if user is from Gods
+            if self.member.user in Group.objects.filter(name="Gods")[0].user_set.all():
                 self.fields['shares'].queryset = Share.objects.all()
+            # prefill only with shares related to projects the member is in, if member is not in Gods
             else:
                 # get all projects from member, after that all the related shares, after that the share's pks, afterthat set the query for these pks on Share
                 shares = []
