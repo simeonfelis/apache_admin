@@ -23,7 +23,7 @@ MEMBER_TYPE_CHOICES = (
 
 class Share(models.Model):
     def __unicode__(self):
-        return self.share_type + " share " + self.name
+        return self.name + " (" + self.get_share_type_display() + ")"
 
     def clean(self):
         if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
