@@ -387,7 +387,7 @@ def maintenance(request):
         m.user.is_active = False
         m.user.save()
         disabled_members.append(m)
-        mail_body = render_to_string("email/account_expired.txt", m).decode('utf-8')
+        mail_body = render_to_string("email/account_expired.txt", m)
         try:
             #print "fake mail send"
             #sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
@@ -403,7 +403,7 @@ def maintenance(request):
         m.user.is_active = True
         m.user.save()
         enabled_members.append(m)
-        mail_body = render_to_string("email/account_activated.txt", m).decode('utf-8')
+        mail_body = render_to_string("email/account_activated.txt", m)
         try:
             #print "fake mail send"
             #sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
