@@ -1,10 +1,10 @@
 Hallo Frau oder Herr {{ member.user.last_name }},
 
-Ihr account {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist am {{ member.expires }} abgelaufen.
+Ihr Zugang {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist am {{ member.expires }} abgelaufen.
 
 Ihre Projektdaten beiben erhalten, ihr Zugang wird aber deaktiviert.
 
-Wenn Sie Ihren Zugang noch benötigen, beachrichtigen Herrn Mottok oder oder einen 
+Wenn Sie Ihren Zugang noch benötigen, benachrichtigen Sie Herrn Mottok oder oder einen 
 anderen Admin.
 
 

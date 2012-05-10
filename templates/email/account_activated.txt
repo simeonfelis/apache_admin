@@ -1,8 +1,17 @@
 Hallo Frau oder Herr {{ member.user.last_name }},
 
-Ihr account {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist aktiviert worden.
+Ihr Zugang {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist aktiviert worden.
 
 Er bleibt bis zum {{ member.expires }} aktiv.
+
+Sie können sich unter
+
+https://rfhete470.hs-regensburg.de/django
+
+ihr Profile ansehen. Wenn sie die Berechtigung dazu haben, schauen Sie auch mal in unser Wiki:
+
+https://rfhete470.hs-regensburg.de/wiki/
+
 
 Viel Spaß!
 
