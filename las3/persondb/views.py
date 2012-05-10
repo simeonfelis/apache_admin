@@ -387,11 +387,11 @@ def maintenance(request):
         m.user.is_active = False
         m.user.save()
         disabled_members.append(m)
-        mail_body = render_to_string("email/account_expired.txt", m)
+        mail_body = render_to_string("email/account_expired.txt", {'member': m})
         try:
             #print "fake mail send"
             #sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
-            sent = send_mail("Account expired", mail_body, admins_emails, ["simeon.felis@hs-regensburg.de"])
+            sent = send_mail("Account expired", mail_body, admins_emails[0], [admins_emails[0], m.user.email])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
@@ -403,11 +403,11 @@ def maintenance(request):
         m.user.is_active = True
         m.user.save()
         enabled_members.append(m)
-        mail_body = render_to_string("email/account_activated.txt", m)
+        mail_body = render_to_string("email/account_activated.txt", {'member': m})
         try:
             #print "fake mail send"
             #sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
-            sent = send_mail("Account activated", mail_body, admins_emails, ["simeon.felis@hs-regensburg.de"])
+            sent = send_mail("Account activated", mail_body, admins_emails[0], [admins_emails[0], m.user.email])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
