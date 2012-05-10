@@ -266,8 +266,7 @@ def delete(request, what, which):
     if what == 'projectmod':
         instance = get_object_or_404(Project, pk=which)
     elif what == "usermod":
-        return HttpResponse("Not yet implemented")
-        pass
+        instance = get_object_or_404(User, pk=which)
     elif what == "sharemod":
         instance = get_object_or_404(Share, pk=which)
 
