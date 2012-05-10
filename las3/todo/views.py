@@ -235,7 +235,7 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
                 if new_task.assigned_to != user :
                                         
                     # Send email
-                    email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': new_task })                    
+                    email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': new_task }).strip()
                     email_body = render_to_string("todo/email/assigned_body.txt", { 'task': new_task, 'site': current_site, })
                     try:
                         if "regensburg.de" in new_task.created_by.email and "regensburg.de" in new_task.assigned_to.email:
@@ -405,7 +405,7 @@ def external_add(request):
                 item.save()
                 
                 # Send email
-                email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': item.title })                    
+                email_subject = render_to_string("todo/email/assigned_subject.txt", { 'task': item.title }).strip()
                 email_body = render_to_string("todo/email/assigned_body.txt", { 'task': item, 'site': current_site, })
                 try:
                     if "regensburg.de" in item.created_by.email and "regensburg.de" in item.assigned_to.email:
