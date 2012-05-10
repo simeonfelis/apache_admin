@@ -1,0 +1,11 @@
+Hallo Frau oder Herr {{ member.user.last_name }},
+
+Ihr account {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist aktiviert worden.
+
+Er bleibt bis zum {{ member.expires }} aktiv.
+
+Viel Spaß!
+
+Mit freundlichen Grüßen,
+
+Ihr rfhete470 Admin

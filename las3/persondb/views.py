@@ -143,37 +143,6 @@ def get_breadcrums(request):
     return breadcrums
 
 
-def get_account_expired_text(member):
-    return """
-Hallo Frau oder Herr %s,
-
-Ihr account %s an unserem Server rfhete470.hs-regensburg.de ist am %s abgelaufen.
-
-Ihre Projektdaten beiben erhalten, ihr Zugang wird aber deaktiviert.
-
-Wenn Sie Ihren Zugang noch benoetigen, beachrichtigen Herrn Mottok oder mich.
-
-
-Mit freundlichen Grüßen,
-
-Ihr rfhete470 Admin
-""".decode('utf-8') %(member.user.last_name, member.user.username, str(member.expires))
-
-def get_account_activated_text(member):
-    return """
-Hallo Frau oder Herr %s,
-
-Ihr account %s an unserem Server rfhete470.hs-regensburg.de ist aktiviert worden.
-
-Er bleibt bis zum %s aktiv.
-
-Viel Spaß!
-
-Mit freundlichen Grüßen,
-
-Ihr rfhete470 Admin
-""".decode('utf-8') %(member.user.last_name, member.user.username, str(member.expires))
-
 def apache_or_django_auth(request):
     """
     Returns a member if request has valid information, None otherwise.
@@ -418,10 +387,11 @@ def maintenance(request):
         m.user.is_active = False
         m.user.save()
         disabled_members.append(m)
+        mail_body = render_to_string("email/account_expired.txt", m).decode('utf-8')
         try:
             #print "fake mail send"
             #sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, [m.user.email])
-            sent = send_mail("Account expired", get_account_expired_text(m), admins_emails, ["simeon.felis@hs-regensburg.de"])
+            sent = send_mail("Account expired", mail_body, admins_emails, ["simeon.felis@hs-regensburg.de"])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
@@ -433,10 +403,11 @@ def maintenance(request):
         m.user.is_active = True
         m.user.save()
         enabled_members.append(m)
+        mail_body = render_to_string("email/account_activated.txt", m).decode('utf-8')
         try:
             #print "fake mail send"
             #sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, [m.user.email])
-            sent = send_mail("Account activated", get_account_activated_text(m), admins_emails, ["simeon.felis@hs-regensburg.de"])
+            sent = send_mail("Account activated", mail_body, admins_emails, ["simeon.felis@hs-regensburg.de"])
         except Exception, e:
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
