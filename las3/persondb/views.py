@@ -114,7 +114,8 @@ def get_groups_to_render():
             for p in shares_projects:
                 share_projects.append(p)
                 for m in members.filter(projects = p):
-                    share_members.append(m)
+                    if m.user.is_active or m.member_type == 'alumni':
+                        share_members.append(m)
         shares_render.append({
                              'share': share,
                              'projects': share_projects,
@@ -441,6 +442,9 @@ def maintenance(request):
     # Apache password file
     filename = os.path.join(gen_folder, "passwd.dav")
     passwd = "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=True)])
+    passwd += "\n"
+    passwd += "\n".join([m.htdigest for m in Member.objects.filter(member_type='alumni')]) 
+    passwd += "\n"
     try:
         open(filename, "wb").write(passwd)
     except Exception, e:

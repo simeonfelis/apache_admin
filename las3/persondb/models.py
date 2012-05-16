@@ -18,6 +18,7 @@ MEMBER_TYPE_CHOICES = (
         ('shk', 'Studentische Hilfskraft'),
         ('prof', 'Professor'),
         ('extern', 'Extern'),
+        ('alumni', 'Alumni'),
         ('none', 'Nichts von alldem')
 )
 
@@ -48,6 +49,7 @@ class Project(models.Model):
     end = models.DateField('project ends', help_text = "Official date. Does not have influence on access to shares.")
     shares = models.ManyToManyField(Share, blank=True, null=True)
     pub_mem = models.BooleanField(default=False, help_text = "Members can see each other")
+    allow_alumni = models.BooleanField(default=False, help_text = "Alumni members can access this project's shares")
 
 class Member(models.Model):
     def __unicode__(self):
