@@ -12,61 +12,56 @@
 
         <h1>Benutzer Übersicht</h1>
 
-        <p>Du kannst auch <a class="button" href="{% url home %}useradd">Benutzer hinzufügen</a>.</p>
+        <p><a class="button" href="{% url home %}useradd">Benutzer hinzufügen</a></p>
+        <p>1. Aktive Benutzer</p>
+        <p>2. Alumnis</p>
+        <p>3. Inaktive</p>
 
         {% if users %}
 
-        <h2>Aktive Benutzer</h2>
+        <h2>1. Aktive Benutzer</h2>
 
-        <table align="center" border="1" width="75%" class="ui-widget" >
+        <table align="center" border="1" width="85%" class="ui-widget" >
             <thead>
             <tr class="ui-widget-header">
-                <th>Nachname</th><th>Vorname</th><th>Username</th><th>Member type</th><th>Projekte</th><th>Freigaben</th>
+                <th width="16%">Nachname</th><th width="16%">Vorname</th><th width="10%">Username</th><th width="11%">Bis</th><th width="11%">Member type</th><th>Projekte</th><th width="20%">Freigaben</th>
+            </tr>
+            </thead>
+            <tbody class="ui-widget-content">
+                {% for u in users|dictsort:"last_name" %} {% if u.is_active and u.member_set.all|length > 0 and not u.member_set.all.0.member_type == "alumni" %}
+                {# all active users, no alumnis, and make sure that no django-only-users (from django User class) are displayed #}
+                    {% include "user_tablerow.html" %}
+                {% endif %}{# u.is_active #}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>2. Alumni</h2>
+        <table align="center" border="1" width="85%" class="ui-widget" >
+            <thead>
+            <tr class="ui-widget-header">
+                <th width="16%">Nachname</th><th width="16%">Vorname</th><th width="10%">Username</th><th width="11%">Bis</th><th width="11%">Member type</th><th>Projekte</th><th width="20%">Freigaben</th>
             </tr>
             </thead>
             <tbody class=ui-widget-content">
-            {% for u in users|dictsort:"last_name" %} {% if u.is_active %}
-            <tr>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.last_name }}</a></td>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.first_name }}</a></td>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.username }}</a></td>
-                <td>{{ u.member_set.all.0.get_member_type_display }}</td>
-                <td>{% for project in u.member_set.all.0.projects.all %}
-                    <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
-                    {% endfor %}
-                </td>
-                <td>{% for project in u.member_set.all.0.projects.all %} {% for share in project.shares.all %}
-                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a> <br />
-                    {% endfor %} {% endfor %}
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
+                {% for u in users|dictsort:"last_name" %}{% if u.member_set.all.0.member_type == "alumni" %}
+                    {% include "user_tablerow.html" %}
+                {% endif %}{% endfor %}
             </tbody>
         </table>
 
 
-        <h2>Inaktive Nutzer</h2>
-        <table align="center" border="1" width="75%" >
+
+        <h2>3. Inaktive Nutzer</h2>
+        <table align="center" border="1" width="85%" >
             <tr>
-                <th>Last name</th><th>First Name</th><th>Username</th><th>Member type</th><th>Projects</th><th>Shares</th>
+                <th width="16%">Nachname</th><th width="16%">Vorname</th><th width="10%">Username</th><th width="11%">Bis</th><th width="11%">Member type</th><th>Projekte</th><th width="20%">Freigaben</th>
             </tr>
-            {% for u in users %} {% if not u.is_active %}
-            <tr>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.last_name }}</a></td>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.first_name }}</a></td>
-                <td><a href="{% url home %}usermod/{{ u.pk }}">{{ u.username }}</a></td>
-                <td>{{ u.member_set.all.0.get_member_type_display }}</td>
-                <td>{% for project in u.member_set.all.0.projects.all %}
-                    <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
-                    {% endfor %}
-                </td>
-                <td>{% for project in u.member_set.all.0.projects.all %} {% for share in project.shares.all %}
-                    <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a> <br />
-                    {% endfor %} {% endfor %}
-                </td>
-            </tr>
-            {% endif %} {% endfor %}
+            <tbody class=ui-widget-content">
+                {% for u in users %} {% if not u.is_active and not u.member_set.all.0.member_type == "alumni" %}
+                    {% include "user_tablerow.html" %}
+                {% endif %}{% endfor %}
+            </tbody>
         </table>
 
 

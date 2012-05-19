@@ -33,6 +33,17 @@ def create_apache_htdigest(username, password):
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
 
+def get_member_groups(member):
+    user = User.objects.all()
+    groups = []
+    for g in Group.objects.all():
+        if g in member.user.groups.all():
+            groups.append({'group': g, 'is_member': True})
+        else:
+            groups.append({'group': g, 'is_member': False})
+    return groups
+
+
 def input_error_global(template, form, error, request):
     return render_to_response(template,
             {
@@ -114,8 +125,13 @@ def get_groups_to_render():
             for p in shares_projects:
                 share_projects.append(p)
                 for m in members.filter(projects = p):
-                    if m.user.is_active or m.member_type == 'alumni':
-                        share_members.append(m)
+                    if p.allow_alumni:
+                        if m.user.is_active or m.member_type == 'alumni':
+                            share_members.append(m)
+                    else:
+                        if m.user.is_active:
+                            share_members.append(m)
+
         shares_render.append({
                              'share': share,
                              'projects': share_projects,
@@ -443,7 +459,7 @@ def maintenance(request):
     filename = os.path.join(gen_folder, "passwd.dav")
     passwd = "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=True)])
     passwd += "\n"
-    passwd += "\n".join([m.htdigest for m in Member.objects.filter(member_type='alumni')]) 
+    passwd += "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=False, member_type='alumni')]) 
     passwd += "\n"
     try:
         open(filename, "wb").write(passwd)
@@ -665,8 +681,10 @@ def useradd(request):
         form = UserModForm(instance = new_member.user)
         return render_to_response('usermodform.html',
                 {
-                    'form':    form,
+                    'groups': get_member_groups(new_member),
+                    'is_god': is_god(request),
                     'breadcrums': get_breadcrums(request),
+                    'form':    form,
                     'created': True,
                 },
                 context_instance=RequestContext(request),
@@ -688,7 +706,7 @@ def usermod(request, user_id):
     def input_error(form, error):
         return render_to_response('usermodform.html',
                 {
-                 'groups': get_member_groups(),
+                 'groups': get_member_groups(member),
                  'is_god': is_god(request),
                  'breadcrums': get_breadcrums(request),
                  'error': error,
@@ -696,15 +714,6 @@ def usermod(request, user_id):
                 },
                 context_instance=RequestContext(request),
                 )
-
-    def get_member_groups():
-        groups = []
-        for g in Group.objects.all():
-            if g in user.groups.all():
-                groups.append({'group': g, 'is_member': True})
-            else:
-                groups.append({'group': g, 'is_member': False})
-        return groups
 
     user = get_object_or_404(User, pk=user_id)
 
@@ -814,7 +823,7 @@ def usermod(request, user_id):
                     'success': True,
                     'is_member': True,
                     'is_god': is_god(request),
-                    'groups': get_member_groups(),
+                    'groups': get_member_groups(member),
                     'form' : form,
                     'breadcrums': get_breadcrums(request),
                 },
@@ -829,7 +838,7 @@ def usermod(request, user_id):
                                   'user' : user,
                                   'is_member': check_allowed_member_or_nothing(request, member),
                                   'is_god': is_god(request),
-                                  'groups': get_member_groups(),
+                                  'groups': get_member_groups(member),
                                   'form' : form,
                                   'breadcrums': get_breadcrums(request),
                               },
@@ -892,6 +901,10 @@ def projectmod(request, project_id):
                 m.projects.remove(project)
 
         form.save() # Will also take care about m2m-relations
+
+        # Renew form to ensure the new data can evaluated during ProjectModForm constructor
+        # especially the 'allow_alumni' flag
+        form = ProjectModForm(instance=project, member=apache_or_django_auth(request))
 
         return render_to_response('projectmodform.html',
                                   {

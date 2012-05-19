@@ -83,7 +83,10 @@ class ProjectModForm(forms.ModelForm):
         self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
         self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
         if self.member.user in Group.objects.filter(name="Gods")[0].user_set.all():
-            self.fields['members'].queryset = Member.objects.all()
+            if self.instance.allow_alumni:
+                self.fields['members'].queryset = Member.objects.all()
+            else:
+                self.fields['members'].queryset = Member.objects.exclude(member_type='alumni')
         elif self.instance.pub_mem == True:
             self.fields['members'].queryset = Member.objects.filter(projects = self.instance)
         else:
