@@ -117,7 +117,7 @@ def del_list(request,list_id,list_slug):
 
 
 @user_passes_test(check_user_allowed)
-def view_list(request,list_id=0,list_slug=None,view_completed=0):
+def view_list(request,list_id=0,list_slug=None,view_completed=0,wiki=False):
     
     """
     Display and manage items in a task list
@@ -186,7 +186,6 @@ def view_list(request,list_id=0,list_slug=None,view_completed=0):
 
     thedate = datetime.datetime.now()
     created_date = "%s-%s-%s" % (thedate.year, thedate.month, thedate.day)
-    print "def view_list: thedate:", thedate, "created_date:", created_date
 
 
     # Get list of items with this list ID, or filter on items assigned to me, or recently added/completed

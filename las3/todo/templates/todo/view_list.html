@@ -1,6 +1,6 @@
 {% extends "todo/base.html" %}
 
-{% block title %}Todo List: {{ list.name }}{% endblock %}
+{# {% block title %}Todo List: {{ list.name }}{% endblock %} #}
 
 {% block content %}
 
@@ -36,7 +36,7 @@ $(document).ready(function() {
 
 </script>
 
-
+    {% if not wiki %}{# don't display this stuff in las3 wiki #}
     {% ifequal list_slug "mine" %}
         <h1>Tasks assigned to {{ user.get_full_name }}</h1>    
     {% else %}
@@ -45,6 +45,7 @@ $(document).ready(function() {
        <p>This list belongs to group {{ list.group }}</p>
     {% endifequal %}
     {% endifequal %}
+    {% endif %}{# wiki #}
 
  
    {% if messages %}
