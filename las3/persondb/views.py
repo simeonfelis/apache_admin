@@ -745,7 +745,8 @@ def usermod(request, user_id):
             return input_error(form = form, error = e)
 
         if new_password == user.password:
-            print "Won't change password"
+            new_password = ""
+            #print "Won't change password"
         else:
             user.set_password(new_password)
 
@@ -804,12 +805,13 @@ def usermod(request, user_id):
                 user.groups.add(g)
 
         # now update the ejabberd passwd
-        try:
-            ejabberd_account_update(user.username, new_password)
-        except Exception, e:
-            print "Error updating ejabberd account"
-            error = "Error updating ejabberd account"
-            return input_error(form=form, error=error)
+        if not new_password == "":
+            try:
+                ejabberd_account_update(user.username, new_password)
+            except Exception, e:
+                print "Error updating ejabberd account"
+                error = "Error updating ejabberd account"
+                return input_error(form=form, error=error)
 
         # OK, all data should be verified now
         user.save()
