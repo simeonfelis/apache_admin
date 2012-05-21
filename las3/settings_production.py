@@ -1,6 +1,6 @@
 # Django settings for las3 project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
