@@ -55,6 +55,7 @@ def input_error_global(template, form, error, request):
             {
              'error': error,
              'form':  form,
+             'is_god': is_god(request),
             },
             context_instance=RequestContext(request),
             )
@@ -929,6 +930,7 @@ def projectmod(request, project_id):
                                   {
                                       'success': True,
                                       'form' : form,
+                                      'is_god': is_god(request),
                                       'breadcrums': get_breadcrums(request),
                                   },
                                   context_instance=RequestContext(request),
@@ -940,6 +942,7 @@ def projectmod(request, project_id):
                               {
                                   'project': project,
                                   'form' : form,
+                                  'is_god': is_god(request),
                                   'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
