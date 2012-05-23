@@ -6,8 +6,8 @@ SERVICE     = /usr/sbin/service
 SERVICE_CMD = reload
 INSTANCE    = apache2
 
-${REQ_FILE}:
+${DONE_FILE}:
 	${SERVICE} ${INSTANCE} ${SERVICE_CMD}
 	${CC} ${DONE_FILE}
 
-all: ${REQ_FILE}
+all: ${DONE_FILE}
