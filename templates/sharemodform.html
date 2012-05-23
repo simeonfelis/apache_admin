@@ -22,6 +22,13 @@
 <p class="ui-state-highlight">Share wurde erstellt. Noch mal editieren?</p>
 {% endif %}
 
+<p>Dieser Share ist verfügbar unter: 
+{% if form.instance.share_type = "wik" %}
+<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.name }}</a></p>
+{% else %}
+<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}</a></p>
+{% endif %}
+
 
 <form action="{% url home %}sharemod/{{ form.instance.pk }}" method="POST">
     {% csrf_token %}

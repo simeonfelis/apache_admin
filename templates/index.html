@@ -11,26 +11,6 @@
 {% endblock %}
 
 {% block content %}
-    {% comment %}
-    USER:
-    {{ user }}<br />
-    AUTHENTICATED:
-    {{ authenticated }}<br />
-    IS_AUTHENTICATED:
-    {{ user.is_authenticated }}<br />
-    MEMBER:
-    {{ member }}<br />
-    USERNAME:
-    {{ username }}<br />
-    PROJECTS:
-    {{ projects }}<br />
-    REQUEST:
-    {{ request }}<br />
-    META:
-    {{ meta }}<br />
-    MEATA.keys()
-    {{ meta.keys }}<br />
-    {% endcomment %}
 
     {% if member %}
 
@@ -53,14 +33,18 @@
                 {% for p in projects%}
                 <h2><a href="{% url home %}projectmod/{{ p.project.pk }}">{{ p.project }}</a></h2>
                 {% if p.members|length > 0 %}
-                <p>Andere Projektmitglieder</p>
+                <p>Andere Projektmitglieder: (<a href="{% url home %}emails/project/active/{{ p.project.pk }}">E-Mails</a>)</p>
                 <ul>
                     {% for m in p.members %}{% if m.pk != member.pk %}
-                    <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a> <span style="color: gray;">({{ m.get_member_type_display }})</span></li>
+                    <li>{% if is_god %}<a href="{% url home %}usermod/{{ m.user.pk }}">{% else %}<a href="mailto:{{ m.user.email }}">{% endif %}{{ m.user.get_full_name }}</a> <span style="color: gray;">({{ m.get_member_type_display }})</span></li>
                     {% endif %}{% endfor %}
                 </ul>
                 {% else %}
-                <p>Keine</p>
+                    {% if p.pub_mem %}
+                    <p>Keine</p>
+                    {% else %}
+                    <p>Andere Projektmitglieder nicht einsehbar</p>
+                    {% endif %}
                 {% endif %}
     
                 {% endfor %}
@@ -68,11 +52,14 @@
     
             <div class="left">
     
-                <h1>Aufgabenverwaltung</h1>
+                <h1>Aufgaben</h1>
     
-                <p>Aufgaben, die dir zugewiesen sind</p>
+                <p>Aufgaben, aufgeteilt in Listen</p>
     
                 <a href="{% url todo-lists %}">Aufgabenlisten</a>
+
+                <p>Aufgaben, die dir zugewiesen wurden:</p>
+
                 <a style="white-space: nowrap;" href="{% url todo-mine %}">Meine Aufgaben</a>
     
             </div>
