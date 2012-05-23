@@ -29,10 +29,13 @@ class Share(models.Model):
     def clean(self):
         if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
             return self.name
-        raise ValidationError("name may only contain chars, numbers, - and _")
+        raise ValidationError("name may only contain letters, numbers, - and _")
 
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, help_text = "Only letters, numbers, - and _")
     share_type = models.CharField(max_length=3, choices=SHARE_TYPE_CHOICES)
+
+    class Meta:
+        ordering = ['name']
 
 class Project(models.Model):
     def __unicode__(self):
@@ -41,15 +44,18 @@ class Project(models.Model):
     def clean(self):
         if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
             return self.name
-        raise ValidationError("name may only contain chars, numbers, - and _")
+        raise ValidationError("name may only contain letters, numbers, - and _")
 
-    name = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=40, unique=True, help_text="Only letters, numbers, - and _")
     description = models.CharField(max_length=255)
-    start = models.DateField('project starts', help_text = "Official date. Does not have influence on access to shares.")
+    start = models.DateField('project starts', help_text="Official date. Does not have influence on access to shares.")
     end = models.DateField('project ends', help_text = "Official date. Does not have influence on access to shares.")
     shares = models.ManyToManyField(Share, blank=True, null=True)
     pub_mem = models.BooleanField(default=False, help_text = "Members can see each other")
     allow_alumni = models.BooleanField(default=False, help_text = "Alumni members can access this project's shares")
+
+    class Meta:
+        ordering = ['name']
 
 class Member(models.Model):
     def __unicode__(self):
@@ -74,4 +80,7 @@ class Member(models.Model):
     projects = models.ManyToManyField(Project)
 
     member_type = models.CharField(max_length=10, choices=MEMBER_TYPE_CHOICES, default='none')
+
+    class Meta:
+        ordering = ['user__last_name']
 
