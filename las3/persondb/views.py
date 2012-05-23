@@ -25,6 +25,7 @@ admins_emails = [ a[1] for a in settings.ADMINS ]
 
 servername = "rfhete470.hs-regensburg.de"
 ejabberdcmd = "/usr/sbin/ejabberdctl-wrapper"
+gen_folder = os.path.join("var", "django", "generated")
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
@@ -32,6 +33,11 @@ def create_apache_htdigest(username, password):
     apache_password = md5(apache_prefix.encode('utf-8') + password.encode('utf-8')).hexdigest()
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
+
+def request_apache_reload():
+    filename = os.path.join(gen_folder, "reload_request")
+
+    open(filename, "wb").write( str(datetime.datetime.now()) )
 
 def get_member_groups(member):
     user = User.objects.all()
@@ -402,6 +408,7 @@ def maintenance(request):
         print "The member", m.user, "expired at", m.expires, m.user.first_name, m.user.last_name, "will be set inactive"
         m.user.is_active = False
         m.user.save()
+        request_apache_reload()
         disabled_members.append(m)
         mail_body = render_to_string("email/account_expired.txt", {'member': m})
         try:
@@ -417,6 +424,7 @@ def maintenance(request):
         print "The member", m.user, "became active at", m.expires, m.user.first_name, m.user.last_name, "will be activated"
         m.user.is_active = True
         m.user.save()
+        request_apache_reload()
         enabled_members.append(m)
         mail_body = render_to_string("email/account_activated.txt", {'member': m})
         try:
@@ -426,8 +434,6 @@ def maintenance(request):
             email_problem = True
             # return answer(request=request, message="There was a problem.", error ="Email send failed. Detail:" + str(e))
             pass
-
-    gen_folder = os.path.join("var", "django", "generated")
 
     # vcs and dav configs
     for typ in share_types:
@@ -571,6 +577,7 @@ def sharemod(request, share_id):
             return input_error_global(template='sharemodform.html', request = request, form = form, error = form.errors)
         
         form.save()
+        request_apache_reload()
 
         return render_to_response('sharemodform.html',
                                   {
@@ -604,6 +611,8 @@ def shareadd(request):
             return input_error_global(template = 'shareadd.html', error = form.errors, request = request, form = form)
 
         new_share = form.save()
+
+        request_apache_reload()
         
         form = ShareModForm(instance = new_share)
         return render_to_response('sharemodform.html',
@@ -677,6 +686,8 @@ def useradd(request):
             ejabberd_account_update(username, password)
         except Exception, e:
             print "I could not create the ejabberd account for", username, ", ignoring..."
+
+        request_apache_reload()
 
         form = UserModForm(instance = new_member.user)
         return render_to_response('usermodform.html',
@@ -817,6 +828,8 @@ def usermod(request, user_id):
         user.save()
         member.save()
 
+        request_apache_reload()
+
         # Make sure all the new information will be displayed
         form = UserModForm(instance=user)
 
@@ -859,6 +872,8 @@ def projectadd(request):
             return input_error_global(template = 'projectadd.html', error = form.errors, request = request, form = form)
 
         new_project = form.save()
+
+        request_apache_reload()
         
         form = ProjectModForm(instance = new_project, member=apache_or_django_auth(request))
         return render_to_response('projectmodform.html',
@@ -907,6 +922,8 @@ def projectmod(request, project_id):
         # Renew form to ensure the new data can evaluated during ProjectModForm constructor
         # especially the 'allow_alumni' flag
         form = ProjectModForm(instance=project, member=apache_or_django_auth(request))
+
+        request_apache_reload()
 
         return render_to_response('projectmodform.html',
                                   {
