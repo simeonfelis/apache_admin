@@ -24,9 +24,9 @@
 
 <p>Dieser Share ist verfügbar unter: 
 {% if form.instance.share_type = "wik" %}
-<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.name }}</a></p>
+<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.name }}/</a></p>
 {% else %}
-<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}</a></p>
+<a href="https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}">https://rfhete470.hs-regensburg.de/{{ form.instance.share_type }}/{{ form.instance.name }}/</a></p>
 {% endif %}
 
 
