@@ -23,7 +23,7 @@ member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
 admins_names = [ a[0] for a in settings.ADMINS ]
 admins_emails = [ a[1] for a in settings.ADMINS ]
 
-servername = "rfhete470.hs-regensburg.de"
+jabberservername = "las3.de"
 ejabberdcmd = "/usr/sbin/ejabberdctl-wrapper"
 gen_folder = os.path.join("var", "django", "generated")
 
@@ -85,7 +85,7 @@ def ejabberd_account_create(username, password):
         password = password.encode('utf-8')
 
     try:
-        subprocess.check_call([ejabberdcmd, "register", username, servername, password])
+        subprocess.check_call([ejabberdcmd, "register", username, jabberservername, password])
     except subprocess.CalledProcessError:
         # Probably exists, but not for sure
         return "error"
@@ -100,7 +100,7 @@ def ejabberd_account_update(username, password):
         password = password.encode('utf-8')
 
     try:
-        subprocess.check_call([ejabberdcmd, "check-account", username, servername])
+        subprocess.check_call([ejabberdcmd, "check-account", username, jabberservername])
     except subprocess.CalledProcessError, e: # when call return other than 0. 
         if e.returncode == 1:
             pass
@@ -109,13 +109,13 @@ def ejabberd_account_update(username, password):
 
         # Create account first
         if ejabberd_account_create(username, password) == "success":
-            subprocess.check_call([ejabberdcmd, "check-account", username, servername])
+            subprocess.check_call([ejabberdcmd, "check-account", username, jabberservername])
         else:
             raise Exception ("Could not update ejabberd account for " + username)
 
     # if exists, change password
     else:
-        subprocess.check_call([ejabberdcmd, "change-password", username, servername, password])
+        subprocess.check_call([ejabberdcmd, "change-password", username, jabberservername, password])
     
 def get_groups_to_render():
     shares = Share.objects.all().order_by("name")
@@ -584,6 +584,7 @@ def sharemod(request, share_id):
                                   {
                                       'success': True,
                                       'form' : form,
+                                      'request': request,
                                       'breadcrums': get_breadcrums(request),
                                   },
                                   context_instance=RequestContext(request),
@@ -595,6 +596,7 @@ def sharemod(request, share_id):
     return render_to_response('sharemodform.html',
                               {
                                   'form' : form,
+                                  'request': request,
                                   'breadcrums': get_breadcrums(request),
                               },
                               context_instance=RequestContext(request),
