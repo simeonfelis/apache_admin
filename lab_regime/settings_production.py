@@ -10,9 +10,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DEPLOY_PATH = os.path.join('var', 'django')
-MEDIA_PATH = os.path.join('var', 'www', 'django', 'media')
-STATIC_PATH = os.path.join('var', 'www', 'django', 'static')
+DEPLOY_PATH = os.path.join('/', 'var', 'django')
+MEDIA_PATH = os.path.join('/', 'var', 'www', 'django', 'media')
+STATIC_PATH = os.path.join('/', 'var', 'www', 'django', 'static')
 
 GENERATE_FOLDER = os.path.join(DEPLOY_PATH, 'generated')
 USE_EJABBERD = True
