@@ -15,7 +15,7 @@ framework.
 """
 import os, sys
 
-path = '/home/simeon/workspace/django/lab_regime'
+path = os.path.split(os.path.abspath(__file__))[0]
 
 if path not in sys.path:
     sys.path.append(path)
