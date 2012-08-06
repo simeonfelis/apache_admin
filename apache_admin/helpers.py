@@ -36,6 +36,10 @@ def get_breadcrums(request):
     return bc
 
 def request_apache_reload():
+
+    if not os.path.isdir(settings.GENERATE_FOLDER):
+        os.makedirs(settings.GENERATE_FOLDER)
+
     filename = os.path.join(settings.GENERATE_FOLDER, "reload_request")
 
     open(filename, "wb").write( str(datetime.datetime.now()) )

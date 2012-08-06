@@ -21,7 +21,7 @@ urlpatterns = patterns('apache_admin',
     url(r'^projects', 'views.projects'),
     url(r'^sharemod/(?P<share_id>\d+)', 'views.sharemod'),
     #url(r'^shareadd', 'views.shareadd'), # POST and GET
-    url(r'^usermod/(?P<user_id>\d+)', 'views.usermod', name='usermode'),
+    url(r'^usermod/(?P<user_id>\d+)', 'views.usermod', name='usermod'),
     url(r'^useradd', 'views.useradd'),
     url(r'^delete/(?P<what>\w+)/(?P<which>\d+)', 'views.delete'),
 

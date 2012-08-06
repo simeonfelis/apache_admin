@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import Context, loader, RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 # project dependencies
@@ -97,15 +98,10 @@ def useradd(request):
 
         form = UserAddForm(request.POST)
         if not form.is_valid():
-            return render_to_response('member.html',
+            return render_to_response('useraddform.html',
                     locals(),
-                    #                  {
-                    #                   'error' : form.errors,
-                    #                   'breadcrums': get_breadcrums(request),
-                    #                   'form' : form,
-                    #                  },
-                                      context_instance=RequestContext(request),
-                                      )
+                    context_instance=RequestContext(request),
+                    )
 
         new_user = form.save(commit=False)
 
@@ -118,17 +114,18 @@ def useradd(request):
 
         ## We have a cleartext password. generate the correct one
         ## password = request.POST.get('password')
-        #new_user.set_password(password)
-        #new_user.save()
+        new_user.set_password(password)
+        new_user.save()
 
         # Also create a apache htdigest compatible password
         username = request.POST.get('username')
         try:
             apache_htdigest = create_apache_htdigest(username, password)
         except Exception, e:
-            new_user.delete()
+            if not new_user.id == None:
+                new_user.delete()
             error = e
-            return render_to_response('member.html',
+            return render_to_response('useraddform.html',
                     locals(),
                     context_instance=RequestContext(request),
                     )
@@ -144,9 +141,10 @@ def useradd(request):
         try:
             new_member.clean_fields()
         except ValidationError, e:
-            new_user.delete()
+            if not new_user.id == None:
+                new_user.delete()
             error = e
-            return render_to_response('member.html',
+            return render_to_response('useraddform.html',
                     locals(),
                     context_instance=RequestContext(request),
                     )
@@ -159,13 +157,18 @@ def useradd(request):
             print "I could not create the ejabberd account for", username, ", ignoring..."
 
         request_apache_reload()
-        mail_body = render_to_string("email/new_account.txt", {'member': new_member, 'password': password})
-        sent = send_mail(_("LaS3 service access granted"), mail_body, admins_emails[0], [new_member.user.email])
-        return HttpResponseRedirect(revers("usermod", args=[str(new_member.user.id)])
+        try:
+            mail_body = render_to_string("email/new_account.txt", {'member': new_member, 'password': password})
+            sent = send_mail(_("LaS3 service access granted"), mail_body, admins_emails[0], [new_member.user.email])
+        except Exception, e:
+            print "Error sending mail after user creation:", e
+
+        user_id = str(new_member.user.pk)
+        return HttpResponseRedirect(reverse("usermod", args=[user_id]))
 
     # Handle GET requests
     form = UserAddForm()
-    return render_to_response('member.html',
+    return render_to_response('useraddform.html',
             locals(),
             context_instance=RequestContext(request),
             )
@@ -243,10 +246,10 @@ def usermod(request, user_id):
 
         new_member_type = request.POST.get('member_type')
         if not new_member_type == member.member_type:
-            if request.user.has_perm('apache_admin.change_member'):
+            if is_god:
                 member.member_type = new_member_type
             else:
-                error=_("You may not change your member type")
+                error=_("You may not change the member type")
                 return input_error(form, error)
 
         member.begins      = request.POST.get('begins')
