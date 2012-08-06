@@ -29,7 +29,6 @@
 <p class="ui-state-highlight">Benutzer erstellt. Hier mehr infos angeben?</p>
 {% endif %}
 
-
 <form action="{% url home %}usermod/{{ form.instance.pk }}" method="POST">
     {% csrf_token %}
     <table>
@@ -38,32 +37,15 @@
 
     {% if is_god %}
     <tr>
-        <th>Gruppen</th>
-        <td>
-            {% for g in groups %}
-            <li>
-                <label for="{{ forloop.counter0 }}">
-                    <input {% if g.is_member %}checked="checked"{% endif %} 
-                        type="checkbox" 
-                        name="groups" 
-                        value="{{ g.group.pk }}" 
-                        id="id_group_{{ forloop.counter0 }}" /> 
-                    {{ g.group }}
-                </label>
-            </li>
-            {% endfor %}
-        </td>
-    </tr>
-    <tr>
         <td align="left">
-            <a class="button" href="{% url home %}usermod/delete/{{ form.instance.pk }}">Löschen</a>
+            <a class="button" href="{% url home %}delete/user/{{ form.instance.pk }}">Löschen</a>
         </td>
         <td align="right">
             <a class="button" href="{% url home %}useradd">Neuer Benutzer</a>
             <input type="submit" value="Ändern"/>
         </td>
     </tr>
-    {% else %}{# is_god #}
+    {% else %}{# not is_god #}
     <tr>
         <td align="left">
         </td>

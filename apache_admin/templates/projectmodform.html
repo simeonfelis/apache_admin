@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-state-error">Folgende Angaben waren Fehlerhaft:<br />
+{{ error }}
+</p>
+{% endif %}
+
+{% if success %}
+<p class="ui-state-highlight">Daten wurden übernommen.</p>
+{% endif %}
+
+{% if created %}
+<p class="ui-state-highlight">Neues Projekt wurde angelegt. Mehr Informationen setzen?</p>
+{% endif %}
+
+<h1>Projekt {{ form.instance.name }}</h1>
+
+<p>
+{% if form.instance.pub_mem or is_god %}
+<a href="{% url home %}emails/project/active/{{ form.instance.pk }}">E-Mail-Liste der Beteiligten</a>
+{% endif %}
+{% if is_god %}, 
+<a href="{% url home %}emails/project/inactive/{{ form.instance.pk }}">der ehemals beteiligten (inaktiv)</a>, 
+<a href="{% url home %}emails/project/active/{{ form.instance.pk }}">aller jemals beteiligten (beides)</a>
+{% endif %}
+</p>
+
+
+<form action="{% url home %}projectmod/{{ form.instance.pk }}" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+
+    {% if is_god %}
+    <tr>
+        <td align="left">
+            <a href="{% url home %}delete/project/{{ form.instance.pk }}" class="button">Löschen</a>
+            <a class="button" href="{% url home %}projectadd">Neues Projekt</a>
+        </td>
+        <td align="right">
+            <input type="submit" value="Ändern"/>
+        </td>
+    </tr>
+    {% endif %}
+    </table>
+</form>
+{% endblock %}

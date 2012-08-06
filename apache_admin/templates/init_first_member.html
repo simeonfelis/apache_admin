@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block header %}
+        <title>Init First Lab Member</title>
+
+        {% include "header_javascript.html" %}
+{% endblock %}
+
+{% block title %}
+<h1 align="center">Init First Lab Member</h1>
+{% endblock %}
+
+{% block content %}
+<p>This looks like your run your apache_admin installation the first time. A member for maintenance was created with the following credentials:<p>
+
+<table>
+    <tr>
+        <td>Login name for maintenance:</td>
+        <td>{{ maintenance.member.user.username }}</td>
+    </tr>
+    <tr>
+        <td>Password:</td>
+        <td>{{ maintenance.password }}</td>
+    </tr>
+</table>
+
+<p><b>You should change the password of the "maintenance" member!</b></p>
+
+
+<p>Besides a maintenance member there are no other members in your database. To access your apache_admin installation you must create one.<p>
+
+<form action="{% url apache_admin.views.init_first_member %}" method="POST">
+    {% csrf_token %}
+    <table>
+
+    {{ form.as_table }}
+
+    <tr>
+        <td align="left">
+            <input type="submit" value="Create"/>
+        </td>
+        <td align="right">
+        </td>
+    </tr>
+    </table>
+</form>
+
+<p>Enter Member data here. This member will be automatically added to the group ''gods''. This will enable adminstrative privilage for in apache_admin.</p>
+{% endblock %}

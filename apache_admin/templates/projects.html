@@ -1,0 +1,49 @@
+
+<table align="center" border="1" width="80%">
+    <thead>
+        <tr>
+            <th width="15%">Projekt</th><th>Beschreibung</th><th width="15%">Freigaben</th><th width="20%">Benutzer</th><th width="5%">Pub.Mem.</th><th width="5%">E-Mails</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in projects %}
+        <tr>
+            <td><a href="{% url home %}projectmod/{{ p.pk }}">{{ p.name }}</a></td>
+            <td>{{ p.description }}</td>
+            <td>
+                {% for share in p.shares.all %}
+                <a style="white-space: nowrap;" href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a><br />
+                {% endfor %}
+            </td>
+            <td>
+                {% if p.pub_mem or is_god %}
+                    {% if p.members|length > 0 %}
+                        {% for m in p.member_set.all %}
+                        <span style="white-space: nowrap;">
+                            <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.first_name }} {{ m.user.last_name }}</a>
+                            <span style="color: gray;">({{ m.get_member_type_display }})</span>
+                        </span> <br />
+                        {% endfor %}
+                    {% else %}
+                        Keine Benutzer im Projekt
+                    {% endif %}
+                {% else %}
+                Nicht einsehbar
+                {% endif %}
+            </td>
+            <td>
+                {% if p.pub_mem %}Ja{% else %}Nein{% endif %}
+            </td>
+            <td>
+                {% if p.pub_mem or is_god %}
+                <a href="{% url home %}emails/project/active/{{ p.pk }}">Aktive</a><br />
+                {% endif %}
+                {% if is_god %}
+                <a href="{% url home %}emails/project/expired/{{ p.pk }}">Inaktive</a><br />
+                <a href="{% url home %}emails/project/all/{{ p.pk }}">Beides</a>
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+    {% endfor %}
+</table>
