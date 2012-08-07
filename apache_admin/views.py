@@ -2,6 +2,7 @@
 
 # django dependencies
 from django.http import HttpResponse, HttpResponseRedirect
+from django.db.models import Q
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
@@ -87,6 +88,147 @@ def overview(request, what):
 
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
+
+@login_required
+def emails(request, what, param, which):
+    # param what can be: project, a member_type_*, share_*,  all
+    # param which is the pk of what or 0
+    # param param can be: active, expired, all
+
+    if not param in ["active", "inactive", "all"]:
+        return HttpResponse("The parameter '" + param + "' is not valid. Valid parameters are: 'all', 'expired', 'active'. E.g: \nemails/project/expired/1",
+                            mimetype = "text/plain")
+
+    members = Member.objects.all()
+    member = Member.objects.get(user=request.user)
+    is_god = check_god(request)
+    breadcrums = get_breadcrums(request)
+
+    if what == "project":
+        try:
+            project = Project.objects.get(pk = which)
+        except Project.DoesNotExist:
+            return HttpResponse("Id " + which + " is not a valid project ID", "text/plain")
+
+        if not (project in member.projects.all() or is_god):
+            return HttpResponse(_("Your are neither in groups Gods nor member in this project"), "text/plain")
+        if not (project.pub_mem or is_god):
+            return HttpResponse(_("Project does not allow to see each other and your not in group Gods"), "text/plain")
+
+        if param == "active":
+            users = [m.user for m in members.filter(projects = project, user__is_active = True)]
+        elif param == "inactive" and is_god:
+            users = [m.user for m in members.filter(projects = project, user__is_active = False)]
+        elif param == "all" and is_god:
+            users = [m.user for m in members.filter(projects = project)]
+        else:
+            return HttpResponse(_("The parameter " + param + " is either invalid or you are not allowed to see the result"), "text/plain")
+
+    elif what == "share":
+        try:
+            share = Share.objects.get(pk = which)
+        except Share.DoesNotExist:
+            return HttpResponse("Id " + which + " is not a valid project ID", "text/plain")
+
+        # get all projects from user, after that
+        # all shares of the project. but only if
+        # pub_mem is true. then check if this share
+        # is in the list of the users shares.
+        member_pub_projects = [ p.pk for p in member.projects.all().filter(pub_mem=True) ]
+        shares = Share.objects.in_bulk(member_pub_projects)
+        if not (share in shares or is_god):
+            return HttpResponse(_("Your are neither in groups Gods nor affiliated via a project with pub_mem = True with this share"), "text/plain")
+
+        # get all related projects to share, after that
+        # all related members to project. For Gods the option
+        # pub_mem is ignored
+        if is_god:
+            project_ids = [ p.pk for p in share.project_set.all() ]
+            queries = [ Q(projects__pk=p) for p in project_ids ]
+            query = queries.pop()
+            for i in queries:
+                query |= i
+
+            if param == "active":
+                users = [m.user for m in Member.objects.filter(query).filter(user__is_active=True)]
+            elif param == "inactive":
+                users = [m.user for m in Member.objects.filter(query).filter(user__is_active=False)]
+            elif param == "all":
+                users = [m.user for m in Member.objects.filter(query)]
+            else:
+                return HttpResponse(_("The parameter " + param + " is invalid"), "text/plain")
+
+        else:
+            project_ids = [ p.pk for p in share.project_set.filter(pub_member=True) ]
+            queries = [ Q(projects__pk=p) for p in project_ids ]
+            query = queries.pop()
+            for i in queries:
+                query |= i
+
+            if param == "active":
+                users = [m.user for m in Member.objects.filter(query).filter(user__is_active=True)]
+            else:
+                return HttpResponse(_("You are not allowed to see the result"), "text/plain")
+
+    elif what == "all":
+
+        if not is_god:
+            return HttpResponse(_("You are not allowed to see the result"), "text/plain")
+
+        if param == "active":
+            users = [m.user for m in members.filter( user__is_active = True)]
+        elif param == "inactive":
+            users = [m.user for m in members.filter( user__is_active = False)]
+        elif param == "all":
+            users = [m.user for m in members]
+
+    elif "member_type_" in what:
+
+        if not is_god:
+            return HttpResponse(_("You are not allowed to see the result"), "text/plain")
+
+        member_type = what[12:]
+
+        if not member_type in member_types:
+            return HttpResponse("Member type " + what + " is not a valid member type",
+                                "text/plain")
+
+        if param == "active":
+            users = [m.user for m in members.filter(member_type = member_type, user__is_active = True)]
+        elif param == "inactive":
+            users = [m.user for m in members.filter(member_type = member_type, user__is_active = False)]
+        elif param == "all":
+            users = [m.user for m in members.filter(member_type = member_type)]
+
+    elif "share_type_" in what:
+
+        if not is_god:
+            return HttpResponse(_("You are not allowed to see the result"), "text/plain")
+
+        share_type = what[11:]
+        if not share_type in share_types:
+            return HttpResponse("I don't know share type " + share_type)
+
+        if param == "active":
+            ms = members.filter(user__is_active = True)
+        elif param == "inactive":
+            ms = members.filter(user__is_active = False)
+        elif param == "all":
+            ms = members
+
+        unique_users = {}
+        for m in ms:
+            for project in m.projects.all():
+                for s in project.shares.filter(share_type = share_type):
+                    unique_users[m.user.username] = m.user
+        users = [ unique_users[key] for key in unique_users.keys() ]
+
+    else:
+        return HttpResponse("Retrieving emails from '" + what + "' not yet implemented/not supported." , mimetype="text/plain")
+
+    email_list = [ u.email for u in users ]
+    emails = ", \n".join(email_list)
+    return HttpResponse("Emails for members of '" + what + "' with parameter '" + param + "':\n" + emails, mimetype = "text/plain")
 
 @login_required(login_url='accounts/login')
 def useradd(request):

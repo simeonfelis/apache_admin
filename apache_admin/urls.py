@@ -15,6 +15,7 @@ urlpatterns = patterns('apache_admin',
     url(r'^info', 'views.info'),
     url(r'^projects', 'views.projects'),
     url(r'^usermod/(?P<user_id>\d+)', 'views.usermod', name='usermod'),
+    url(r'^emails/(?P<what>.*)/(?P<param>\w+)/(?P<which>\d+)', 'views.emails'),
 
     # Gods only stuff
     url(r'^delete/(?P<what>\w+)/(?P<which>\d+)', 'views.delete'),
