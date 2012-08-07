@@ -10,12 +10,17 @@
 {% block content %}
 
 
-        <h1>Benutzer Übersicht</h1>
+        <h1>Übersicht aller Benutzer</h1>
 
         <p><a class="button" href="{% url home %}useradd">Benutzer hinzufügen</a></p>
-        <p><a href="#active">1. Aktive Benutzer</a></p>
-        <p><a href="#alumni">2. Alumnis</a></p>
-        <p><a href="#inactive">3. Inaktive</a></p>
+
+        <h3>Quicklinks</h3>
+
+        <ul>
+            <li><a href="#active">1. Aktive Benutzer</a></li>
+            <li><a href="#alumni">2. Alumnis</a></li>
+            <li><a href="#inactive">3. Inaktive</a></li>
+        </ul>
 
         {% if members %}
 
