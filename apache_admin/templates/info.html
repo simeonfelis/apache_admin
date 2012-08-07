@@ -6,8 +6,9 @@
 
 {% block content %}
     <h1>Ein- und Ausloggen</h1>
-    <p>Eingeloggt hast du dich ja schon. Das ausloggen geschieht über das schließen des Browser-Fensters. Es gibt kein ausloggen-Knopf.</p>
-    <p>Es werden keine Cookies angelegt oder Session-Daten gespeichert. Unser Webserver (Apache) bestimmt die Gültigkeit deiner Session über die offene Netzwerkverbindung, die du gerade mit deinem Browser geöffnet hast.</p>
+
+    <p>Wenn bei einer Seite bei uns auf dem rfhete470.hs-regensburg.de ein "Ausloggen" - Knopf vorhanden ist, sollte man ihn klicken. Manche Seiten bei uns haben keinen Ausloggen-Knopf. Hier geschieht das ausloggen über das schließen des Browser-Fensters.</p>
+
     <p>In manchen Browsern kannst du aktive logins löschen (Strg+Umsch+Entf in Firefox). An nicht vertrauenswürdigen Rechnern kannst du eine "private session" benutzen (Strg+Umsch+p in Firefox, Strg+Umsch+n in Chrome).</p>
 
     <h1>Freigaben</h1>
@@ -24,23 +25,29 @@
 
     <h1>Privatsphäre Datenschutz und -sicherheit</h1>
 
-    <p>Wir achten eure Privatsphäre. Es gibt vier Leute mit Vollzugriff auf das System: Jürgen Mottok, die Teamassistenz und Admins (Michael Niemetz und Simeon Felis).</p>
+    <p>Wir achten eure Privatsphäre. Es gibt vier Leute mit Vollzugriff auf das System: Jürgen Mottok, Jasmin Klügl und Admins (Michael Niemetz und Simeon Felis).</p>
     <p>Wir speichern von euch nicht mehr als auf eurer Profilseite zu sehen ist.</p>
 
     <h2>Projekte, Shares und E-Mail - Adressen</h2>
     <p>Man kann über gemeinsame Projekte Namen und E-Mail-Adressen der Projektmitglieder sehen, wenn die Option "Pub Mem" aktiviert ist.</p>
     <p>Ist in einem Projekt die Option "Pub Mem" deaktiviert, können sich Projektmitglieder untereinander nicht sehen.</p>
-    <p>Shares anderer Projekte bleiben in jedem Fall verborgen.</p>
+    <p>Freigaben der Projekte bleiben in jedem Fall anderen Nutzern (also nicht-Projekt-Teilnehmern) verborgen.</p>
 
     <h2>Passwörter</h2>
     <p>Wir speichern keine Passwörter in Klartext. Auch achten wir darauf dass kein Passwörter in log-Dateien bloßgestellt werden.</p>
+    <h3>Passwort ändern</h3>
+    <p>Im Nutzerprofil kann man ein neues Passwort setzen. Wenn man sich nicht mehr einloggen kann, kann man sein Passwort neu setzen und es sich zuschicken lassen. Dieser link wird bei der Anmeldemaske unter <a href="{% url home %}">{% url home %}</a> angeboten. </p>
 
     <h2>Backups</h2>
     <p>Wir legen täglich Backups aller Projektdaten in einem anderen Gebäude der Hochschule ab. Diese sind per GPG verschlüsselt. Nur unsere Admins besitzen den Schlüssel zum entschlüsseln.<p>
 
     <h1>Alumni</h1>
-    <p>Man kann inaktiven Nutzern den Zugriff auf Freigaben erlauben, wenn man ihren Member Typ auf "Alumni" setzt. Ihre Login-Informationen bleiben erhalten.</p>
-    <p>Projekte haben die Option, den Zugriff für Alumnis zu erlauben (Allow Alumni). Damit werden Nutzer mit Member Typ "Alumni" in den Projektoptionen mit angezeigt, ansonsten nicht.</p>
+    <p>Zugriffsrechte auf Freigaben laufen mit dem Datum in "Expires" ab. Es sei denn:<p>
+    <ul>
+        <li>Ein Benutzer hat den Member Type "Alumni". Dann laufen die Zugriffsrechte auf Freigaben niemals ab und</li>
+        <li>Ein Benutzer vom Member Type "Alumni" darf nach dem Datum in "Expires" auf Freigaben zugreifen, wenn im Projekt die Option "Allow Alumnis" aktiv ist.<li>
+    </ul>
+    <p>Ferner werden Benutzer vom Member Type "Alumni" nur dann als Projektmitglieder aufgeführt bzw. anwählbar, wenn die Option "Allow Alumnis" aktiv ist.</p>
 
     <h1>Aufgabenverwaltung</h1>
     <p>Die Aufgabenverwaltung ist aktiv zu nutzen. Sie soll die Kommunikation der LaS3 - Mitglieder unterstützen. Sie benachrichtigt bei Änderungen, Zuweisungen zu Benutzern oder bei Kommentierung einer Aufgabe die entsprechenden Nutzer per E-Mail.<p>
