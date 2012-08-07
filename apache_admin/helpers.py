@@ -30,8 +30,8 @@ def get_breadcrums(request):
     if check_god(request):
         bc.append({'god_required': True, 'name': _('All Projects'), 'url': 'overview/projects', })
         bc.append({'god_required': True, 'name': _('All Members'),  'url': 'overview/members'})
-        bc.append({'god_required': True, 'name': _('All Groups'),   'url': 'overview/groups'})
         bc.append({'god_required': True, 'name': _('All Shares'),   'url': 'overview/shares'})
+        bc.append({'god_required': True, 'name': _('All Groups'),   'url': 'overview/groups'})
 
     return bc
 
