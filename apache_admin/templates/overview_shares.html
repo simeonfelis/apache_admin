@@ -33,7 +33,7 @@
                 {% for p in s.project_set.all %}
                     {% for m in p.member_set.all %}
                         <span style="whitespace:nowrap;">
-                            <a href="usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a>
+                            <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a>
                             <span style="color: gray;">({{ m.get_member_type_display }})</span>
                         </span>
                         <br />
