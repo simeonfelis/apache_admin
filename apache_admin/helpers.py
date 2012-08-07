@@ -13,18 +13,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 
 # project dependencies
-from apache_admin.models import Member, MEMBER_TYPE_CHOICES
+from apache_admin.models import Member, Share, Project, MEMBER_TYPE_CHOICES
 
 def get_breadcrums(request):
     # Common stuff
-    bc = [
-            {'god_required': False, 'name': _('Start'),       'url': ''},
-            {'god_required': False, 'name': _('My Profile'),  'url': 'usermod/' + str(request.user.id)},
-            {'god_required': False, 'name': _('My Projects'), 'url': 'projects'},
-            {'god_required': False, 'name': _('My Tasks'),    'url': 'todo/mine'},
-            {'god_required': False, 'name': _('All Tasks'),   'url': 'todo'},
-            {'god_required': False, 'name': _('Info'),        'url': 'info'},
-            ]
+    bc = []
+
+    bc.append({'god_required': False, 'name': _('Start'),       'url': ''})
+    bc.append({'god_required': False, 'name': _('My Profile'),  'url': 'usermod/' + str(request.user.id)})
+    bc.append({'god_required': False, 'name': _('My Projects'), 'url': 'projects'})
+    bc.append({'god_required': False, 'name': _('My Tasks'),    'url': 'todo/mine'})
+    bc.append({'god_required': False, 'name': _('All Tasks'),   'url': 'todo'})
+    bc.append({'god_required': False, 'name': _('Info'),        'url': 'info'})
 
     # God only stuff
     if check_god(request):
@@ -32,6 +32,9 @@ def get_breadcrums(request):
         bc.append({'god_required': True, 'name': _('All Members'),  'url': 'overview/members'})
         bc.append({'god_required': True, 'name': _('All Shares'),   'url': 'overview/shares'})
         bc.append({'god_required': True, 'name': _('All Groups'),   'url': 'overview/groups'})
+
+    # again some common stuff
+    bc.append({'god_required': False, 'name': _('Logout'),        'url': 'logout'})
 
     return bc
 
@@ -52,89 +55,6 @@ def check_god(request):
         return True
     else:
         return False
-#    members_auth = apache_or_django_auth(request)
-#    if not members_auth == None:
-#        groups_auth = [ g.name for g in members_auth.user.groups.all() ]
-#        for g in groups_auth:
-#            if 'Gods' == g:
-#                return True
-#
-#    return False
-
-#def apache_or_django_auth(request):
-#    return
-#    """
-#    Returns a member if request has valid information, None otherwise.
-#    This assumes apache is correctly configured and checks permission for locations.
-#    """
-#
-#    # django-auth
-#    if request.user.is_authenticated():
-#        user = get_object_or_404(User, username = request.user.username)
-#        member = Member.objects.filter(user__username = request.user.username)
-#
-#        if len(member) > 0:
-#            member = member[0]
-#        else:
-#            member = None
-#    # apache-auth
-#    elif 'REMOTE_USER' in request.META.keys():
-#
-#        member = Member.objects.filter(user__username = request.META['REMOTE_USER'])
-#
-#        if len(member) > 0:
-#            member = member[0]
-#        else:
-#            member = None
-#            print "apache authenticated who has access to django, but is not a member. Who the fuck corrupted the database?"
-#    else:
-#        # Neither django nor apache could authenticate the user
-#        member = None
-#
-#    return member
-
-#def reset_maintenance_member():
-#    """
-#    Creates a Member for maintenance. Overwrites an existing member 
-#    with the username "maintenance", if exists. Returns the password
-#    for login in clear text.
-#    Also creates the Group "gods" if it does not exist.
-#    """
-#
-#    try:
-#        m = Member.objects.get(user__username = "maintenance")
-#    except ObjectDoesNotExist:
-#        try:
-#            u = User(
-#                    first_name = "Maintenance",
-#                    last_name = "Maintenance",
-#                    username = "maintenance",
-#                    )
-#            u.save()
-#        except IntegrityError, e:
-#            # user "maintenance" already exists
-#            u = User.objects.get(username = "maintenance")
-#
-#        m = Member(
-#                user = u,
-#                begins = datetime.date(2000, 1, 1),
-#                expires = datetime.date(2100, 1, 1),
-#                )
-#
-#    password = "gaiNg6ee"
-#
-#    m.user.set_password(password)
-#
-#    m.save()
-#
-#    # Handle the django group "gods"
-#    try:
-#        g = Group.objects.get(name="gods")
-#    except ObjectDoesNotExist:
-#        g = Group(name="gods")
-#        g.save()
-#
-#    return [m, password]
 
 def ejabberd_account_create(username, password):
 
