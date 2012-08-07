@@ -6,18 +6,18 @@ from django.utils.translation import ugettext as _
 
 from apache_admin.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 
-#class CreateProjectForm(forms.ModelForm):
-#    def __init__(self, *args, **kwargs):
-#        super(CreateProjectForm, self).__init__(*args, **kwargs)
-#
-#        self.fields['description'] = forms.CharField(widget=forms.Textarea)
-#        self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
-#        self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
-#
-#
-#    class Meta:
-#        model = Project
-#        exclude = ('shares',)
+class CreateProjectForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CreateProjectForm, self).__init__(*args, **kwargs)
+
+        self.fields['description'] = forms.CharField(widget=forms.Textarea)
+        self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+        self.fields['end']             = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
+
+
+    class Meta:
+        model = Project
+        exclude = ('shares',)
 
 class UserAddForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
