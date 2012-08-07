@@ -1,0 +1,3 @@
+{% if groups %} {% for group in groups %}
+{{ group.share.share_type }}_{{ group.share.name|lower|safe }}: {% for m in group.members %}{{ m.user.username }} {% endfor %}
+{% endfor %}{% endif %}

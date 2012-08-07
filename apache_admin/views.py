@@ -18,7 +18,7 @@ from django.utils.translation import ugettext as _
 # project dependencies
 from apache_admin.models import Project, Share, Member, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm, ProjectAddForm, ShareAddForm
-from apache_admin.helpers import check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update, get_groups_to_render
+from apache_admin.helpers import get_groups_to_render, get_shares_to_render, check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 
@@ -26,6 +26,13 @@ share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 def home(request):
     global SHARE_TYPE_CHOICES
     global MEMBER_TYPE_CHOICES
+    member_types = MEMBER_TYPE_CHOICES
+    share_types = [ s[0] for s in SHARE_TYPE_CHOICES]
+    member_status = [
+            {'name': 'active', 'display': _('Aktive')},
+            {'name': 'inactive', 'display': _('Inaktive')},
+            {'name': 'all', 'display': _('Beides')},
+            ]
 
     member     = Member.objects.get(user=request.user)
     projects   = Project.objects.filter(member=member)
@@ -138,37 +145,30 @@ def maintenance(request):
             email_problem = True
 
     # vcs and dav configs
+    share_types = [s[0] for s in SHARE_TYPE_CHOICES]
     for typ in share_types:
-        # get all shares, the project to the shares, and then create
-        # for each share a project list
-        shares = []
-        for share in Share.objects.filter(share_type__exact=typ):
-            a = {}
-            a['projects'] = Project.objects.filter(shares=share)
-            if not len(a['projects']) == 0:
-                a['share'] = share
-                shares.append(a)
+        shares = get_shares_to_render(typ)
+        for share in shares:
+            filename = os.path.join(settings.GENERATE_FOLDER, typ + ".config")
+            try:
+                with open(filename, "wb") as apache_config_file:
+                    apache_config_file.write(render_to_string("configs/" + typ + ".config",
+                        {
+                            'shares': shares,
+                        },))
+                    apache_config_file.close()
 
-        filename = os.path.join(settings.GENERATE_FOLDER, typ + ".config")
-        try:
-            with open(filename, "wb") as apache_config_file:
-                apache_config_file.write(render_to_string("configs/" + typ + ".config",
-                    {
-                        'shares': shares,
-                    },))
-                apache_config_file.close()
-
-        except Exception, e:
-            error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
-            raise e
-            return answer(message=_("There was a problem."), error=error)
+            except Exception, e:
+                error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+                raise e
+                return answer(message=_("There was a problem."), error=error)
 
     # Apache group file
     filename = os.path.join(settings.GENERATE_FOLDER, "groups.dav")
     groups = get_groups_to_render()
     try:
         with open(filename, "wb") as apache_group_file:
-            apache_group_file.write(render_to_string("groups.dav",
+            apache_group_file.write(render_to_string("configs/groups.dav",
                 {
                     'groups': groups,
                 },))
@@ -192,6 +192,27 @@ def maintenance(request):
         return answer(message=_("There was a problem."), error=error)
 
     return answer(message=_("Looks like maintenance succeeded. Wait a minute for the server to reload new settings"))
+
+@login_required
+def get_config(request, which):
+
+    is_god = check_god(request)
+    if not is_god:
+        raise PermissionDenied
+
+    if which == "groups.dav":
+        groups = get_groups_to_render()
+        return render_to_response('configs/groups.dav', locals(), mimetype="text/plain" )
+
+        pass
+    elif not which in share_types:
+        return HttpResponse(which + " is a invalid share type. Supported are: " + ", ".join(share_types))
+
+    shares = get_shares_to_render(which)
+    return render_to_response('configs/' + which + '.config',
+                              {'shares': shares},
+                              mimetype="text/plain",
+                              )
 
 @login_required
 def emails(request, what, param, which):
@@ -292,6 +313,9 @@ def emails(request, what, param, which):
             return HttpResponse(_("You are not allowed to see the result"), "text/plain")
 
         member_type = what[12:]
+
+        global MEMBER_TYPE_CHOICES
+        member_types = [ m[0] for m in MEMBER_TYPE_CHOICES ]
 
         if not member_type in member_types:
             return HttpResponse("Member type " + what + " is not a valid member type",

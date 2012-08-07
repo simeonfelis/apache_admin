@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 
 # project dependencies
-from apache_admin.models import Member, Share, Project, MEMBER_TYPE_CHOICES
+from apache_admin.models import Member, Share, Project, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 
 def get_breadcrums(request):
     # Common stuff
@@ -108,6 +108,22 @@ def create_apache_htdigest(username, password):
     apache_password = md5(apache_prefix.encode('utf-8') + password.encode('utf-8')).hexdigest()
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
+
+def get_shares_to_render(typ):
+    global SHARE_TYPE_CHOICES
+    share_types = [s[0] for s in SHARE_TYPE_CHOICES]
+    for typ in share_types:
+        # get all shares, the project to the shares, and then create
+        # for each share a project list
+        shares = []
+        for share in Share.objects.filter(share_type__exact=typ):
+            a = {}
+            a['projects'] = Project.objects.filter(shares=share)
+            if not len(a['projects']) == 0:
+                a['share'] = share
+                shares.append(a)
+
+    return shares
 
 def get_groups_to_render():
     shares = Share.objects.all().order_by("name")

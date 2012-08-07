@@ -22,6 +22,7 @@ urlpatterns = patterns('apache_admin',
     url(r'^emails/(?P<what>.*)/(?P<param>\w+)/(?P<which>\d+)', 'views.emails'),
 
     # Gods only stuff
+    url(r'^config/(?P<which>.+)', 'views.get_config'),
     url(r'^delete/(?P<what>\w+)/(?P<which>\d+)', 'views.delete'),
     url(r'^overview/(?P<what>\w+)$', 'views.overview', name='overview'),
     url(r'^projectadd', 'views.projectadd'),
