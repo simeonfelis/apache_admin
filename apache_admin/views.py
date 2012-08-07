@@ -98,18 +98,13 @@ def maintenance(request):
 
     # writes configs, updates is_active flag
 
-    def answer(request, message, error=None):
+    def answer(message, error=None):
         return render_to_response("maintenance.html",
                 {
                     'error': error,
                     'message': message,
-                    'enabled_members': enabled_members,
-                    'disabled_members': disabled_members,
                     'email_problem': email_problem,
-                    'breadcrums': get_breadcrums(request),
-                },
-                context_instance=RequestContext(request),
-                )
+                })
 
 
     email_problem = False
@@ -166,7 +161,7 @@ def maintenance(request):
         except Exception, e:
             error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
             raise e
-            return answer(request=request, message=_("There was a problem."), error=error)
+            return answer(message=_("There was a problem."), error=error)
 
     # Apache group file
     filename = os.path.join(settings.GENERATE_FOLDER, "groups.dav")
@@ -180,7 +175,7 @@ def maintenance(request):
             apache_group_file.close()
     except Exception, e:
         error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
-        return answer(request=request, message=_("There was a problem."), error=error)
+        return answer(message=_("There was a problem."), error=error)
 
     # Apache password file
     filename = os.path.join(settings.GENERATE_FOLDER, "passwd.dav")
@@ -194,9 +189,9 @@ def maintenance(request):
             apache_passwd_file.close()
     except Exception, e:
         error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
-        return answer(request=request, message=_("There was a problem."), error=error)
+        return answer(message=_("There was a problem."), error=error)
 
-    return answer(request=request, message=_("Looks like maintenance succeeded. Wait a minute for the server to reload new settings"))
+    return answer(message=_("Looks like maintenance succeeded. Wait a minute for the server to reload new settings"))
 
 @login_required
 def emails(request, what, param, which):
