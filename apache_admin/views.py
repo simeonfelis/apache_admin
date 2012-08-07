@@ -37,7 +37,10 @@ def home(request):
 
 @login_required(login_url='accounts/login')
 def info(request):
+    is_god = check_god(request)
+    breadcrums = get_breadcrums(request)
     return render_to_response('info.html',
+            locals(),
             context_instance=RequestContext(request),
             )
 
