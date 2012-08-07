@@ -395,7 +395,7 @@ def projectadd(request):
 
         form = CreateProjectForm(request.POST)
         if not form.is_valid():
-            return input_error_global(template = 'projectadd.html', error = form.errors, request = request, form = form)
+            return input_error_global(template = 'projectaddform.html', error = form.errors, request = request, form = form)
 
         new_project = form.save()
 
@@ -413,7 +413,7 @@ def projectadd(request):
 
     # Handle GET requests
     form = CreateProjectForm()
-    return render_to_response('projectadd.html',
+    return render_to_response('projectaddform.html',
                               {
                                   'form' : form,
                                   'breadcrums': get_breadcrums(request),

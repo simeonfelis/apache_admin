@@ -6,6 +6,10 @@
 
 {% endblock %}
 
+{% block title %}
+    <h1>Benutzer erstellen</h1>
+{% endblock %}
+
 {% block content %}
 
 {% if error %}
@@ -13,8 +17,6 @@
 {{ error }}
 </p>
 {% endif %}
-
-<h1>Neuen Benutzer anlegen</h1>
 
 <form action="{% url home %}useradd" method="POST">
     {% csrf_token %}

@@ -6,6 +6,10 @@
 
 {% endblock %}
 
+{% block title %}
+    <h1>Projekt {{ form.instance.name }}</h1>
+{% endblock %}
+
 {% block content %}
 
 {% if error %}
@@ -22,7 +26,6 @@
 <p class="ui-state-highlight">Neues Projekt wurde angelegt. Mehr Informationen setzen?</p>
 {% endif %}
 
-<h1>Projekt {{ form.instance.name }}</h1>
 
 <p>
 {% if form.instance.pub_mem or is_god %}

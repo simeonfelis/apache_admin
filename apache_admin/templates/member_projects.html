@@ -6,16 +6,18 @@
 
 {% endblock %}
 
+{% block title %}
+    <h1>Projekte bei denen du beteiligt bist</h1>
+{% endblock %}
 
 {% block content %}
-        <h1>Projekte bei denen du beteiligt bist</h1>
 
-        {% if projects %}
-        {% include 'projects.html' %}
-        {% else %}
-        <p>Keine Projekte.</p>
-        <p>Vielleicht lief etwas schief?</p>
-        {% endif %} {# projects #}
-        
+    {% if projects %}
+    {% include 'projects.html' %}
+    {% else %}
+    <p>Keine Projekte.</p>
+    <p>Vielleicht lief etwas schief?</p>
+    {% endif %} {# projects #}
+
 {% endblock %}
 

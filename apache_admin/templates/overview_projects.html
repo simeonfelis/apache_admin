@@ -6,14 +6,15 @@
 
 {% endblock %}
 
+{% block title %}
+    <h1>Übersicht aller Projekte</h1>
+{% endblock %}
 
 {% block content %}
 
-<h1>Übersicht aller Projekte</h1>
+    <p><a class="button" href="{% url home %}projectadd">Projekt hinzufügen</a></p>
 
-        <p><a class="button" href="{% url home %}projectadd">Projekt hinzufügen</a></p>
+    {% include "projects.html" %}
 
-        {% include "projects.html" %}
-        
 {% endblock %}
 

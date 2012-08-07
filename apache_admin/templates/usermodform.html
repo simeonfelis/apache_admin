@@ -6,6 +6,9 @@
 
 {% endblock %}
 
+{% block title %}
+    <h1>Profil von {{ form.instance.first_name }} {{ form.instance.last_name }}</h1>
+{% endblock %}
 
 {% block content %}
 
@@ -25,7 +28,6 @@
 </p>
 {% endif %}
 
-<h1>Profil von {{ form.instance.first_name }} {{ form.instance.last_name }}</h1>
 
 {% if created %}
 <p class="ui-state-highlight">Benutzer erstellt. Hier mehr infos angeben?</p>
