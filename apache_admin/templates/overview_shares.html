@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-    <p><a class="button" href="shareadd">Freigabe hinzufügen</a></p>
+<p><a class="button" href="{% url home %}shareadd">Freigabe hinzufügen</a></p>
 
     {% if shares %}
     <table align="center" border="1" width="75%">

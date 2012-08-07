@@ -6,9 +6,9 @@ from django.utils.translation import ugettext as _
 
 from apache_admin.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 
-class CreateProjectForm(forms.ModelForm):
+class ProjectAddForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(CreateProjectForm, self).__init__(*args, **kwargs)
+        super(ProjectAddForm, self).__init__(*args, **kwargs)
 
         self.fields['description'] = forms.CharField(widget=forms.Textarea)
         self.fields['start']           = forms.DateField(widget=forms.TextInput(attrs = {'class':'date'}))
@@ -34,7 +34,7 @@ class UserAddForm (forms.ModelForm):
                 'username',
                 'first_name',
                 'last_name',
-                #'password',
+                #'password', # hide password field. a random one will be sent via mail
                 'email',
                 )
 
@@ -48,10 +48,10 @@ class ShareModForm(forms.ModelForm):
     class Meta:
         model = Share
 
-#class CreateShareForm(forms.ModelForm):
-#    class Meta:
-#        model = Share
-#
+class ShareAddForm(forms.ModelForm):
+    class Meta:
+        model = Share
+
 class ProjectModForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 

@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 
 # project dependencies
 from apache_admin.models import Project, Share, Member, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
-from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm
+from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm, ProjectAddForm, ShareAddForm
 from apache_admin.helpers import check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
@@ -398,31 +398,40 @@ def projectadd(request):
         if not is_god:
             raise PermissionDenied
 
-        form = CreateProjectForm(request.POST)
+        form = ProjectAddForm(request.POST)
         if not form.is_valid():
-            return input_error_global(template = 'projectaddform.html', error = form.errors, request = request, form = form)
+            return render_to_response('projectaddform.html',
+                    locals(),
+                    context_instance=RequestContext(request),
+                    )
 
         new_project = form.save()
+        project_id = str(new_project.id)
+        print "New project:", new_project
+        print "id: ", project_id
+        print "args:", [project_id]
 
         request_apache_reload()
+        return HttpResponseRedirect(reverse('projectmod', args=[project_id]))
 
-        form = ProjectModForm(instance = new_project, member=apache_or_django_auth(request))
-        return render_to_response('projectmodform.html',
-                {
-                    'form':    form,
-                    'breadcrums': get_breadcrums(request),
-                    'created': True,
-                },
-                context_instance=RequestContext(request),
-                )
+        #form = ProjectModForm(instance = new_project, member=apache_or_django_auth(request))
+        #return render_to_response('projectmodform.html',
+        #        {
+        #            'form':    form,
+        #            'breadcrums': get_breadcrums(request),
+        #            'created': True,
+        #        },
+        #        context_instance=RequestContext(request),
+        #        )
 
     # Handle GET requests
-    form = CreateProjectForm()
+    form = ProjectAddForm()
     return render_to_response('projectaddform.html',
-                              {
-                                  'form' : form,
-                                  'breadcrums': get_breadcrums(request),
-                              },
+            locals(),
+            #                  {
+            #                      'form' : form,
+            #                      'breadcrums': get_breadcrums(request),
+            #                  },
                               context_instance=RequestContext(request),
                               )
 
@@ -441,6 +450,33 @@ def projects(request):
     breadcrums = get_breadcrums(request)
 
     return render_to_response('member_projects.html',
+            locals(),
+            context_instance=RequestContext(request),
+            )
+
+@login_required(login_url='accounts/login')
+def shareadd(request):
+    is_god = check_god(request)
+    breadcrums = get_breadcrums(request)
+
+    if request.method == 'POST':
+        if not is_god:
+            raise PermissionDenied
+
+        form = ShareAddForm(request.POST)
+        if not form.is_valid():
+            return render_to_response('shareaddform.html',
+                    locals(),
+                    context_instance=RequestContext(request),
+                    )
+
+        new_share = form.save()
+
+        request_apache_reload()
+        return HttpResponseRedirect(reverse('sharemod', args=[str(new_share.id)]))
+
+    form = ShareAddForm()
+    return render_to_response('shareaddform.html',
             locals(),
             context_instance=RequestContext(request),
             )
@@ -524,7 +560,8 @@ def delete(request, what, which):
         # will delete user and member object automatically together
         instance = get_object_or_404(User, pk=which)
         overview_what = "members"
-    elif what == "sharemod":
+    elif what == "share":
+        overview_what = "shares"
         instance = get_object_or_404(Share, pk=which)
 
     if user_is_sure:

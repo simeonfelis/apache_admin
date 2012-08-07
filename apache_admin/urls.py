@@ -20,8 +20,8 @@ urlpatterns = patterns('apache_admin',
     url(r'^delete/(?P<what>\w+)/(?P<which>\d+)', 'views.delete'),
     url(r'^overview/(?P<what>\w+)$', 'views.overview', name='overview'),
     url(r'^projectadd', 'views.projectadd'),
-    url(r'^projectmod/(?P<project_id>\d+)', 'views.projectmod'),
+    url(r'^projectmod/(?P<project_id>\d+)', 'views.projectmod', name='projectmod'),
     url(r'^useradd', 'views.useradd'),
-    url(r'^sharemod/(?P<share_id>\d+)', 'views.sharemod'),
-    #url(r'^shareadd', 'views.shareadd'), # POST and GET
+    url(r'^sharemod/(?P<share_id>\d+)', 'views.sharemod', name='sharemod'),
+    url(r'^shareadd', 'views.shareadd'),
 )
