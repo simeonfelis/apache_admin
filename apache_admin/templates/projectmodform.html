@@ -33,7 +33,7 @@
 {% endif %}
 {% if is_god %}, 
 <a href="{% url home %}emails/project/inactive/{{ form.instance.pk }}">der ehemals beteiligten (inaktiv)</a>, 
-<a href="{% url home %}emails/project/active/{{ form.instance.pk }}">aller jemals beteiligten (beides)</a>
+<a href="{% url home %}emails/project/all/{{ form.instance.pk }}">aller jemals beteiligten (beides)</a>
 {% endif %}
 </p>
 

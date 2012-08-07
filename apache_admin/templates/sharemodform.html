@@ -27,6 +27,14 @@
 {% endif %}
 
 <p>
+    <a href="{% url home %}emails/share/active/{{ form.instance.pk }}">E-Mail-Liste der Beteiligten</a>
+    {% if is_god %},
+    <a href="{% url home %}emails/share/inactive/{{ form.instance.pk }}">der ehemals beteiligten (inaktiv)</a>, 
+    <a href="{% url home %}emails/share/all/{{ form.instance.pk }}">aller jemals beteiligten (beides)</a>
+    {% endif %}
+</p>
+
+<p>
     Dieser Share ist verfügbar unter: 
 
     {% if form.instance.share_type = "wik" %}
