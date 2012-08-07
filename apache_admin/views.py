@@ -35,11 +35,11 @@ def home(request):
             context_instance=RequestContext(request),
             )
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def info(request):
     pass
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def overview(request, what):
     """
     This is for members of group Gods. refer to 'views.projects' for project
@@ -83,7 +83,7 @@ def overview(request, what):
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def useradd(request):
     """
     Only Gods may add users
@@ -174,7 +174,7 @@ def useradd(request):
             )
 
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def usermod(request, user_id):
     """
     Only the member himself or Gods can modify members
@@ -316,7 +316,7 @@ def usermod(request, user_id):
             context_instance=RequestContext(request),
             )
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def projectmod(request, project_id):
     """
     Only project members can view and Gods may modify projects
@@ -381,7 +381,7 @@ def projectmod(request, project_id):
                               },
                               context_instance=RequestContext(request),
                               )
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def projectadd(request):
     """
     Only Gods can add projects
@@ -421,7 +421,7 @@ def projectadd(request):
                               context_instance=RequestContext(request),
                               )
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def projects(request):
     """
     Current projects of the logged in user. Available for every user.
@@ -440,7 +440,7 @@ def projects(request):
             context_instance=RequestContext(request),
             )
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def sharemod(request, share_id):
 
     share = Share.objects.get(pk = share_id)
@@ -499,7 +499,7 @@ def sharemod(request, share_id):
             context_instance=RequestContext(request),
             )
 
-@login_require(login_url='accounts/login')
+@login_required(login_url='accounts/login')
 def delete(request, what, which):
 
     user_is_sure = False
