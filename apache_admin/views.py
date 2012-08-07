@@ -37,7 +37,9 @@ def home(request):
 
 @login_required(login_url='accounts/login')
 def info(request):
-    pass
+    return render_to_response('info.html',
+            context_instance=RequestContext(request),
+            )
 
 @login_required(login_url='accounts/login')
 def overview(request, what):
