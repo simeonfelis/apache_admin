@@ -48,7 +48,7 @@
             </tr>
             </thead>
             <tbody class=ui-widget-content">
-                {% for u in users|dictsort:"last_name" %}{% if u.member_set.all.0.member_type == "alumni" %}
+                {% for member in members|dictsort:"user.last_name" %}{% if member.member_type == "alumni" %}
                     {% include "member_tablerow.html" %}
                 {% endif %}{% endfor %}
             </tbody>
@@ -62,7 +62,7 @@
                 <th width="16%">Nachname</th><th width="16%">Vorname</th><th width="10%">Username</th><th width="11%">Bis</th><th width="11%">Member type</th><th>Projekte</th><th width="20%">Freigaben</th>
             </tr>
             <tbody class=ui-widget-content">
-                {% for u in users %} {% if not u.is_active and not u.member_set.all.0.member_type == "alumni" %}
+                {% for member in members %} {% if not member.user.is_active and not member.member_type == "alumni" %}
                     {% include "member_tablerow.html" %}
                 {% endif %}{% endfor %}
             </tbody>
@@ -73,6 +73,6 @@
         <p>I cannot show you any users at the moment</p>
         <p>Maybe something went wrong</p>
         {% endif %}
-        
+
 {% endblock %}
 
