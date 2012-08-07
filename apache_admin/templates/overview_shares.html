@@ -18,12 +18,12 @@
         </tr>
         {% for s in shares %}
         <tr>
-            <td><a href="sharemod/{{ s.pk }}">{{ s.name }}</a></td>
+            <td><a href="{% url home %}sharemod/{{ s.pk }}">{{ s.name }}</a></td>
             <td>{{ s.get_share_type_display }}</td>
             <td>
                 {% if s.project_set.all|length > 0 %}
                     {% for p in s.project_set.all %}
-                        <a href="projectmod/{{ p.pk }}">{{ p.name }}</a><br />
+                        <a href="{% url home %}projectmod/{{ p.pk }}">{{ p.name }}</a><br />
                     {% endfor %}
                 {% else %}
                 No projects related!
