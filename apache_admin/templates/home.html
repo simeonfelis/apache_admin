@@ -144,8 +144,8 @@
 
             <ul>
                 <li><a href="{% url home %}config/groups.dav">groups.dav</a></li>
-            {% for c in share_types %}
-                <li><a href="{% url home %}config/{{ c }}">{{ c }}</a></li>
+            {% for st in share_types %}
+                <li><a href="{% url home %}config/{{ st.0 }}">{{ st.1 }}</a></li>
             {% endfor %}
             </ul>
 

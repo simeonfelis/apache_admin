@@ -34,7 +34,7 @@ def get_breadcrums(request):
         bc.append({'god_required': True, 'name': _('All Groups'),   'url': 'overview/groups'})
 
     # again some common stuff
-    bc.append({'god_required': False, 'name': _('Logout'),        'url': 'logout'})
+    bc.append({'god_required': False, 'name': _('Logout'),        'url': 'accounts/logout'})
 
     return bc
 

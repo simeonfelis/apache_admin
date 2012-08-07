@@ -27,7 +27,7 @@ def home(request):
     global SHARE_TYPE_CHOICES
     global MEMBER_TYPE_CHOICES
     member_types = MEMBER_TYPE_CHOICES
-    share_types = [ s[0] for s in SHARE_TYPE_CHOICES]
+    share_types = SHARE_TYPE_CHOICES
     member_status = [
             {'name': 'active', 'display': _('Aktive')},
             {'name': 'inactive', 'display': _('Inaktive')},
