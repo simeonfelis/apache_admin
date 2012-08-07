@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os, datetime
 
 # django dependencies
 from django.http import HttpResponse, HttpResponseRedirect
@@ -17,7 +18,7 @@ from django.utils.translation import ugettext as _
 # project dependencies
 from apache_admin.models import Project, Share, Member, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm, ProjectAddForm, ShareAddForm
-from apache_admin.helpers import check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update
+from apache_admin.helpers import check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update, get_groups_to_render
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
 
@@ -88,6 +89,114 @@ def overview(request, what):
 
     else:
         return HttpResponse("The requested overview " + what + " is not available / implemented")
+
+# No login required!
+def maintenance(request):
+
+    if not os.path.isdir(settings.GENERATE_FOLDER):
+        os.makedirs(settings.GENERATE_FOLDER)
+
+    # writes configs, updates is_active flag
+
+    def answer(request, message, error=None):
+        return render_to_response("maintenance.html",
+                {
+                    'error': error,
+                    'message': message,
+                    'enabled_members': enabled_members,
+                    'disabled_members': disabled_members,
+                    'email_problem': email_problem,
+                    'breadcrums': get_breadcrums(request),
+                },
+                context_instance=RequestContext(request),
+                )
+
+
+    email_problem = False
+    disabled_members = []
+    enabled_members = []
+
+    # take care about expired users
+    for m in Member.objects.filter(user__is_active=True, expires__lt=datetime.date.today()):
+        print "The member", m.user, "expired at", m.expires, m.user.first_name, m.user.last_name, "will be set inactive"
+        m.user.is_active = False
+        m.user.save()
+        request_apache_reload()
+        disabled_members.append(m)
+        mail_body = render_to_string("email/account_expired.txt", {'member': m})
+        try:
+            sent = send_mail("Account expired", mail_body, admins_emails[0], [admins_emails[0], m.user.email])
+        except Exception, e:
+            email_problem = True
+
+    # take care about activating users
+    for m in Member.objects.filter(user__is_active=False, expires__gte=datetime.date.today()):
+        print "The member", m.user, "became active at", m.expires, m.user.first_name, m.user.last_name, "will be activated"
+        m.user.is_active = True
+        m.user.save()
+        request_apache_reload()
+        enabled_members.append(m)
+        mail_body = render_to_string("email/account_activated.txt", {'member': m})
+        try:
+            sent = send_mail("Account activated", mail_body, admins_emails[0], [admins_emails[0], m.user.email])
+        except Exception, e:
+            email_problem = True
+
+    # vcs and dav configs
+    for typ in share_types:
+        # get all shares, the project to the shares, and then create
+        # for each share a project list
+        shares = []
+        for share in Share.objects.filter(share_type__exact=typ):
+            a = {}
+            a['projects'] = Project.objects.filter(shares=share)
+            if not len(a['projects']) == 0:
+                a['share'] = share
+                shares.append(a)
+
+        filename = os.path.join(settings.GENERATE_FOLDER, typ + ".config")
+        try:
+            with open(filename, "wb") as apache_config_file:
+                apache_config_file.write(render_to_string("configs/" + typ + ".config",
+                    {
+                        'shares': shares,
+                    },))
+                apache_config_file.close()
+
+        except Exception, e:
+            error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+            raise e
+            return answer(request=request, message=_("There was a problem."), error=error)
+
+    # Apache group file
+    filename = os.path.join(settings.GENERATE_FOLDER, "groups.dav")
+    groups = get_groups_to_render()
+    try:
+        with open(filename, "wb") as apache_group_file:
+            apache_group_file.write(render_to_string("groups.dav",
+                {
+                    'groups': groups,
+                },))
+            apache_group_file.close()
+    except Exception, e:
+        error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+        return answer(request=request, message=_("There was a problem."), error=error)
+
+    # Apache password file
+    filename = os.path.join(settings.GENERATE_FOLDER, "passwd.dav")
+    passwd = "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=True)])
+    passwd += "\n"
+    passwd += "\n".join([m.htdigest for m in Member.objects.filter(user__is_active=False, member_type='alumni')]) 
+    passwd += "\n"
+    try:
+        with open(filename, "wb") as apache_passwd_file:
+            apache_passwd_file.write(passwd)
+            apache_passwd_file.close()
+    except Exception, e:
+        error = "Could not write config file " + os.path.abspath(filename) + "\n" + "Exception: " + str(e)
+        return answer(request=request, message=_("There was a problem."), error=error)
+
+    return answer(request=request, message=_("Looks like maintenance succeeded. Wait a minute for the server to reload new settings"))
 
 @login_required
 def emails(request, what, param, which):

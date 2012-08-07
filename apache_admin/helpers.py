@@ -109,3 +109,32 @@ def create_apache_htdigest(username, password):
     apache_htdigest = apache_prefix + apache_password
     return apache_htdigest
 
+def get_groups_to_render():
+    shares = Share.objects.all().order_by("name")
+    projects = Project.objects.all()
+    members = Member.objects.all()
+    shares_render = []
+    for share in shares:
+        shares_projects = projects.filter(shares = share)
+        share_members = []
+        share_projects = []
+        if len(shares_projects) == 0:
+            shares_projects = []
+        else:
+            for p in shares_projects:
+                share_projects.append(p)
+                for m in members.filter(projects = p):
+                    if p.allow_alumni:
+                        if m.user.is_active or m.member_type == 'alumni':
+                            share_members.append(m)
+                    else:
+                        if m.user.is_active:
+                            share_members.append(m)
+
+        shares_render.append(
+                {
+                    'share': share,
+                    'projects': share_projects,
+                    'members': share_members
+                })
+    return shares_render

@@ -11,6 +11,10 @@ urlpatterns = patterns('apache_admin',
     # ATTENTION! ONLY FOR DEVELOPMENT; NOT FOR PRODUCTION!!!!
 #    url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/home/simeon/workspace/django/las3-django/media/'}),
 
+    # public stuff
+    url(r'maintenance$', 'views.maintenance'),
+
+    # password protected stuff
     url(r'^$', 'views.home', name='home'),
     url(r'^info', 'views.info'),
     url(r'^projects', 'views.projects'),
