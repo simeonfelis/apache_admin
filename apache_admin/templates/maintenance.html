@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+
+{% block content %}
+
+{% if message %}
+<p class="ui-state-highlight">{{ message }}</p>
+{% endif %}
+
+{% if email_problem %}
+<p class="ui-state-highlight">E-Mails wurden anscheinend nicht versendet.</p>
+{% endif %}
+
+
+{% if error %}
+<p class="ui-state-error">{{ error }}</p>
+{% endif %}
+
+{% endblock %}
+
+
+

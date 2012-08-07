@@ -1,0 +1,17 @@
+Hallo Frau oder Herr {{ member.user.last_name }},
+
+Ihr Zugang {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.de ist neu erstellt worden. Ihr Passwort lautet:
+
+{{ password }}
+
+Wir empfehlen dringend ein neues Passwort zu setzen! Loggen sie sich hierfür ein unter:
+
+https://rfhete470.hs-regensburg.de/django
+
+Über Ihre Zugangsdauer erhalten Sie einer separate E-Mail.
+
+Viel Spaß!
+
+Mit freundlichen Grüßen,
+
+Ihr rfhete470 Admin
