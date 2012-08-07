@@ -330,6 +330,8 @@ def projectmod(request, project_id):
     project = get_object_or_404(Project,pk = project_id)
     is_god = check_god(request)
     member = Member.objects.get(user=request.user)
+    breadcrums = get_breadcrums(request)
+
     if not (member in project.member_set.all() or is_god):
         raise PermissionDenied
 
@@ -340,12 +342,7 @@ def projectmod(request, project_id):
         form = ProjectModForm(request.POST, instance=project, member=member) # remember database instance and inputs
         if not form.is_valid():
             return render_to_response("projectmodform.html",
-                    {
-                        'form': form,
-                        'is_god': is_god,
-                        'breadcrums': get_breadcrums(request),
-                        'error': form.errors,
-                    },
+                    locals(),
                     context_instance=RequestContext(request),
                     )
 
@@ -364,28 +361,20 @@ def projectmod(request, project_id):
         form = ProjectModForm(instance=project, member=member)
 
         request_apache_reload()
+        success = True
 
         return render_to_response('projectmodform.html',
-                {
-                    'success': True,
-                    'form' : form,
-                    'is_god': is_god,
-                    'breadcrums': get_breadcrums(request),
-                },
+                locals(),
                 context_instance=RequestContext(request),
                 )
 
     # Handle GET requeset here
     form = ProjectModForm(instance=project, member=member)
     return render_to_response('projectmodform.html',
-                              {
-                                  'project': project,
-                                  'form' : form,
-                                  'is_god': is_god,
-                                  'breadcrums': get_breadcrums(request),
-                              },
-                              context_instance=RequestContext(request),
-                              )
+            locals(),
+            context_instance=RequestContext(request),
+            )
+
 @login_required(login_url='accounts/login')
 def projectadd(request):
     """
@@ -406,34 +395,16 @@ def projectadd(request):
                     )
 
         new_project = form.save()
-        project_id = str(new_project.id)
-        print "New project:", new_project
-        print "id: ", project_id
-        print "args:", [project_id]
 
         request_apache_reload()
-        return HttpResponseRedirect(reverse('projectmod', args=[project_id]))
-
-        #form = ProjectModForm(instance = new_project, member=apache_or_django_auth(request))
-        #return render_to_response('projectmodform.html',
-        #        {
-        #            'form':    form,
-        #            'breadcrums': get_breadcrums(request),
-        #            'created': True,
-        #        },
-        #        context_instance=RequestContext(request),
-        #        )
+        return HttpResponseRedirect(reverse('projectmod', args=[str(new_project.id)]))
 
     # Handle GET requests
     form = ProjectAddForm()
     return render_to_response('projectaddform.html',
             locals(),
-            #                  {
-            #                      'form' : form,
-            #                      'breadcrums': get_breadcrums(request),
-            #                  },
-                              context_instance=RequestContext(request),
-                              )
+            context_instance=RequestContext(request),
+            )
 
 @login_required(login_url='accounts/login')
 def projects(request):
@@ -443,10 +414,7 @@ def projects(request):
 
     member = Member.objects.get(user=request.user)
     is_god = check_god(request)
-
     projects = member.projects.all()
-
-
     breadcrums = get_breadcrums(request)
 
     return render_to_response('member_projects.html',
@@ -488,6 +456,7 @@ def sharemod(request, share_id):
     is_god = check_god(request)
     member = Member.objects.get(user=request.user)
     breadcrums = get_breadcrums(request)
+
     # determine if current user may view this share.
     # get all projects from member, after that all the related shares, after that the share's pks, afterthat set the query for these pks on Share
     shares = []
@@ -516,13 +485,6 @@ def sharemod(request, share_id):
 
         return render_to_response('sharemodform.html',
                 locals(),
-                #{
-                #    'success': True,
-                #    'form' : form,
-                #    'is_god': is_god,
-                #    'request': request,
-                #    'breadcrums': get_breadcrums(request),
-                #},
                 context_instance=RequestContext(request),
                 )
 
@@ -531,12 +493,6 @@ def sharemod(request, share_id):
 
     return render_to_response('sharemodform.html',
             locals(),
-            #{
-            #    'form' : form,
-            #    'is_god': is_god,
-            #    'request': request,
-            #    'breadcrums': get_breadcrums(request),
-            #},
             context_instance=RequestContext(request),
             )
 
@@ -572,5 +528,4 @@ def delete(request, what, which):
                 locals(),
                 context_instance=RequestContext(request),
                 )
-
 
