@@ -73,7 +73,7 @@ class Project(models.Model):
     def clean(self):
         if(re.match(r"^[a-zA-Z0-9_-]+$", self.name)):
             return self.name
-        raise ValidationError_(("name may only contain letters, numbers, - and _"))
+        raise ValidationError(_("name may only contain letters, numbers, - and _"))
 
     name         = models.CharField(max_length=40, unique=True, help_text=_("Only letters, numbers, - and _"))
     description  = models.CharField(max_length=255)
