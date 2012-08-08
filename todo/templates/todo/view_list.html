@@ -4,6 +4,7 @@
 
 {% block content %}
 
+{% comment %}
 <script type="text/javascript">
 
 function order_tasks(data) {
@@ -35,6 +36,7 @@ $(document).ready(function() {
 });
 
 </script>
+{% endcomment %}
 
     {% if not wiki %}{# don't display this stuff in las3 wiki #}
     {% ifequal list_slug "mine" %}

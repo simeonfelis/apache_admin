@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block page_heading %}GTD (Getting Things Done){% endblock %}
+{% block extrahead %}
+<!-- CSS and JavaScript for django-todo -->
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/styles.css" />
+<script src="{{ STATIC_URL }}js/jquery.tablednd_0_5.js" type="text/javascript"></script> 
+
+<script type="text/javascript" charset="utf-8">
+function order_tasks(data) {
+    // The JQuery plugin tableDnD provides a serialize() function which provides the re-ordered 
+    // data in a list. We pass that list as an object called "data" to a Django view 
+    // to save the re-ordered data into the database.
+
+    $.post("{% url todo-reorder_tasks %}", data, "json");
+    return false;
+};
+
+    // thedate.x comes from the edit_task view. If this is a new entry, 
+    // thedate won't be present and datepicker will fall back on the default (today).
+    $(document).ready(function(){
+        $( "input:submit").button();
+        $.datepicker.setDefaults($.datepicker.regional["de"]);
+            {% if thedate %}
+        $('#id_due_date').datepicker({defaultDate: new Date({{thedate.year}}, {{thedate.month}} - 1, {{thedate.day}}), dateFormat: 'yy-mm-dd',});
+            {% else %}
+        $('#id_due_date').datepicker({defaultDate: new Date(2012, 04 - 1, 26), dateFormat: 'dd-mm-yy', });
+            {% endif %}
+
+        // Initialise the task table for drag/drop re-ordering
+        $("#tasktable").tableDnD();
+
+        $('#tasktable').tableDnD({
+            onDrop: function(table, row) {
+                order_tasks($.tableDnD.serialize());
+            }
+        });
+
+        // Initially hide the Add Task form
+        $('#AddTask').hide();
+
+        // toggle slide to show the Add Task form when link clicked
+        $('#slideToggle').click(function(){
+            $(this).siblings('#AddTask').slideToggle();
+        });
+    });
+</script>
+
+{% endblock extrahead %}

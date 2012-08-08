@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 
-        {# <script src="{{ MEDIA_URL }}js/ui.datepicker.js" type="text/javascript"></script> #}
+        {# <script src="{{ STATIC_URL }}js/ui.datepicker.js" type="text/javascript"></script> #}
         <link type="text/css" href="{{ STATIC_URL }}css/jquery-ui-1.8.19.custom.css" rel="Stylesheet" />
 
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.ui.all.css">
@@ -14,15 +14,17 @@
 
         {% block header %}{% endblock %}
 
-        {# Required for django-tod #}
+        {# Required for django-todo #}
         {% block extrahead %}{% endblock %}
     </head>
     <body>
 
         {% include "breadcrums.html" %}
 
+        <div align="center">
         {% block title %}
         {% endblock %}
+        </div>
 
         {% block content %}
         {% endblock %}
