@@ -131,7 +131,7 @@ def set_member_password(member, password=None):
 
     # Also create a apache htdigest compatible password
     username = member.user.username
-    member.apache_htdigest = create_apache_htdigest(username, password)
+    member.htdigest = create_apache_htdigest(username, password)
 
     # now update the ejabberd passwd
     if settings.USE_EJABBERD:
