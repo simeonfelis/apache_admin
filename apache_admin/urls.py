@@ -13,6 +13,8 @@ urlpatterns = patterns('apache_admin',
 
     # public stuff
     url(r'maintenance$', 'views.maintenance'),
+    url(r'login$', 'views.login_apache_admin', name='login'),
+    url(r'password_reset$', 'views.password_reset', name='password_reset'),
 
     # password protected stuff
     url(r'^$', 'views.home', name='home'),

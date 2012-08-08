@@ -11,18 +11,86 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 # project dependencies
 from apache_admin.models import Project, Share, Member, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
-from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm, ProjectAddForm, ShareAddForm
-from apache_admin.helpers import get_groups_to_render, get_shares_to_render, check_god, request_apache_reload, create_apache_htdigest, get_breadcrums, ejabberd_account_update
+from apache_admin.forms import MemberModForm, ProjectModForm, ShareModForm, UserAddForm, ProjectAddForm, ShareAddForm, LoginForm, PasswordResetForm
+from apache_admin.helpers import get_groups_to_render, get_shares_to_render, check_god, request_apache_reload, get_breadcrums, ejabberd_account_update, set_member_password, EjabberdError, create_apache_htdigest
 
 share_types = [ s[0] for s in SHARE_TYPE_CHOICES ]
+admins_emails = [ a[1] for a in settings.ADMINS ]
 
-@login_required(login_url='accounts/login')
+def login_apache_admin(request):
+
+    if request.method == "POST":
+
+        #form = LoginForm(request.POST)
+
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if not user is None:
+            if user.is_active:
+                login(request, user)
+                # user is successfully logged in
+                return HttpResponseRedirect(reverse('home'))
+            else:
+                # user is not active
+                message = _("Your account is not active any more")
+                return render_to_response('login.html',
+                        locals(),
+                        context_instance=RequestContext(request),
+                        )
+        else:
+            # invalid login
+            message = _("Username/password missmatch")
+            form = LoginForm()
+            return render_to_response('login.html',
+                    locals(),
+                    context_instance=RequestContext(request),
+                    )
+    # Handle GET request
+    form = LoginForm()
+    return render_to_response('login.html',
+            locals(),
+            context_instance=RequestContext(request),
+            )
+
+def logout(request):
+    pass
+
+def password_reset(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        if username == "":
+            form = PasswordResetForm()
+            return render_to_response('password_reset.html',
+                    locals(),
+                    context_instance=RequestContext(request),
+                    )
+        try:
+            member = Member.objects.get(user__username=username)
+            set_member_password(member)
+        except Member.DoesNotExist:
+            pass
+
+        message = _("If your username exists, the new password is sent to the given mail address.")
+        return render_to_response('password_reset.html',
+                locals(),
+                context_instance=RequestContext(request),
+                )
+
+    form = PasswordResetForm()
+    return render_to_response('password_reset.html',
+            locals(),
+            context_instance=RequestContext(request),
+            )
+
+@login_required(login_url='login')
 def home(request):
     global SHARE_TYPE_CHOICES
     global MEMBER_TYPE_CHOICES
@@ -448,7 +516,6 @@ def useradd(request):
             context_instance=RequestContext(request),
             )
 
-
 @login_required(login_url='accounts/login')
 def usermod(request, user_id):
     """
@@ -497,9 +564,6 @@ def usermod(request, user_id):
                 error = _("Changing the username is not allowed for you.")
                 return input_error(form, error)
 
-        if not new_password == "":
-            user.set_password(new_password)
-
         # Don't check uniquenes of username if it did not change
         if new_username == user.username:
             try:
@@ -515,9 +579,13 @@ def usermod(request, user_id):
 
         # Now set member data
 
-        # The apache digest (hashed password)
+        # Handle passwords
         if not new_password == "":
-            member.htdigest = create_apache_htdigest(new_username, new_password)
+            try:
+                set_member_password(member, new_password)
+            except EjabberdError as error:
+                return input_error(form, error)
+
 
         new_member_type = request.POST.get('member_type')
         if not new_member_type == member.member_type:
@@ -561,16 +629,6 @@ def usermod(request, user_id):
             for g in Group.objects.in_bulk(new_groups):
                 user.groups.add(g)
 
-        # now update the ejabberd passwd
-        if not new_password == "" and settings.USE_EJABBERD:
-            try:
-                ejabberd_account_update(user.username, new_password)
-            except Exception, e:
-                print "usermod: error ejabberd_account_update:", e
-                error = _("Error updating ejabberd account")
-                return input_error(form, error)
-
-        # OK, all data should be verified now
         user.save()
         member.save()
 

@@ -9,11 +9,21 @@ from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 # Make strings translatable
 from django.utils.translation import ugettext as _
 
 # project dependencies
 from apache_admin.models import Member, Share, Project, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
+
+admins_emails = [ a[1] for a in settings.ADMINS ]
+
+class EjabberdError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 def get_breadcrums(request):
     # Common stuff
@@ -101,6 +111,42 @@ def ejabberd_account_update(username, password):
     # if exists, change password
     else:
         subprocess.check_call([ejabberdcmd, "change-password", username, servername, password])
+
+def set_member_password(member, password=None):
+    # member must be a Member instance. At least the email and username field must exist from member.user
+    # password must be clear text string. If None, random password will be set and send by email
+    # member must be explicitly saved after this this function is called
+    if password == None:
+        import string
+        from random import sample, choice
+        chars = string.letters + string.digits
+        length = 8
+        password = ''.join(choice(chars) for _ in range(length))
+        # TODO: send mail!
+
+    # We have a cleartext password. generate the correct one
+    member.user.set_password(password)
+
+    # Also create a apache htdigest compatible password
+    username = member.user.username
+    member.apache_htdigest = create_apache_htdigest(username, password)
+
+    # now update the ejabberd passwd
+    if settings.USE_EJABBERD:
+        try:
+            ejabberd_account_update(member.user.username, password)
+        except Exception, e:
+            print "usermod: error ejabberd_account_update:", e
+            error = _("Error updating ejabberd account.")
+            ex = EjabberdError(error)
+            raise ex
+
+    request_apache_reload()
+    try:
+        mail_body = render_to_string("email/new_account.txt", {'member': member, 'password': password})
+        sent = send_mail(_("LaS3 service access granted"), mail_body, admins_emails[0], [member.user.email])
+    except Exception, e:
+        print "Error sending mail after password reset:", e
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"

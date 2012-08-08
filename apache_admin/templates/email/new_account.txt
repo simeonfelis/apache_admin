@@ -4,11 +4,11 @@ Ihr Zugang {{ member.user.username }} an unserem Server rfhete470.hs-regensburg.
 
 {{ password }}
 
-Wir empfehlen dringend ein neues Passwort zu setzen! Loggen sie sich hierfür ein unter:
+Wir empfehlen dringend ein neues Passwort zu setzen! Loggen Sie sich hierfür ein unter:
 
 https://rfhete470.hs-regensburg.de/django
 
-Über Ihre Zugangsdauer erhalten Sie einer separate E-Mail.
+Informationen über Ihre Zugangsdauer erhalten Sie einer separaten E-Mail.
 
 Viel Spaß!
 

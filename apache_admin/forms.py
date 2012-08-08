@@ -6,6 +6,26 @@ from django.utils.translation import ugettext as _
 
 from apache_admin.models import Member, Project, Share, MEMBER_TYPE_CHOICES, SHARE_TYPE_CHOICES
 
+class LoginForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+    username = forms.CharField(
+            help_text = "",
+            )
+    password = forms.CharField(
+            help_text = "",
+            widget=forms.PasswordInput(),
+            )
+
+class PasswordResetForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username', )
+    username = forms.CharField(
+            help_text = "",
+            )
+
 class ProjectAddForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectAddForm, self).__init__(*args, **kwargs)

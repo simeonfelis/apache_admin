@@ -5,12 +5,15 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
+        ('Simeon Felis', 'simeon.felis@hs-regensburg.de'),
     # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
 
-GENERATE_FOLDER = os.path.join('var', 'django', 'generated')
+DEPLOY_PATH = os.path.join('/', 'home', 'simeon', 'workspace', 'django', 'las3-django')
+
+GENERATE_FOLDER = os.path.join(DEPLOY_PATH, 'generated')
 USE_EJABBERD = True
 EJABBERD_COMMAND = "/usr/sbin/ejabberdctl-wrapper"
 EJABBERD_SERVERNAME ="las3.de"
@@ -18,7 +21,7 @@ EJABBERD_SERVERNAME ="las3.de"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/var/lab_regime/lab_regime.sqlite',                      # Or path to database file if using sqlite3.
+        'NAME': os.path.join(DEPLOY_PATH, 'las3.sqlite'),                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -54,18 +57,18 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/var/www/lab_regime/static/'
+MEDIA_ROOT = os.path.join(DEPLOY_PATH, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'http://localhost:8888/lab_regime/media/'
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/var/lab_regime/static/'
+STATIC_ROOT = os.path.join(DEPLOY_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -115,7 +118,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/home/simeon/workspace/django/lab_regime/templates/',
+    os.path.join(DEPLOY_PATH, 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -125,7 +128,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'labmember',
     'apache_admin',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
