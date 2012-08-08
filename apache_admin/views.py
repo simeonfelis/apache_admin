@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.template import Context, loader, RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
@@ -60,8 +60,9 @@ def login_apache_admin(request):
             context_instance=RequestContext(request),
             )
 
-def logout(request):
-    pass
+def logout_apache_admin(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('home'))
 
 def password_reset(request):
     if request.method == 'POST':
@@ -112,7 +113,7 @@ def home(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def info(request):
     is_god = check_god(request)
     breadcrums = get_breadcrums(request)
@@ -121,7 +122,7 @@ def info(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def overview(request, what):
     """
     This is for members of group Gods. refer to 'views.projects' for project
@@ -426,7 +427,7 @@ def emails(request, what, param, which):
     emails = ", \n".join(email_list)
     return HttpResponse("Emails for members of '" + what + "' with parameter '" + param + "':\n" + emails, mimetype = "text/plain")
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def useradd(request):
     """
     Only Gods may add users
@@ -516,7 +517,7 @@ def useradd(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def usermod(request, user_id):
     """
     Only the member himself or Gods can modify members
@@ -649,7 +650,7 @@ def usermod(request, user_id):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def projectmod(request, project_id):
     """
     Only project members can view and Gods may modify projects
@@ -703,7 +704,7 @@ def projectmod(request, project_id):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def projectadd(request):
     """
     Only Gods can add projects
@@ -734,7 +735,7 @@ def projectadd(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def projects(request):
     """
     Current projects of the logged in user. Available for every user.
@@ -750,7 +751,7 @@ def projects(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def shareadd(request):
     is_god = check_god(request)
     breadcrums = get_breadcrums(request)
@@ -777,7 +778,7 @@ def shareadd(request):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def sharemod(request, share_id):
 
     share = Share.objects.get(pk = share_id)
@@ -824,7 +825,7 @@ def sharemod(request, share_id):
             context_instance=RequestContext(request),
             )
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login')
 def delete(request, what, which):
 
     user_is_sure = False
