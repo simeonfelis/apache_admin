@@ -555,7 +555,7 @@ def usermod(request, user_id):
 
     if request.method == "POST":
 
-        if request.user.has_perm('auth.change_member'):
+        if is_god:
             pass
         else:
             if not user == request.user:
@@ -571,7 +571,7 @@ def usermod(request, user_id):
         new_username     = request.POST.get('username')
 
         if not new_username == user.username:
-            if not request.user.has_perm('auth.user.can_change_member'):
+            if not is_god:
                 error = _("Changing the username is not allowed for you.")
                 return input_error(form, error)
 
