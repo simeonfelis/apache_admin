@@ -103,7 +103,15 @@ def home(request):
             {'name': 'all', 'display': _('Beides')},
             ]
 
-    member     = Member.objects.get(user=request.user)
+    try:
+        member     = Member.objects.get(user=request.user)
+    except Member.DoesNotExist:
+        error_admin_logged_in = True
+        return render_to_response('home.html',
+                locals(),
+                context_instance=RequestContext(request),
+                )
+
     projects   = Project.objects.filter(member=member)
     is_god     = check_god(request)
     breadcrums = get_breadcrums(request)

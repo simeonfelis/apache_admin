@@ -154,8 +154,12 @@
 
     {% else %}{# member #}
 
+    {% if error_admin_logged_in %}
+    <p>You are probably logged in as different Admin user. Log out first in the <a href="{% url home %}admin">admin view</a>.</p>
+    {% else %}
     <p>Irgendwas ist schief gegangen. Evt. ist die django-Datenbank nicht synchron mit der passwd, apache hat noch nicht die neuen configs geladen oder du solltest dich unter django admin abmelden.</p>
     <p>Es kann auch sein dass du dein Passwort neu setzen musst. Benutze das las3-formular dafür (usermod/....)</p>
+    {% endif %}
 
     {% endif %}{# member #}
 
