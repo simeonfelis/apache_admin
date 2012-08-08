@@ -116,13 +116,15 @@ def set_member_password(member, password=None):
     # member must be a Member instance. At least the email and username field must exist from member.user
     # password must be clear text string. If None, random password will be set and send by email
     # member must be explicitly saved after this this function is called
+    random_set = False
     if password == None:
         import string
         from random import sample, choice
         chars = string.letters + string.digits
         length = 8
         password = ''.join(choice(chars) for _ in range(length))
-        # TODO: send mail!
+        random_set = True
+
 
     # We have a cleartext password. generate the correct one
     member.user.set_password(password)
@@ -142,11 +144,12 @@ def set_member_password(member, password=None):
             raise ex
 
     request_apache_reload()
-    try:
-        mail_body = render_to_string("email/new_account.txt", {'member': member, 'password': password})
-        sent = send_mail(_("LaS3 service access granted"), mail_body, admins_emails[0], [member.user.email])
-    except Exception, e:
-        print "Error sending mail after password reset:", e
+    if random_set:
+        try:
+            mail_body = render_to_string("email/new_account.txt", {'member': member, 'password': password})
+            sent = send_mail(_("LaS3 service access granted"), mail_body, admins_emails[0], [member.user.email])
+        except Exception, e:
+            print "Error sending mail after password reset:", e
 
 def create_apache_htdigest(username, password):
     apache_prefix = username + ":Login:"
