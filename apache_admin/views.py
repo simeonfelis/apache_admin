@@ -642,6 +642,7 @@ def usermod(request, user_id):
 
         user.save()
         member.save()
+        member.user.save()
 
         request_apache_reload()
 
