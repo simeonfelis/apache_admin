@@ -158,16 +158,13 @@ def create_apache_htdigest(username, password):
 def get_shares_to_render(typ):
     global SHARE_TYPE_CHOICES
     share_types = [s[0] for s in SHARE_TYPE_CHOICES]
-    for typ in share_types:
-        # get all shares, the project to the shares, and then create
-        # for each share a project list
-        shares = []
-        for share in Share.objects.filter(share_type__exact=typ):
-            a = {}
-            a['projects'] = Project.objects.filter(shares=share)
-            if not len(a['projects']) == 0:
-                a['share'] = share
-                shares.append(a)
+    shares = []
+    for share in Share.objects.filter(share_type__exact=typ):
+        a = {}
+        a['projects'] = Project.objects.filter(shares=share)
+        if not len(a['projects']) == 0:
+            a['share'] = share
+            shares.append(a)
 
     return shares
 
