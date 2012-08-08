@@ -76,6 +76,8 @@ def password_reset(request):
         try:
             member = Member.objects.get(user__username=username)
             set_member_password(member)
+            member.user.save()
+            member.save()
         except Member.DoesNotExist:
             pass
 
