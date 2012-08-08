@@ -1,42 +1,8 @@
 {% extends "todo/base.html" %}
 
-{# {% block title %}Todo List: {{ list.name }}{% endblock %} #}
 
 {% block content %}
 
-{% comment %}
-<script type="text/javascript">
-
-function order_tasks(data) {
-    // The JQuery plugin tableDnD provides a serialize() function which provides the re-ordered 
-    // data in a list. We pass that list as an object called "data" to a Django view 
-    // to save the re-ordered data into the database.
-
-    $.post("{% url todo-reorder_tasks %}", data, "json");
-    return false;
-};
-
-$(document).ready(function() {
-    // Initialise the task table for drag/drop re-ordering
-    $("#tasktable").tableDnD();
-    
-    $('#tasktable').tableDnD({
-        onDrop: function(table, row) {
-            order_tasks($.tableDnD.serialize());
-        }
-    });
-    
-    // Initially hide the Add Task form
-    $('#AddTask').hide();
-    
-    // toggle slide to show the Add Task form when link clicked
-    $('#slideToggle').click(function(){
-        $(this).siblings('#AddTask').slideToggle();
-    });
-});
-
-</script>
-{% endcomment %}
 
     {% if not wiki %}{# don't display this stuff in las3 wiki #}
     {% ifequal list_slug "mine" %}

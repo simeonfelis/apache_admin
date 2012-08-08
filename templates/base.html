@@ -16,6 +16,10 @@
 
         {# Required for django-todo #}
         {% block extrahead %}{% endblock %}
+        <title>
+            {% block page_heading %}
+            {% endblock %}
+        </title>
     </head>
     <body>
 

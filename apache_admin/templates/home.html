@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 
-{% block header %}
-        {% include "header_javascript.html" %}
-        <title>LaS³ Projektverwaltung</title>
-{% endblock %}
+{% block page_heading %}LaS³ - Start{% endblock %}
 
 {% block title %}
     <h1 align="center">LaS³ Projekte - Start</h1>
@@ -66,14 +63,12 @@
                 <h1>Aufgaben</h1>
 
                 <p>Aufgaben, aufgeteilt in Listen</p>
-    
-                {% comment %}
+
                 <a href="{% url todo-lists %}">Aufgabenlisten</a>
 
                 <p>Aufgaben, die dir zugewiesen wurden:</p>
 
                 <a style="white-space: nowrap;" href="{% url todo-mine %}">Meine Aufgaben</a>
-                {% endcomment %}
 
             </div>
 
