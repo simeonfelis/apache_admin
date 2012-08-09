@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Übersicht Freigaben{% endblock %}
+
+{% block header %}
+{% include "header_javascript.html" %}
+{% endblock %}
+
+{% block title %}
+    <h1>Überblick aller Freigaben</h1>
+{% endblock %}
+
+{% block content %}
+<p><a class="button" href="{% url home %}shareadd">Freigabe hinzufügen</a></p>
+
+    {% if shares %}
+    <table align="center" border="1" width="75%">
+        <tr>
+            <th>Name</th><th>Art</th><th>Zugehörige Projekte</th><th>Benutzer</th>
+        </tr>
+        {% for s in shares %}
+        <tr>
+            <td><a href="{% url home %}sharemod/{{ s.pk }}">{{ s.name }}</a></td>
+            <td>{{ s.get_share_type_display }}</td>
+            <td>
+                {% if s.project_set.all|length > 0 %}
+                    {% for p in s.project_set.all %}
+                        <a href="{% url home %}projectmod/{{ p.pk }}">{{ p.name }}</a><br />
+                    {% endfor %}
+                {% else %}
+                No projects related!
+                {% endif %}
+            </td>
+            <td>
+                {% for p in s.project_set.all %}
+                    {% for m in p.member_set.all %}
+                        <span style="whitespace:nowrap;">
+                            <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.last_name }} {{ m.user.first_name }}</a>
+                            <span style="color: gray;">({{ m.get_member_type_display }})</span>
+                        </span>
+                        <br />
+                    {% endfor %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>I cannot show you any share information at the moment</p>
+    <p>Maybe something went wrong</p>
+    {% endif %} {# shares #}
+{% endblock %}
+
+

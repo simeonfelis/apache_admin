@@ -1,0 +1,19 @@
+{% block breadcrums %}
+
+{% if breadcrums and not wiki %}
+
+<div class="las3-breadcrums">
+
+    {% for b in breadcrums %}
+    <a {% if b.god_required %}class="gods"{% endif %} href="{% url home %}{{ b.url }}">{{ b.name }}</a>
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<!-- No breadcrums available -->
+
+{% endif %}
+
+{% endblock %}

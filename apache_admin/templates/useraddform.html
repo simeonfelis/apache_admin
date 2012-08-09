@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Benutzer hinzufügen{% endblock %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Benutzer erstellen</h1>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-corner-all">Folgende Angaben waren Fehlerhaft:
+{{ error }}
+</p>
+{% endif %}
+
+<form action="{% url home %}useradd" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    <tr>
+        <td class="left">
+            <input type="submit" value="Add"/>
+        </td>
+        <td></td>
+    </table>
+</form>
+{% endblock %}

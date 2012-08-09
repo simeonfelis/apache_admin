@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Benutzerprofil bearbeiten{% endblock %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Profil von {{ form.instance.first_name }} {{ form.instance.last_name }}</h1>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-state-error">Folgende Angaben waren Fehlerhaft:<br />
+{{ error }}
+</p>
+{% endif %}
+
+{% if success %}
+<p class="ui-state-highlight">
+    Daten wurden übernommen.
+    {% if is_god %}
+    {% else %}
+        <br /> Ach ja, du bist nicht teil von 'Gods', evt. Änderungen an Projekten wurde nicht übernommen
+    {% endif %}
+</p>
+{% endif %}
+
+
+{% if created %}
+<p class="ui-state-highlight">Benutzer erstellt. Hier mehr infos angeben?</p>
+{% endif %}
+
+<form action="{% url home %}usermod/{{ form.instance.pk }}" method="POST">
+    {% csrf_token %}
+    <table>
+
+    {{ form.as_table }}
+
+    {% if is_god %}
+    <tr>
+        <td align="left">
+            <a class="button" href="{% url home %}delete/user/{{ form.instance.pk }}">Löschen</a>
+        </td>
+        <td align="right">
+            <a class="button" href="{% url home %}useradd">Neuer Benutzer</a>
+            <input type="submit" value="Ändern"/>
+        </td>
+    </tr>
+    {% else %}{# not is_god #}
+    <tr>
+        <td align="left">
+        </td>
+        <td align="right">
+            <input type="submit" value="Ändern"/>
+        </td>
+    </tr>
+    {% endif %}{# is_god #}
+    </table>
+</form>
+{% endblock %}

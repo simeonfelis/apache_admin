@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Start{% endblock %}
+
+{% block title %}
+    <h1 align="center">LaS³ Projekte - Start</h1>
+{% endblock %}
+
+{% block content %}
+
+
+    {% if member %}
+
+    <div class="las3-content">
+
+        <div class="member-welcome">
+            <h1>Hallo {{ member.user.first_name }}</h1>
+
+            <p>Hier hast du Einblick in Projekte rund ums LaS³.</p>
+            <p>Du kannst auch dein <a href="usermod/{{ member.user.pk }}">Profil ändern</a>. Schau auch mal in die <a href="{% url home %}info">info</a>.</p>
+        </div>
+
+        <div class="columns">
+
+            <div class="left">
+                <h1><a href="{% url home %}projects">Projekte</a></h1>
+
+                <p>Projekte und Freigaben von dir:</p>
+
+                {% for p in projects %}
+                <h2><a href="projectmod/{{ p.pk }}">{{ p }}</a></h2>
+
+                {% if p.members.all|length > 0 and p.pub_mem %}
+                <p>Andere Projektmitglieder: (<a href="{% url home %}emails/project/active/{{ p.pk }}">E-Mails</a>)</p>
+                <ul>
+                    {# list of all members, but don't show the visitor himself #}
+                    {% for m in p.member_set.all %}
+                        {% if m.user.id != request.user.id %}
+                            <li>
+                                {% if is_god %}
+                                <a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a>
+                                {% else %}
+                                    <a href="mailto:{{ m.user.email }}">{{ m.user.get_full_name }}</a>
+                                {% endif %}
+                                <span style="color: gray;">({{ m.get_member_type_display }})</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    {% if p.pub_mem %}
+                    <p>Keine</p>
+                    {% else %}
+                    <p>Andere Projektmitglieder nicht einsehbar</p>
+                    {% endif %}
+                {% endif %}
+
+                {% endfor %}
+            </div>
+
+            <div class="left">
+
+                <h1>Aufgaben</h1>
+
+                <p>Aufgaben, aufgeteilt in Listen</p>
+
+                <a href="{% url todo-lists %}">Aufgabenlisten</a>
+
+                <p>Aufgaben, die dir zugewiesen wurden:</p>
+
+                <a style="white-space: nowrap;" href="{% url todo-mine %}">Meine Aufgaben</a>
+
+            </div>
+
+            <div class="left">
+                <h1>Gruppen</h1>
+
+                <p>Gruppen, zu denen du gehörst</p>
+
+                <ul>
+                    {% for g in member.user.groups.all %}
+                    <li>{{ g }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="clear"></div>
+
+        </div><!-- columns -->
+
+        {% if is_god %}
+        <div class="gods">
+            <h1>Administration</h1>
+            <p>Du bist einer von 'Gods'. Walte deines Amtes.</p>
+
+            <h2>E-Mail - Adressen</h2>
+
+            <p>Hol dir die E-Mail Adressen von:</p>
+            <ul>
+                {% for s in member_status %}
+                <li><a href="{% url home %}emails/all/{{ s.name }}/0">{{ s.display }}</a> aller Bereiche</li>
+                {% endfor %}
+
+                {% for mt in member_types %}
+                <li>
+                    {% for s in member_status %} <a href="{% url home %}emails/member_type_{{ mt.0 }}/{{ s.name }}/0">{{ s.display }}</a> {% endfor %}
+                    in Member Typ {{ mt.1 }}
+                </li>
+                {% endfor %}
+
+                {% for st in share_types %}
+                <li>
+                    {% for s in member_status %} <a href="{% url home %}emails/share_type_{{ st.0 }}/{{ s.name }}/0">{{ s.display }}</a> {% endfor %}
+                    in Share Typ {{ st.1 }}
+                </li>
+                {% endfor %}
+            </ul>
+
+            <h2>Gesamtübersichten</h2>
+
+            <ul>
+                <li><a href="{% url home %}overview/members">Alle Benutzer</a></li>
+                <li><a href="{% url home %}overview/projects">Alle Projekte</a></li>
+                <li><a href="{% url home %}overview/shares">Alle Freigaben</a></li>
+                <li><a href="{% url home %}overview/groups">Alle Gruppen</a></li>
+            </ul>
+
+            <h2>Erstellen</h2>
+
+            <ul>
+                <li><a href="{% url home %}useradd">Neuer Benutzer</a></li>
+                <li><a href="{% url home %}projectadd">Neues Projekt</a></li>
+                <li><a href="{% url home %}shareadd">Neue Freigabe</a></li>
+            </ul>
+
+            <h2>Konfigurationen</h2>
+
+            <p>Einen Einblick in Konfigurationen für den Webserver, welche regelmäßig generiert werden, gibt es hier:</p>
+
+            <ul>
+                <li><a href="{% url home %}config/groups.dav">groups.dav</a></li>
+            {% for st in share_types %}
+                <li><a href="{% url home %}config/{{ st.0 }}">{{ st.1 }}</a></li>
+            {% endfor %}
+            </ul>
+
+            <p>Die Konfigurationen können auch <strong>jetzt</strong> neu <a href="{% url home %}maintenance">geschrieben</a> werden.</p>
+
+        </div><!-- gods -->
+
+    </div><!-- contents -->
+
+    {% endif %}{# is_god #}
+
+    {% else %}{# member #}
+
+    {% if error_admin_logged_in %}
+    <p>You are probably logged in as different Admin user. Log out first in the <a href="{% url home %}admin">admin view</a>.</p>
+    {% else %}
+    <p>Irgendwas ist schief gegangen. Evt. ist die django-Datenbank nicht synchron mit der passwd, apache hat noch nicht die neuen configs geladen oder du solltest dich unter django admin abmelden.</p>
+    <p>Es kann auch sein dass du dein Passwort neu setzen musst. Benutze das las3-formular dafür (usermod/....)</p>
+    {% endif %}
+
+    {% endif %}{# member #}
+
+{% endblock %}
+

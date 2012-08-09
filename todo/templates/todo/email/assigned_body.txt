@@ -1,0 +1,20 @@
+Lieber {{ task.assigned_to.first_name }} -
+
+Eine neue Aufgabe auf der List {{ task.list.name }} wurde dir von {{ task.created_by.first_name }} {{ task.created_by.last_name }} zugewiesen:
+
+{{ task.title }}
+
+{% if task.note %}
+{% autoescape off %}
+Notiz: {{ task.note }}
+{% endautoescape %}
+{% endif %}
+
+
+
+
+Aufgabendetails/Kommentare:
+https://rfhete470.hs-regensburg.de{% url todo-task_detail task.id %}
+
+List {{ task.list.name }}:
+https://rfhete470.hs-regensburg.de{% url todo-incomplete_tasks task.list.id task.list.slug %}

@@ -1,0 +1,16 @@
+Ein neuer Kommentar wurde deiner Aufgabe hinzugefügt.
+
+Aufgabe: {{ task.title }}
+Kommentator: {{ user.first_name }} {{ user.last_name }}
+
+Kommentar:
+{% autoescape off %}
+{{ body }}
+{% endautoescape %}
+
+Aufgabendetails/Kommentare:
+https://rfhete470.hs-regensburg.de{% url todo-task_detail task.id %}
+
+Liste {{ task.list.name }}:
+https://rfhete470.hs-regensburg.de{% url todo-incomplete_tasks task.list.id task.list.slug %}
+

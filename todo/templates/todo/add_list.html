@@ -1,0 +1,22 @@
+{% extends "todo/base.html" %}
+
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<h2>Add a list:</h2>
+
+<form action="" method="post">
+	{% csrf_token %}	
+<table>{{ form }}</table>
+<p><input type="submit" value="Submit" class="todo-button"></p>
+</form>
+ 
+{% endblock %}

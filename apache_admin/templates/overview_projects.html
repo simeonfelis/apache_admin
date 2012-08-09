@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Übersicht Projekte{% endblock %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Übersicht aller Projekte</h1>
+{% endblock %}
+
+{% block content %}
+
+    <p><a class="button" href="{% url home %}projectadd">Projekt hinzufügen</a></p>
+
+    {% include "projects.html" %}
+
+{% endblock %}
+

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Übersicht Gruppen{% endblock %}
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Übersicht aller Gruppen</h1>
+{% endblock %}
+
+{% block content %}
+
+    {% if groups %}
+    <ul>
+    {% for g in groups %}
+        <li>{{ g }}</li>
+        <ul>
+            {% for u in g.user_set.all %}
+                {% for m in u.member_set.all %}
+                    <li><a href="{% url home %}usermod/{{ m.user.pk }}">{{ m.user.get_full_name }}</a></li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    </ul>
+
+
+    {% else %}
+    <p>I cannot show you any groups.</p>
+    <p>Maybe something went wrong</p>
+    {% endif %}
+
+{% endblock %}
+

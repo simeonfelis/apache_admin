@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Projekt hinzufügen{% endblock %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Projekt erstellen</h1>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<p class="ui-state-error">Folgende Angaben waren Fehlerhaft:
+{{ error }}
+</p>
+{% endif %}
+
+<form action="{% url home %}projectadd" method="POST">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table>
+    <input type="submit" value="Add"/>
+</form>
+{% endblock %}

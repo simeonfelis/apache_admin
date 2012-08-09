@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block page_heading %}LaS³ - Deine Projekte{% endblock %}
+
+{% block header %}
+
+    {% include "header_javascript.html" %}
+
+{% endblock %}
+
+{% block title %}
+    <h1>Projekte bei denen du beteiligt bist</h1>
+{% endblock %}
+
+{% block content %}
+
+    {% if projects %}
+    {% include 'projects.html' %}
+    {% else %}
+    <p>Keine Projekte.</p>
+    <p>Vielleicht lief etwas schief?</p>
+    {% endif %} {# projects #}
+
+{% endblock %}
+

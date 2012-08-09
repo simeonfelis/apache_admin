@@ -1,0 +1,18 @@
+<tr>
+    <td><a href="{% url home %}usermod/{{ member.user.pk }}">{{ member.user.last_name }}</a></td>
+    <td><a href="{% url home %}usermod/{{ member.user.pk }}">{{ member.user.first_name }}</a></td>
+    <td><a href="{% url home %}usermod/{{ member.user.pk }}">{{ member.user.username }}</a></td>
+    <td>{{ member.expires }}</td>
+    <td>{{ member.get_member_type_display }}</td>
+    <td>{% for project in member.projects.all %}
+        <a href="{% url home %}projectmod/{{ project.pk }}">{{ project.name }}</a><br />
+        {% endfor %}
+    </td>
+    <td>
+        {% for project in member.projects.all %}
+            {% for share in project.shares.all %}
+                <a href="{% url home %}sharemod/{{ share.pk }}">{{ share }}</a> <br />
+            {% endfor %}
+        {% endfor %}
+    </td>
+</tr>
