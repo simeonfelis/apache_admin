@@ -61,6 +61,7 @@ in /etc/crontab add:
     *  *    * * *   root    /root/maintenance.sh > /dev/null
 
 The script /root/maintenance.sh could look like this:
+
     #!/bin/bash
 
     cd /path/to/deployment/apache/
@@ -77,7 +78,7 @@ Known issues
 
   *   Well, maybe the maintenance url should be password protected
   *   translation support is very rudimentary. You will have a mix
-      of german and english.
+      of German and English.
   *   Some URLs in templates are hard coded. You should check every template or
       grep for `regensburg` or `las3`
   *   sending emails will not work unless the sender has `regensburg` in his mail address
